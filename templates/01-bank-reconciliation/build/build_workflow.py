@@ -7,6 +7,8 @@ Deterministic generator (Python 3 standard library only):
     SOURCE = {{ $prevNode.name }}), MESSAGES restricted to recon_summary + error_notice of shared/messages.*.json,
     MAIL_PARSERS from fixtures/mail_parsers.example.json, CSV_MAPPING defaults (bank_A entry of csv_mapping.examples.json)
   * node ids are uuid5 with a fixed namespace, node names / settings / connections / sticky groups per DESIGN.md §2
+  * sticky notes: text block above the node rows (>= 48 px clearance), Config key tables in a reference row below the flow;
+    note sizes come from TEXT_SIZE (text heights measured in n8n 2.40.5 with Playwright — re-measure after editing a text)
   * asserts: every node type starts with "n8n-nodes-base.", the CLAUDE.md §1-2 secret grep matches nothing, no credentials
     block is present, every Code node's jsCode equals its source file, and the output is byte-identical across runs
 
@@ -230,10 +232,60 @@ def notify_nodes(wf, x, ys, continue_on_error):
     ]
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# sticky-note layout: the text block of every note sits ABOVE the node rows it covers, the nodes sit in the lower area
+# ----------------------------------------------------------------------------------------------------------------------
+GRID = 16                  # n8n 2.x snaps canvas positions to a 16 px grid
+TEXT_GAP = 48              # clearance between the bottom of a note's text block and the first node row (>= 40 px)
+PAD_BOTTOM = 40            # clearance below the last node row (label included)
+LABEL_OVERHANG = 48        # a node label is 192 px wide and centred on the 96 px node box
+ROW_GAP = 64               # gap between the node-row notes and the reference row (Caution + Config key tables) below
+NODE_H = 144               # node box 96 px + label (measured 123-143 px); exceptions = nodes with named outputs / inputs
+NODE_H_EXC = {'Route by Source': 208, 'Route Match Results': 176, 'Merge Notification Results': 356}
+# (width, text height) per note. The text height is the rendered height of the markdown block (+ 8 px padding top and
+# bottom + 2 px border) measured in n8n 2.40.5 with Playwright at exactly that width; re-measure after editing a text.
+TEXT_SIZE = {
+    'S1': (480, 794), 'S2': (784, 468), 'S3': (1024, 612), 'S4': (1296, 583), 'S5': (1296, 735), 'S6': (1024, 688),
+    'S2K1': (1504, 1455), 'S2K2': (1504, 1501),
+    'E1': (480, 544), 'E2': (560, 266), 'E3': (896, 362), 'E2K': (1504, 987),
+}
+
+
+def snap_down(v):
+    return (v // GRID) * GRID
+
+
+def snap_up(v):
+    return -((-v) // GRID) * GRID
+
+
 def sticky(wf, name, color, pos, width, height, ja, en):
     content = '## JA\n' + ja.strip() + '\n\n## EN\n' + en.strip() + '\n'
     return {'id': uid(wf, name), 'name': name, 'type': 'n8n-nodes-base.stickyNote', 'typeVersion': 1,
             'position': list(pos), 'parameters': {'content': content, 'height': height, 'width': width, 'color': color}}
+
+
+def group_sticky(wf, key, name, color, x, nodes, members, ja, en):
+    """Note that covers `members`: text block on top, then TEXT_GAP, then the node rows, then PAD_BOTTOM."""
+    width, text_h = TEXT_SIZE[key]
+    ns = [n for n in nodes if n['name'] in members]
+    assert len(ns) == len(members), name
+    left = min(n['position'][0] for n in ns) - LABEL_OVERHANG
+    right = max(n['position'][0] for n in ns) + 96 + LABEL_OVERHANG
+    assert x <= left and right <= x + width, '%s: nodes %d..%d outside note %d..%d' % (name, left, right, x, x + width)
+    top = snap_down(min(n['position'][1] for n in ns) - TEXT_GAP - text_h)
+    bottom = snap_up(max(n['position'][1] + NODE_H_EXC.get(n['name'], NODE_H) for n in ns) + PAD_BOTTOM)
+    return sticky(wf, name, color, (x, top), width, bottom - top, ja, en)
+
+
+def text_sticky(wf, key, name, color, pos, ja, en):
+    """Note without nodes: exactly as tall as its text (+ grid rounding)."""
+    width, text_h = TEXT_SIZE[key]
+    return sticky(wf, name, color, pos, width, snap_up(text_h + 8), ja, en)
+
+
+def bottom_of(stickies):
+    return max(s['position'][1] + s['parameters']['height'] for s in stickies)
 
 
 def connect(conns, src, dst, out_index=0, in_index=0):
@@ -252,16 +304,33 @@ def default_text(v):
     return '`' + json.dumps(v, ensure_ascii=False) + '`'
 
 
-def config_sticky_text():
+CONFIG_KEY_SPLIT = 11   # keys 1-11 (TZ .. MAIL_PARSERS) in table note 1/2, the rest (LEGAL_ENTITY_TOKENS .. SOURCE) in 2/2
+
+
+def config_intro_text():
     ja = ['### Config — 買い手が触るのは **この Config** と入力グループの **トリガー 3 ノード**だけ',
           '`REPLACE_ME_…` と `replace-me@…` を自分の値に置き換える。トークン類（Slack / Google / LINE / Chatwork）は Config に書かず n8n の Credential に登録する。',
-          'ワークフロー Settings の Error workflow に `' + ERR_NAME + '` を指定し、そのワークフロー内の Config にも同じ通知設定を入れる。', '',
-          '| キー | 既定値 | 意味 |', '|---|---|---|']
+          'ワークフロー Settings の Error workflow に `' + ERR_NAME + '` を指定し、そのワークフロー内の Config にも同じ通知設定を入れる。',
+          '`TRIGGERS_ENABLED` の 3 キー（`drive` / `gmail` / `schedule`）は `true` / `false`。`Route by Source` は `SOURCE`（トリガー名）と `TRIGGERS_ENABLED.<key>` の AND で振り分け、OFF の系統と未知の `SOURCE` は `Skip Disabled Trigger` で正常終了する。',
+          '**全キーの既定値と意味は、下の黄色い「Config キー一覧（1/2）」「（2/2）」に載せている。**']
     en = ['### Config — the buyer edits only **this Config** and the **three trigger nodes** in the Input group',
           'Replace every `REPLACE_ME_…` / `replace-me@…` with your own values. Tokens (Slack / Google / LINE / Chatwork) never go into Config; register them as n8n Credentials.',
-          'Set the workflow Settings → Error workflow to `' + ERR_NAME + '` and mirror the notification keys into that workflow\'s Config.', '',
+          'Set the workflow Settings → Error workflow to `' + ERR_NAME + '` and mirror the notification keys into that workflow\'s Config.',
+          '`TRIGGERS_ENABLED` has three booleans (`drive` / `gmail` / `schedule`). `Route by Source` routes on `SOURCE` (trigger name) AND `TRIGGERS_ENABLED.<key>`; disabled sources and unknown `SOURCE` values end in `Skip Disabled Trigger` without an error.',
+          '**Every key, its default and its meaning are listed in the yellow "Config keys (1/2)" and "(2/2)" notes below.**']
+    return '\n'.join(ja), '\n'.join(en)
+
+
+def config_keys_text(part):
+    keys = CONFIG_KEYS[:CONFIG_KEY_SPLIT] if part == 1 else CONFIG_KEYS[CONFIG_KEY_SPLIT:]
+    first, last = keys[0][0], keys[-1][0]
+    ja = ['### Config キー一覧（%d/2）— `%s` 〜 `%s`' % (part, first, last),
+          '既定値と意味。順序は `Config` ノード（上の黄色グループ）の JSON と同じ。', '',
+          '| キー | 既定値 | 意味 |', '|---|---|---|']
+    en = ['### Config keys (%d/2) — `%s` … `%s`' % (part, first, last),
+          'Defaults and meaning, in the order of the `Config` node JSON (yellow group above).', '',
           '| Key | Default | Meaning |', '|---|---|---|']
-    for key, default, mja, men in CONFIG_KEYS:
+    for key, default, mja, men in keys:
         if key == 'MESSAGES':
             d = '（`shared/messages.ja.json` / `messages.en.json`）'
         elif key == 'SOURCE':
@@ -270,10 +339,6 @@ def config_sticky_text():
             d = default_text(default)
         ja.append('| `%s` | %s | %s |' % (key, d, mja))
         en.append('| `%s` | %s | %s |' % (key, d, men))
-    ja.append('')
-    ja.append('`TRIGGERS_ENABLED` の 3 キー（`drive` / `gmail` / `schedule`）は `true` / `false`。`Route by Source` は `SOURCE`（トリガー名）と `TRIGGERS_ENABLED.<key>` の AND で振り分け、OFF の系統と未知の `SOURCE` は `Skip Disabled Trigger` で正常終了する。')
-    en.append('')
-    en.append('`TRIGGERS_ENABLED` has three booleans (`drive` / `gmail` / `schedule`). `Route by Source` routes on `SOURCE` (trigger name) AND `TRIGGERS_ENABLED.<key>`; disabled sources and unknown `SOURCE` values end in `Skip Disabled Trigger` without an error.')
     return '\n'.join(ja), '\n'.join(en)
 
 
@@ -324,14 +389,16 @@ S5_JA = """### 出力 — シート更新と通知
 - 通知チャネルは Config `NOTIFY_CHANNELS`（`slack` / `email` / `line` / `chatwork`）で ON／OFF。`Check … Enabled` が false のチャネルは実行されない
 - Credential：`Notify Slack` は Slack の Credential、`Notify Email` は Gmail OAuth2、`Notify LINE` は Header Auth Credential **`LINE Messaging API`**（ヘッダ名 `Authorization`、値は `Bearer ` の後にチャネルアクセストークン）、`Notify Chatwork` は Header Auth Credential **`Chatwork API`**（ヘッダ名 `X-ChatWorkToken`、値は API トークン）。各ノードで選択する
 - LINE／Chatwork の URL は Config `LINE_API_URL` / `CHATWORK_API_BASE_URL` から読む（API をプロキシ経由にする場合以外は変更しない）
-- **通知は設定した全チャネルを試し、全チャネルが失敗したときだけ** `Check Notification Results` が実行を失敗させて Error Workflow に回す。一部失敗は `Check Notification Results` の出力（`channels_failed`）と実行ログで分かる"""
+- **通知は設定した全チャネルを試し、全チャネルが失敗したときだけ** `Check Notification Results` が実行を失敗させて Error Workflow に回す。一部失敗は `Check Notification Results` の出力（`channels_failed`）と実行ログで分かる
+- **使わないチャネルの `Notify …` ノードは無効化（右クリック → Deactivate）するか Credential を選ぶ。** 有効化（Publish）時に n8n は有効な全ノードの Credential を検証するため、未設定のままでは `Missing required credential` で有効化できない。無効化したノードは入力をそのまま通すので、そのチャネルを `NOTIFY_CHANNELS` に残すと `Check Notification Results` が「失敗チャネル」（`notify node disabled or not executed`）として数える。無効化したチャネルは `NOTIFY_CHANNELS` からも外す"""
 S5_EN = """### Output — sheet writes and notifications
 - `Update Invoices`: Append or Update on `invoices` matched by `invoice_id` (`status` / `paid_amount` / `paid_date` / `matched_txn_ids` / `match_confidence` / `fee_deducted`). `Upsert Transactions`: Append or Update on `transactions` matched by `txn_id`. Both use **Cell Format: Let n8n format** (strings stay strings) and ignore extra fields (`_kind`). **Sheets are written before the notification**, so a re-run after a failed notification safely skips everything
 - `Build Notification` (Code): builds the summary (processed N / auto-matched A / needs review B / unmatched C) and detail lines from `MESSAGES[LANG].recon_summary`. Drive / Gmail runs always notify; schedule runs only when something changed or an intake warning exists
 - Channels are switched on in Config `NOTIFY_CHANNELS` (`slack` / `email` / `line` / `chatwork`); a channel whose `Check … Enabled` is false never runs
 - Credentials: `Notify Slack` uses your Slack credential, `Notify Email` Gmail OAuth2, `Notify LINE` a Header Auth credential named **`LINE Messaging API`** (header `Authorization`, value `Bearer ` followed by the channel access token), `Notify Chatwork` a Header Auth credential named **`Chatwork API`** (header `X-ChatWorkToken`, value = the API token). Select them in each node
 - LINE / Chatwork URLs come from Config `LINE_API_URL` / `CHATWORK_API_BASE_URL` (do not change unless you proxy the API)
-- **Every configured channel is attempted; only when all of them fail** does `Check Notification Results` fail the run and hand it to the Error Workflow. A partial failure shows in that node's output (`channels_failed`) and in the execution log"""
+- **Every configured channel is attempted; only when all of them fail** does `Check Notification Results` fail the run and hand it to the Error Workflow. A partial failure shows in that node's output (`channels_failed`) and in the execution log
+- **Disable the `Notify …` nodes of channels you do not use (right-click → Deactivate) or assign a credential.** Publishing validates the credentials of every enabled node, so an unassigned node blocks activation with `Missing required credential`. A disabled node passes its input through unchanged, so a channel that stays in `NOTIFY_CHANNELS` while its node is disabled is reported by `Check Notification Results` as a failed channel (`notify node disabled or not executed`); remove disabled channels from `NOTIFY_CHANNELS` too"""
 
 S6_JA = """### 注意 — 導入前に必ず読む
 - **振込名義はカナで届く。** `invoices.payer_name_alias` に振込名義（カナ、カンマ区切り）を入れないと自動消込率が大きく落ちる。漢字の `customer_name` だけでは一致しない
@@ -339,6 +406,7 @@ S6_JA = """### 注意 — 導入前に必ず読む
 - **銀行 CSV は月をまたぐと形式が変わる**ことがある（見出し行の有無・説明行）。`CSV_MAPPING.skip_rows` と列見出しを見直す
 - **曖昧・未消込は自動確定しない。** シートの `invoices.status` / `paid_amount` と `transactions.status`（`matched` か `ignored`）を人が直す。`ignored` は再突合の対象外
 - **Error Workflow の設定**：Settings → Error workflow に `""" + ERR_NAME + """` を選ぶ → 保存 → 本体を有効化（Activate）。Error Trigger は自動実行でしか発火しない。Error Workflow 側の Config にも通知設定を入れる
+- **Error Workflow 自身も有効化（Publish）する。** n8n 2.40.5 では有効化されていない Error Workflow は呼び出されない（ログに `is not active and cannot be executed`）。有効化には Error Workflow 側の `Notify …` でも Credential を選ぶか、使わないチャネルのノードを無効化する必要がある
 - 設定は Config だけでは足りない 3 か所：`Watch Drive Folder`（フォルダ）、`Watch Gmail Inbox`（検索式）、`Run Daily Rematch`（時刻）
 - 通貨は JPY のみ。`transactions` は毎回全件読むので 1 万行を超えたら年次でシートを分ける"""
 S6_EN = """### Caution — read before going live
@@ -347,19 +415,30 @@ S6_EN = """### Caution — read before going live
 - **Bank CSV layouts drift between months** (header row present or not, extra description lines): review `CSV_MAPPING.skip_rows` and the column headers
 - **Ambiguous and unmatched rows are never auto-confirmed.** Fix `invoices.status` / `paid_amount` and `transactions.status` (`matched` or `ignored`) by hand; `ignored` rows are excluded from re-matching
 - **Error Workflow setup**: Settings → Error workflow → select `""" + ERR_NAME + """` → save → activate this workflow. The Error Trigger only fires for automatic runs. Mirror the notification keys into the error workflow's Config
+- **Publish (activate) the Error Workflow itself as well.** n8n 2.40.5 does not invoke an Error Workflow that is not active (log: `is not active and cannot be executed`). To activate it, select credentials in its `Notify …` nodes too, or disable the nodes of channels you do not use
 - Three settings live outside Config: `Watch Drive Folder` (folder), `Watch Gmail Inbox` (search), `Run Daily Rematch` (time)
 - JPY only. `transactions` is read in full on every run; split the sheet yearly beyond ~10,000 rows"""
 
 E1_JA = """### 入力 — Error Trigger
-本体 `""" + MAIN_NAME + """` の Settings → Error workflow にこのワークフローを指定する。Error Trigger は本体が**自動実行で失敗したとき**だけ発火する（手動実行では発火しない）。このワークフロー自身の Error workflow 設定は空のままにする（無限ループ防止）。"""
+本体 `""" + MAIN_NAME + """` の Settings → Error workflow にこのワークフローを指定する。Error Trigger は本体が**自動実行で失敗したとき**だけ発火する（手動実行では発火しない）。このワークフロー自身の Error workflow 設定は空のままにする（無限ループ防止）。
+**このワークフロー自身も有効化（Publish）する。** 有効化されていない Error Workflow は呼び出されない（n8n 2.40.5 実測）。有効化時に `Notify …` 4 ノードの Credential が検証されるので、使わないチャネルのノードは無効化（右クリック → Deactivate）し、`NOTIFY_CHANNELS` からも外す。"""
 E1_EN = """### Input — Error Trigger
-Select this workflow in Settings → Error workflow of `""" + MAIN_NAME + """`. The Error Trigger fires only when the main workflow **fails in an automatic run** (never for manual runs). Leave this workflow's own Error workflow setting empty (no loops)."""
+Select this workflow in Settings → Error workflow of `""" + MAIN_NAME + """`. The Error Trigger fires only when the main workflow **fails in an automatic run** (never for manual runs). Leave this workflow's own Error workflow setting empty (no loops).
+**Publish (activate) this workflow as well.** An Error Workflow that is not active is never invoked (measured in n8n 2.40.5). Activation validates the credentials of the four `Notify …` nodes, so disable the nodes of channels you do not use (right-click → Deactivate) and remove them from `NOTIFY_CHANNELS`."""
 
 
-def error_config_sticky_text():
+def error_config_intro_text():
+    ja = ['### Config — 通知に必要なキーだけ（本体の Config は参照できないため同じ値をここにも入れる）',
+          '**キーの既定値と意味は、下の黄色い「Config キー一覧」に載せている。**']
+    en = ['### Config — only the notification keys (the main Config is not reachable, so mirror the values here)',
+          '**Every key, its default and its meaning are listed in the yellow "Config keys" note below.**']
+    return '\n'.join(ja), '\n'.join(en)
+
+
+def error_config_keys_text():
     keys = {k: (d, ja, en) for k, d, ja, en in CONFIG_KEYS}
-    ja = ['### Config — 通知に必要なキーだけ（本体の Config は参照できないため同じ値をここにも入れる）', '', '| キー | 既定値 | 意味 |', '|---|---|---|']
-    en = ['### Config — only the notification keys (the main Config is not reachable, so mirror the values here)', '', '| Key | Default | Meaning |', '|---|---|---|']
+    ja = ['### Config キー一覧 — 本体の Config と同じ値を入れる', '', '| キー | 既定値 | 意味 |', '|---|---|---|']
+    en = ['### Config keys — mirror the values of the main Config', '', '| Key | Default | Meaning |', '|---|---|---|']
     for k in ERR_CONFIG_KEYS:
         d, mja, men = keys[k]
         ja.append('| `%s` | %s | %s |' % (k, default_text(d), mja))
@@ -487,16 +566,27 @@ def build_main():
         connect(conns, n['name'], 'Merge Notification Results', 1, 4 + i)    # error output → inputs 5–8
     connect(conns, 'Merge Notification Results', 'Check Notification Results')
 
-    # --- sticky notes (DESIGN §2.4) ---
-    cfg_ja, cfg_en = config_sticky_text()
+    # --- sticky notes (DESIGN §2.4): text above the node rows; Caution + Config key tables in a reference row below ---
+    cfg_ja, cfg_en = config_intro_text()
+    k1_ja, k1_en = config_keys_text(1)
+    k2_ja, k2_en = config_keys_text(2)
     stickies = [
-        sticky(wf, 'Sticky Note S1 Input', BLUE, (-60, -120), 320, 1100, S1_JA, S1_EN),
-        sticky(wf, 'Sticky Note S2 Config', YELLOW, (280, -120), 780, 2900, cfg_ja, cfg_en),
-        sticky(wf, 'Sticky Note S3 Intake', BLUE, (1080, -320), 1020, 1100, S3_JA, S3_EN),
-        sticky(wf, 'Sticky Note S4 Matching', YELLOW, (2120, -120), 1300, 1200, S4_JA, S4_EN),
-        sticky(wf, 'Sticky Note S5 Output', GREEN, (3440, -120), 1300, 1400, S5_JA, S5_EN),
-        sticky(wf, 'Sticky Note S6 Caution', RED, (1080, 800), 1020, 900, S6_JA, S6_EN),
+        group_sticky(wf, 'S1', 'Sticky Note S1 Input', BLUE, -256, nodes, ['Watch Drive Folder', 'Watch Gmail Inbox', 'Run Daily Rematch'], S1_JA, S1_EN),
+        group_sticky(wf, 'S2', 'Sticky Note S2 Config', YELLOW, 240, nodes, ['Config', 'Route by Source', 'Skip Disabled Trigger'], cfg_ja, cfg_en),
+        group_sticky(wf, 'S3', 'Sticky Note S3 Intake', BLUE, 1040, nodes,
+                     ['Check File Is CSV', 'Skip Non-CSV File', 'Download File', 'Parse Bank CSV', 'Parse Mail', 'Collect Transactions'], S3_JA, S3_EN),
+        group_sticky(wf, 'S4', 'Sticky Note S4 Matching', YELLOW, 2080, nodes,
+                     ['Read Invoices', 'Read Transactions', 'Normalize Payer', 'Match Invoices', 'Route Match Results'], S4_JA, S4_EN),
+        group_sticky(wf, 'S5', 'Sticky Note S5 Output', GREEN, 3408, nodes,
+                     ['Update Invoices', 'Upsert Transactions', 'Build Notification'] + [i for i, _c in ifs] + [n['name'] for n in notifies]
+                     + ['Merge Notification Results', 'Check Notification Results'], S5_JA, S5_EN),
     ]
+    row2 = bottom_of(stickies) + ROW_GAP
+    stickies.append(text_sticky(wf, 'S6', 'Sticky Note S6 Caution', RED, (-256, row2), S6_JA, S6_EN))
+    x = -256 + TEXT_SIZE['S6'][0] + 32
+    stickies.append(text_sticky(wf, 'S2K1', 'Sticky Note S2 Config Keys 1', YELLOW, (x, row2), k1_ja, k1_en))
+    x += TEXT_SIZE['S2K1'][0] + 32
+    stickies.append(text_sticky(wf, 'S2K2', 'Sticky Note S2 Config Keys 2', YELLOW, (x, row2), k2_ja, k2_en))
     return {'name': wf, 'nodes': stickies + nodes, 'connections': conns, 'settings': dict(SETTINGS)}
 
 
@@ -522,12 +612,15 @@ def build_error():
         connect(conns, 'Build Error Message', name)
     for (name, _ch), n in zip(ifs, notifies):
         connect(conns, name, n['name'], 0)
-    cfg_ja, cfg_en = error_config_sticky_text()
+    cfg_ja, cfg_en = error_config_intro_text()
+    k_ja, k_en = error_config_keys_text()
     stickies = [
-        sticky(wf, 'Sticky Note E1 Input', BLUE, (-60, 180), 320, 480, E1_JA, E1_EN),
-        sticky(wf, 'Sticky Note E2 Config', YELLOW, (280, 180), 560, 1500, cfg_ja, cfg_en),
-        sticky(wf, 'Sticky Note E3 Output', GREEN, (860, -120), 900, 1000, E3_JA, E3_EN),
+        group_sticky(wf, 'E1', 'Sticky Note E1 Input', BLUE, -256, nodes, ['Catch Workflow Error'], E1_JA, E1_EN),
+        group_sticky(wf, 'E2', 'Sticky Note E2 Config', YELLOW, 240, nodes, ['Config'], cfg_ja, cfg_en),
+        group_sticky(wf, 'E3', 'Sticky Note E3 Output', GREEN, 848, nodes,
+                     ['Build Error Message'] + [i for i, _c in ifs] + [n['name'] for n in notifies], E3_JA, E3_EN),
     ]
+    stickies.append(text_sticky(wf, 'E2K', 'Sticky Note E2 Config Keys', YELLOW, (240, bottom_of(stickies) + ROW_GAP), k_ja, k_en))
     return {'name': wf, 'nodes': stickies + nodes, 'connections': conns, 'settings': dict(SETTINGS)}
 
 

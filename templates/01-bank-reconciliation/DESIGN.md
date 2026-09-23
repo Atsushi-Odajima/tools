@@ -142,6 +142,8 @@ flowchart TD
 - Error Workflow は本体の `Config` を参照できないため、通知に必要なキーだけを持つ自前の `Config` を置く（同じ値を2か所に書く。SETUP で明記）。
 - Error Workflow 自身の Error workflow 設定は空にする（無限ループ防止）。Error Workflow 内の Notify ノードは On Error = Stop のまま（ここで失敗しても次の受け皿は無い）。
 - Error Trigger は手動実行では発火しない（公式ドキュメント）。P3 では本体を「有効化して自動実行」させ、`Read Invoices` の Sheet ID を壊す等で意図的に失敗させて確認する。
+- **Error Workflow 自身も有効化（Publish）されていなければ呼び出されない**（n8n 2.40.5 実測、P3 g3 所見 1、`ASSUMPTIONS.md` A35）。`workflow-execution.service.js` の `loadErrorWorkflowData` は published data が無いと `Calling Error Workflow for "…". Workflow "…" is not active and cannot be executed` をログに出して `null` を返す。公式ドキュメント（Error Trigger）は「公開不要」と読めるが、実測では必要。SETUP §4 に「Credential を選んでから Error Handler を Publish」を書く。
+- **有効化（Publish）時に n8n は接続済みの有効ノード全部の Credential を検証する**（`Cannot publish workflow: … Missing required credential: slackApi / gmailOAuth2`。無効化（disabled）したノードだけが検証対象外。A36）。買い手が使わないチャネルの `Notify …` ノードは、本体・Error Workflow の両方で無効化（右クリック → Deactivate）するか Credential を割り当てる。出荷時は 4 ノードとも有効のまま（D34：有効化時に大声で失敗させる）。
 
 ### 2.3 ノード一覧（型 ID・役割・主要設定）
 
@@ -178,8 +180,8 @@ flowchart TD
 | 27 | Notify LINE | `n8n-nodes-base.httpRequest` | LINE Messaging API push | POST `https://api.line.me/v2/bot/message/push`、Authentication: Generic → Header Auth（Credential 名 `LINE Messaging API`）、Body: JSON `{ "to": LINE_TO_USER_ID, "messages": [{ "type": "text", "text": {{ $json.line_text }} }] }`（`line_text` は §6.8 で 4,900 文字に切った本文。`body_text` は使わない）、Retry 3回・2000ms、Timeout 10000ms、On Error: Continue (using error output) | 緑 |
 | 28 | Notify Chatwork | `n8n-nodes-base.httpRequest` | Chatwork API | POST `https://api.chatwork.com/v2/rooms/{{ …CHATWORK_ROOM_ID }}/messages`、Header Auth（Credential 名 `Chatwork API`、ヘッダ名 `X-ChatWorkToken`）、Body: Form URL-encoded `body={{ $json.chatwork_text }}`、Retry 3回、On Error: Continue (using error output) | 緑 |
 | 29 | Merge Notification Results | `n8n-nodes-base.merge` | 4 つの Notify の成功出力と error 出力（計 8 本）を 1 つにまとめる | Mode: Append、Number of Inputs: 8（入力 1〜4 = 25〜28 の main[0]、入力 5〜8 = 25〜28 の main[1]） | 緑 |
-| 30 | Check Notification Results | `n8n-nodes-base.code` | 試行したチャネルが**全て**失敗したときだけ `throw` → Error Workflow。一部失敗は出力に残して実行は成功 | Run Once for All Items（§6.10） | 緑 |
-| 31〜 | Sticky Note ×6 | `n8n-nodes-base.stickyNote` | 日英併記の説明 | §2.4 | — |
+| 30 | Check Notification Results | `n8n-nodes-base.code` | 試行したチャネルが**全て**失敗したときだけ `throw` → Error Workflow。一部失敗は出力に残して実行は成功。**無効化された Notify ノードを素通りしたペイロード**（`json.error` 無し・チャネル応答マーカー無しで `title`/`body_text` 等を持つアイテム）も失敗チャネルに数える（D34） | Run Once for All Items（§6.10） | 緑 |
+| 31〜 | Sticky Note ×8 | `n8n-nodes-base.stickyNote` | 日英併記の説明 | §2.4 | — |
 | E1 | Catch Workflow Error | `n8n-nodes-base.errorTrigger` | Error Workflow の起点 | — | 青 |
 | E2 | Config | `n8n-nodes-base.set` | 通知用の最小 Config | JSON Output | 黄 |
 | E3 | Build Error Message | `n8n-nodes-base.code` | §6.9 | Run Once for All Items | 緑 |
@@ -187,16 +189,18 @@ flowchart TD
 
 LINE／Chatwork のエンドポイントは仕様 §4.3 の記載。**§1-4 により P2 で公式ドキュメントを WebFetch して URL・フィールド名・文字数上限を確認し、`ASSUMPTIONS.md` に URL と確認日を記録してから実装する。**
 
+#25〜30 の補足（P3 g3 所見 2、D34、A36）：4 つの `Notify …` ノードは Credential ブロック無しで出荷し、**4 ノードとも有効（enabled）のまま**にする。n8n 2.40.5 は Publish 時に有効な全ノードの Credential を検証するため、使わないチャネルのノードは買い手が無効化（右クリック → Deactivate）するか Credential を選ぶ必要がある（本体・Error Workflow とも）。無効化したノードは入力アイテムをそのまま main 出力に通すので、そのチャネルを `NOTIFY_CHANNELS` に残すと Build Notification のペイロードが #29 Merge に届く。#30 はこれを「送信済み」と誤認せず、`notify node disabled or not executed (payload passed through)` として失敗チャネルに数える（そのチャネルしか無ければ `throw` → Error Workflow）。
+
 ### 2.4 Sticky Note グループと色
 
 | Sticky | 色 | 覆うノード | 内容（## JA → ## EN の順） |
 |---|---|---|---|
 | S1 入力 | 青 | 1〜3 | 3系統のトリガー。**トリガーの中に設定する値（フォルダ・検索式・時刻）**は Config の `DRIVE_FOLDER_ID` / `GMAIL_QUERY` / `RUN_AT` と同じ値にする理由。`TRIGGERS_ENABLED` で OFF にした系統は `Route by Source` で落ちるだけで**トリガーノード自体のポーリング（API 呼出し）は続く**。呼出しも止めたいときはそのトリガーノードを無効化（Deactivate）する。トリガー名を変えたら `Route by Source` も直す |
-| S2 Config | 黄 | 4〜6 | 各キーの意味（§4 の表を要約。`TRIGGERS_ENABLED` の 3 キーを含む）。「買い手が触るのはここと S1 の3ノードだけ」 |
+| S2 Config | 黄 | 4〜6 | 概要と `TRIGGERS_ENABLED` の 3 キーの説明。「買い手が触るのはここと S1 の3ノードだけ」。§4 の表は下段の黄色い付箋 2 枚「Config キー一覧（1/2）（2/2）」に分けて載せる（ノードは覆わない） |
 | S3 取込 | 青 | 7〜12 | Shift_JIS の扱い（Code ノードで復号）、`CSV_MAPPING`、`MAIL_PARSERS` の調整方法（正本は `fixtures/mail_parsers.example.json`）、非 CSV は skip |
 | S4 突合 | 黄 | 13〜17 | 名義正規化は `Normalize Payer` だけで行う（`txn_id` の定義箇所）。規則 1〜5 の要約と「自動確定は 1・2・3a・3b・3c のみ」。`currency` が JPY でない請求は対象外にして警告 |
 | S5 出力 | 緑 | 18〜30 | シート更新の列（Cell Format: Let n8n format）、通知チャネルの ON/OFF、Credential 名、「通知は設定した全チャネルを試し、全滅したときだけ Error Workflow」 |
-| S6 注意 | 赤 | （余白） | `payer_name_alias` 必須級、同姓同名、CSV 形式の月次変化と `skip_rows`、Error Workflow の設定手順 |
+| S6 注意 | 赤 | （下段、ノードは覆わない） | `payer_name_alias` 必須級、同姓同名、CSV 形式の月次変化と `skip_rows`、Error Workflow の設定手順 |
 
 n8n の Sticky Note `color` は 1〜7 の番号。**番号と色の対応（黄・青・緑・赤）は P2 で実機で確認**して `workflow.json` に反映する。
 
@@ -206,7 +210,7 @@ n8n の Sticky Note `color` は 1〜7 の番号。**番号と色の対応（黄�
 |---|---|---|---|---|
 | Read Invoices / Read Transactions | ON | ON（空シートでも後段を止めない） | 3回・2000ms | Stop |
 | Update Invoices / Upsert Transactions | OFF（全アイテム処理） | OFF | 3回・2000ms | Stop（副作用があるので Continue にしない）。Options → **Cell Format: Let n8n format** |
-| Notify Slack / Email / LINE / Chatwork | OFF | OFF | 3回・2000ms | **Continue (using error output)**。成功・失敗とも 29 Merge へ |
+| Notify Slack / Email / LINE / Chatwork | OFF | OFF | 3回・2000ms | **Continue (using error output)**。成功・失敗とも 29 Merge へ。出荷時は 4 ノードとも有効。買い手が使わないチャネルは**ノードを無効化**（disabled）して `NOTIFY_CHANNELS` からも外す（無効化ノードは入力をそのまま通す。D34） |
 | Merge Notification Results | — | OFF | なし | Stop |
 | Check Notification Results | — | OFF | なし | Stop（全チャネル失敗のときだけ自ら throw → Error Workflow） |
 | Code ノード（上記以外） | — | OFF | なし | Stop（バグは大声で失敗させる） |
@@ -1031,18 +1035,29 @@ return [{ json: { title, body_text,
 ```js
 // 入力 = 4 つの Notify ノードの成功出力と error 出力を Merge（Append, 8 入力）したもの。
 // Build Notification は常に 1 アイテムを出すので、各 Notify は成功か失敗のどちらか一方の出力に 1 アイテムを出す。
-// error 出力のアイテムは json.error（メッセージを含むオブジェクト）を持つ（n8n の Continue (using error output) の形。P2 で実測して確定）
-const items = $input.all().map((i) => i.json);
-const failed = items.filter((j) => j.error !== undefined && j.error !== null);
-const ok = items.length - failed.length;
-const messages = failed.map((j) => (typeof j.error === 'string' ? j.error : (j.error.message || JSON.stringify(j.error))));
-if (items.length > 0 && ok === 0) {
+// error 出力のアイテムは json.error を持つ（HTTP Request v4.5 は { message, name, stack } のオブジェクト、Slack / Gmail はメッセージ文字列。P2 実測）。
+// 無効化（disabled）された Notify ノードは入力をそのまま main 出力に通す（P3 実測、D34）：json.error が無く、チャネル応答のマーカーも無く、
+// Build Notification のペイロード（title + body_text、または slack_blocks / line_text / chatwork_text）だけを持つアイテムになる。
+// 成功アイテムはチャネルの API 応答：Slack { ok, ts, channel, message }、Gmail { id, threadId, labelIds }、LINE {} または { sentMessages }、Chatwork { message_id }。
+const inputs = $input.all().map((i) => i.json);
+const has = (j, k) => Object.prototype.hasOwnProperty.call(j, k);
+const isError = (j) => j.error !== undefined && j.error !== null;
+const isPassThrough = (j) => !isError(j)
+  && ((has(j, 'title') && has(j, 'body_text')) || ['slack_blocks', 'line_text', 'chatwork_text'].some((k) => has(j, k)))
+  && !['ok', 'ts', 'channel', 'id', 'threadId', 'labelIds', 'sentMessages', 'message_id'].some((k) => has(j, k));
+const PASS_THROUGH_MSG = 'notify node disabled or not executed (payload passed through)';
+const failed = inputs.filter((j) => isError(j) || isPassThrough(j));
+const ok = inputs.length - failed.length;
+const messages = failed.map((j) => (isError(j) ? (typeof j.error === 'string' ? j.error : (j.error.message || JSON.stringify(j.error))) : PASS_THROUGH_MSG));
+if (inputs.length > 0 && ok === 0) {
   throw new Error(`All notification channels failed (${failed.length}): ${messages.join(' / ')}`);   // 仕様 §4.3：全チャネル失敗時は Error Workflow へ
 }
-return [{ json: { channels_attempted: items.length, channels_ok: ok, channels_failed: failed.length, errors: messages }, pairedItem: { item: 0 } }];
+return [{ json: { channels_attempted: inputs.length, channels_ok: ok, channels_failed: failed.length, errors: messages }, pairedItem: { item: 0 } }];
 ```
 
 NOTIFY_CHANNELS が `[]` のときは Notify ノードが 1 つも実行されず Merge にデータが来ないため、このノードは実行されない（正常）。一部失敗はこの出力と実行ログに残り、実行自体は成功扱い。シートは書込み済みなので再実行は全件 skip で安全（§8.2）。
+
+**素通り（pass-through）の扱い（D34）**：買い手が使わないチャネルの `Notify …` ノードを無効化したまま `NOTIFY_CHANNELS` に残すと、無効化ノードは入力をそのまま通すので、Build Notification のペイロードが「送信結果」として Merge に届く。旧実装（`json.error` の有無だけで判定）はこれを成功に数え、通知が届いていないのに実行が成功していた（黙った未配信）。現行実装はペイロードのキーを持ちチャネル応答のマーカーを持たないアイテムを失敗に数え、`errors` に `notify node disabled or not executed (payload passed through)` を出す。実測（`tests/SMOKE-p3-followup.md`）：`NOTIFY_CHANNELS = ["email","line"]` で `Notify Email` を無効化 → `{ attempted 2, ok 1, failed 1, errors ["notify node disabled …"] }` で成功、`["email"]` のみ → `All notification channels failed (1): notify node disabled …` で実行失敗（Error Workflow へ）。単体シナリオ `check_notification_results/pass_through_*`。
 
 ---
 
@@ -1078,7 +1093,8 @@ NOTIFY_CHANNELS が `[]` のときは Notify ノードが 1 つも実行され�
 - **`TRIGGERS_ENABLED` で OFF にしてもトリガーのポーリングは止まらない**。OFF の系統は `Route by Source` で捨てられるだけで、Drive／Gmail API の呼出しは続く。呼出しも止めるにはそのトリガーノードを無効化（Deactivate）する。
 - **通貨は JPY のみ**。`invoices.currency` が JPY 以外の行は突合されず、通知の「警告」に `non_jpy_invoice` として出る（毎朝の再突合では通知の理由にならない）。
 - **曖昧・未消込は人が確定する**：シートの `status` と `paid_amount` を手で直し、`transactions.status` を `matched` か `ignored` にする。`ignored` は再突合の対象外。
-- **Error Workflow はワークフロー Settings で指定**しないと動かない。指定後は本体を有効化（自動実行）しないと Error Trigger は発火しない。
+- **Error Workflow はワークフロー Settings で指定**しないと動かない。指定後は本体を有効化（自動実行）しないと Error Trigger は発火しない。**Error Workflow 自身も Publish が必要**（有効化されていないと n8n 2.40.5 は呼び出さない。A35）。
+- **使わない通知チャネルの `Notify …` ノードは無効化するか Credential を選ぶ**（本体・Error Workflow の両方）。Publish 時に有効な全ノードの Credential が検証され、未設定だと `Missing required credential` で Publish できない（A36）。無効化したチャネルは `NOTIFY_CHANNELS` からも外す。残すと `Check Notification Results` が失敗チャネル（`notify node disabled or not executed`）として数え、それしか無ければ実行が失敗する（D34）。
 - シートの数値列は「書式なしテキスト」または数値のまま。通貨書式でも `Values (unformatted)` で読めるが、日付列を日付型にするとロケール表示（`2026/09/30`）で返る。01 は日付を並び替えにしか使わないが、03 と共有するため `yyyy-MM-dd` の文字列で運用する。
 - `transactions` は毎回全件読む。1 万行を超えたら年次でシートを分ける。
 
@@ -1089,6 +1105,7 @@ NOTIFY_CHANNELS が `[]` のときは Notify ノードが 1 つも実行され�
 - 再突合は Schedule 経路だけ。CSV／メール実行では過去の未消込を触らない（通知が混ざるのを避ける）。
 - 通知は設定した全チャネルを試し、**全チャネルが失敗したときだけ** `Check Notification Results` が実行を失敗させて Error Workflow へ回す（D17、仕様 §4.3）。一部失敗は `Check Notification Results` の出力（`channels_failed`）と実行ログで分かる。シートは書込み済みのため再実行は安全（全件 skip）。
 - n8n では error 出力が配線されたノードの失敗は「処理済み」扱いになり、Error Workflow は起動しない。全滅時に Error Workflow を起動させるのは `Check Notification Results` の `throw` である。
+- 無効化（disabled）された `Notify …` ノードは失敗せず入力をそのまま通す。`Check Notification Results` はペイロードの素通りを失敗チャネルに数える（D34）ので、`NOTIFY_CHANNELS` に残した無効化チャネルは「一部失敗」（他に成功があれば実行は成功）か「全滅」（それだけなら実行失敗 → Error Workflow）になる。
 - `Update Invoices` が成功して `Upsert Transactions` が失敗した場合（再実行を Error Workflow が案内する）、再実行時に `transactions` に `txn_id` が無くても、請求の `matched_txn_ids` に記録済みの `txn_id` は再適用せず台帳行だけを書き直す（D32）。`matched_txn_ids` を人が消した請求には冪等性が効かない。
 
 ### 8.3 P2（実装）で実測・確認する事項
@@ -1148,6 +1165,7 @@ NOTIFY_CHANNELS が `[]` のときは Notify ノードが 1 つも実行され�
 - **D31 複数ファイルの同時取込（P2 レビュー反映）**：Google Drive Trigger（poll）は前回ポーリング以降に作られた**全ファイルを 1 実行のアイテム**として出し、`lastTimeChecked` を進めるので再発火しない。`Check File Is CSV` / `Download File` はアイテムごとに動くため、`Parse Bank CSV` は `$input.all()` を全件処理し（`getBinaryDataBuffer(i, 'data')`）、出力の `pairedItem.item` を元アイテム番号にする。`file_stats` はファイルごとに 1 件、`Collect Transactions` が `ignored_withdraw` を合計・`file_name` を `", "` 連結で集約する。以前の単一アイテム版は 2 件目以降の CSV を黙って捨てていた。 / The Drive trigger emits every new file of one poll as items of one execution; `Parse Bank CSV` now parses all input items (paired to their source item) and `Collect Transactions` aggregates one `file_stats` per file.
 - **D32 請求側 `matched_txn_ids` による冪等性（P2 レビュー反映）**：`Update Invoices` → `Upsert Transactions` の順で書くため、後者が失敗すると再実行時に台帳へ `txn_id` が無く、消込済みの請求は `open` から外れているので同じ入金が同一名義の別請求に再適用されうる。`Match Invoices` は請求の `matched_txn_ids` から `txn_id → invoice_id[]` を索引し、該当する新規 txn は請求を触らず `matched` の台帳行だけを再生成して `skipped_existing` に数える。 / A `txn_id` already recorded in any invoice's `matched_txn_ids` is never applied again; only its ledger row is (re)written and it is counted as skipped.
 - **D33 Slack の「Include Link to Workflow」は OFF（P2 レビュー反映）**：Slack ノード v2.7 の既定（`otherOptions.includeLinkToWorkflow = true`）は買い手の n8n URL とワークフロー ID を含む section を全通知に付ける。`Notify Email` の attribution OFF と揃えて本体・Error Workflow の両方で OFF にする。 / Slack's default workflow-link block is switched off in both workflows, matching the disabled Gmail attribution.
+- **D34 Notify ノードは出荷時に 4 つとも有効のまま、素通りは失敗に数える（P3 反映）**：n8n 2.40.5 は Publish 時に有効な全ノードの Credential を検証し（`Missing required credential`）、Error Workflow は自身が有効化されていないと呼び出されない（A35 / A36）。使わないチャネルの `Notify …` を既定で無効化して出荷する案や `NOTIFY_CHANNELS` の既定を `[]` にする案は採らない。理由：既定で無効化すると、そのチャネルを `NOTIFY_CHANNELS` に足した買い手が「送れているつもりで送れていない」状態に黙って入る。有効のまま出荷すれば Publish が大声で失敗し、SETUP の「無効化するか Credential を選ぶ」に誘導できる。無効化ノードは入力を素通りさせるため、`Check Notification Results` は `json.error` の有無だけでなく「Build Notification のペイロードを持ちチャネル応答マーカーを持たないアイテム」を失敗（`notify node disabled or not executed (payload passed through)`）に数え、それしか無ければ `throw` する（§6.10、`tests/SMOKE-p3-followup.md`）。 / All four Notify nodes ship enabled so that activation fails loudly instead of a channel silently going undelivered; `Check Notification Results` treats a passed-through payload (disabled node) as a failed channel and throws when nothing was actually sent.
 - **D30 datetime と `memo_norm` の定義は `shared/sheets-schema.md` に合わせる**：`imported_at` は ISO 8601 + JST オフセット（`yyyy-MM-ddTHH:mm:ss+09:00`、Luxon `toFormat("yyyy-MM-dd'T'HH:mm:ssZZ")`）。`memo_norm` は NFKC → 空白除去 → `|`→`/` → 小文字化（記号は残す）で、`sheets-schema.md` 側の記述をこの定義に更新した。fixture `transactions.seed.csv` も ISO 形式に修正。 / `imported_at` is ISO 8601 with offset and `memo_norm` keeps punctuation; the shared schema was aligned to this document.
 
 ---
@@ -1156,7 +1174,7 @@ NOTIFY_CHANNELS が `[]` のときは Notify ノードが 1 つも実行され�
 
 **Purpose.** Template 01 reconciles incoming bank deposits (bank CSV in a watched Google Drive folder, bank notification emails in Gmail, and a daily re-match run) against the shared `invoices` sheet, decides "who paid, for which invoice", writes results to `invoices` and `transactions`, and notifies via Slack / Email / LINE / Chatwork. Only rules 1, 2, 3a, 3b and 3c auto-confirm; rules 2/3a/3b are listed under "needs review"; ambiguous, unmatched and overpaid cases are never auto-confirmed.
 
-**Architecture.** Three triggers (`Watch Drive Folder`, `Watch Gmail Inbox`, `Run Daily Rematch`) feed one Set node `Config` (JSON output, includes all input fields, adds `SOURCE = {{ $prevNode.name }}`). A Switch `Route by Source` branches on `SOURCE` AND `TRIGGERS_ENABLED.<drive|gmail|schedule>`; disabled or unknown sources fall through the Extra Output into `Skip Disabled Trigger` (NoOp). Drive → `Check File Is CSV` (IF, false → NoOp) → `Download File` → `Parse Bank CSV` (Code: `TextDecoder('shift_jis')`, BOM strip, `skip_rows`, own CSV parser — `Extract From File` is not shipped, per A6); Gmail → `Parse Mail`; Schedule → nothing new. Both parsers emit pre-transactions (`_kind: "txn"`, no `txn_id`). All branches converge on `Collect Transactions` (Code, always emits one item `{source, txns[], warnings[]}`), then `Read Invoices` and `Read Transactions` (Google Sheets Get Rows, Execute Once + Always Output Data), then `Normalize Payer` (Code: the only place that computes `payer_name_norm`, `memo_norm` and `txn_id`; also attaches `_names` to invoices and backfills `payer_name_norm` on existing rows; emits one item `{txns, invoices, existing, …}`), then `Match Invoices` (Code, run once; reads `$input.first().json` and `$('Config').first()`). It emits items tagged `_kind` ∈ {`invoice_update`, `txn_row`, `summary`}; `Route Match Results` (Switch) sends them to `Update Invoices` (Append or Update on `invoice_id`, Cell Format = Let n8n format), `Upsert Transactions` (Append or Update on `txn_id`, same option) and `Build Notification` (Code). Four IF nodes (`Check Slack/Email/LINE/Chatwork Enabled`, array-contains on `NOTIFY_CHANNELS`) guard `Notify Slack` (Slack node, Block Kit), `Notify Email` (Gmail send), `Notify LINE` (`line_text`) and `Notify Chatwork` (`chatwork_text`) (HTTP Request with Header Auth credentials), each with On Error = Continue (using error output). Their success and error outputs (8 in total) go into `Merge Notification Results` (Append, 8 inputs) → `Check Notification Results` (Code), which throws — and thereby reaches the Error Workflow — only when every attempted channel failed. `error-handler.json` is Error Trigger → own minimal `Config` → `Build Error Message` → the same notify branches (On Error = Stop there). Sticky notes: input = blue, decision = yellow, output = green, caution = red. Node type ids are listed in §2.3; `typeVersion`s and parameter names are confirmed with n8n-mcp in P2.
+**Architecture.** Three triggers (`Watch Drive Folder`, `Watch Gmail Inbox`, `Run Daily Rematch`) feed one Set node `Config` (JSON output, includes all input fields, adds `SOURCE = {{ $prevNode.name }}`). A Switch `Route by Source` branches on `SOURCE` AND `TRIGGERS_ENABLED.<drive|gmail|schedule>`; disabled or unknown sources fall through the Extra Output into `Skip Disabled Trigger` (NoOp). Drive → `Check File Is CSV` (IF, false → NoOp) → `Download File` → `Parse Bank CSV` (Code: `TextDecoder('shift_jis')`, BOM strip, `skip_rows`, own CSV parser — `Extract From File` is not shipped, per A6); Gmail → `Parse Mail`; Schedule → nothing new. Both parsers emit pre-transactions (`_kind: "txn"`, no `txn_id`). All branches converge on `Collect Transactions` (Code, always emits one item `{source, txns[], warnings[]}`), then `Read Invoices` and `Read Transactions` (Google Sheets Get Rows, Execute Once + Always Output Data), then `Normalize Payer` (Code: the only place that computes `payer_name_norm`, `memo_norm` and `txn_id`; also attaches `_names` to invoices and backfills `payer_name_norm` on existing rows; emits one item `{txns, invoices, existing, …}`), then `Match Invoices` (Code, run once; reads `$input.first().json` and `$('Config').first()`). It emits items tagged `_kind` ∈ {`invoice_update`, `txn_row`, `summary`}; `Route Match Results` (Switch) sends them to `Update Invoices` (Append or Update on `invoice_id`, Cell Format = Let n8n format), `Upsert Transactions` (Append or Update on `txn_id`, same option) and `Build Notification` (Code). Four IF nodes (`Check Slack/Email/LINE/Chatwork Enabled`, array-contains on `NOTIFY_CHANNELS`) guard `Notify Slack` (Slack node, Block Kit), `Notify Email` (Gmail send), `Notify LINE` (`line_text`) and `Notify Chatwork` (`chatwork_text`) (HTTP Request with Header Auth credentials), each with On Error = Continue (using error output). Their success and error outputs (8 in total) go into `Merge Notification Results` (Append, 8 inputs) → `Check Notification Results` (Code), which throws — and thereby reaches the Error Workflow — only when every attempted channel failed; a payload passed through by a DISABLED Notify node (no `error`, no channel response marker) counts as a failed channel (D34). `error-handler.json` is Error Trigger → own minimal `Config` → `Build Error Message` → the same notify branches (On Error = Stop there). Sticky notes: input = blue, decision = yellow, output = green, caution = red. Node type ids are listed in §2.3; `typeVersion`s and parameter names are confirmed with n8n-mcp in P2.
 
 **Data flow.** Trigger payload passes through Config; Drive download yields `binary.data`; rows become pre-transactions `{_kind: "txn", source, txn_date, payer_name_raw, amount, memo}`; `Normalize Payer` adds `payer_name_norm` and `txn_id = date|amount|payer_norm|memo_norm`; matching (JPY invoices only; other currencies are excluded with a `non_jpy_invoice` warning) produces invoice updates, transaction rows (`matched` / `unmatched` / `ambiguous`, `suggested_invoice_ids` top 3, `imported_at` as ISO 8601 `yyyy-MM-ddTHH:mm:ss+09:00`) and one summary. Shift_JIS is decoded in the Code node (`new TextDecoder('shift_jis')`, BOM stripped, own CSV parser, `skip_rows`) because Extract From File offers no `shift_jis` encoding (ASSUMPTIONS A6); P2 only re-confirms `TextDecoder` inside the task runner and the two CSV fixtures. Every file the Drive trigger emits in one poll is parsed (one `file_stats` per file, aggregated in `Collect Transactions`; D31); a Google-Sheet export is decoded as UTF-8 regardless of `CSV_MAPPING.encoding` (D22); a `txn_id` already recorded in an invoice's `matched_txn_ids` is never applied twice (D32); Slack's workflow-link block is off (D33).
 
@@ -1165,5 +1183,7 @@ NOTIFY_CHANNELS が `[]` のときは Notify ノードが 1 つも実行され�
 **Key reasoning.** Amount equality is mandatory because remitter names are katakana and individuals share names; `FEE_SET` bounds fee-deducted matches to typical fee values so they cannot be confused with partial payments; combined matches are limited to 2–3 invoices and only when the subset sum is unique; ambiguous cases never auto-confirm because a wrong match is discovered later than a missing one and would trigger wrong reminders in Template 03; idempotency comes from the deterministic `txn_id` plus reading `transactions` first (same CSV twice → second run skips everything, no sheet diff); Execute Once keeps sheet reads at one API call per run; one Config keeps the buyer's edits in one place; `$prevNode.name` routing avoids three Set nodes; LINE/Chatwork use HTTP Request because n8n has no built-in nodes (LINE Notify ended in March 2025); notifications are truncated by `NOTIFY_MAX_LINES` and chunked for Slack's block limits; every configured channel is attempted and the run fails (Error Workflow) only when all of them fail, as §4.3 of the spec requires; name normalization lives in one node so `txn_id` cannot drift between the CSV, Gmail and re-match paths.
 
 **Pseudocode (§6)** covers `decodeCsvBuffer`, `parseCsvText`, `parseBankCsv`, `parseMail`, `normalizeAmount`, `normalizeDate`, the `Normalize Payer` node (`normalizePayer`: NFKC → hiragana→katakana → two-pass token removal, "anywhere" tokens such as `振込`/`株式会社` first and the anchored `X)` / `(X` tokens second → strip spaces/`・`/punctuation keeping `ー` → optional leading-digit strip; `normalizeMemo`, `buildTxnId`, `buildTxn`, `invoiceNames`), `matchInvoices` (JPY filter with warning; rules 1, 2, 3a, 3b, 3c, 3d, 4, 5 exactly as specified, consumed invoices removed for later transactions, re-match of unmatched/ambiguous rows on the schedule run), `rankCandidates` (score = nameRank×10 + amountProximity×9), `buildNotification`, `Build Error Message` and `Check Notification Results`.
+
+**Activation (n8n 2.40.5, P3 findings).** The Error Workflow must itself be published, otherwise n8n never invokes it (A35); publishing validates the credentials of every enabled node, so buyers disable the Notify nodes of unused channels (both workflows) or assign credentials, and remove those channels from `NOTIFY_CHANNELS` (A36, D34). All four Notify nodes ship enabled on purpose.
 
 **Tests.** §7 maps R01–R11 to code paths and lists the extra cases R12–R23 (including `TRIGGERS_ENABLED` and the non-JPY warning). §8 lists buyer-facing pitfalls (aliases in katakana, same-name individuals, CSV layout drift and `skip_rows`, Drive upload conversion, the three trigger-side settings, polling continuing for disabled triggers, JPY-only matching, manual resolution of ambiguous rows, Error Workflow setup) and what P2/P3 must verify empirically (`TextDecoder` and `getBinaryDataBuffer` availability under task runners, typeVersions, Cell Format, real trigger output shapes, Merge behaviour with missing inputs and the error-output item shape, Slack/LINE/Chatwork limits and endpoints from official docs, sticky-note color indices, secret grep, execution order of sheet writes before notification, idempotency across double runs). Decisions D01–D30 above are to be copied into `ASSUMPTIONS.md`.

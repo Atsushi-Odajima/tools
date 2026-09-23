@@ -7,13 +7,13 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -60,
-        180
+        -256,
+        -304
       ],
       "parameters": {
-        "content": "## JA\n### 入力 — Error Trigger\n本体 `[Odaji] 01 Bank Deposit Reconciliation v1.0.0` の Settings → Error workflow にこのワークフローを指定する。Error Trigger は本体が**自動実行で失敗したとき**だけ発火する（手動実行では発火しない）。このワークフロー自身の Error workflow 設定は空のままにする（無限ループ防止）。\n\n## EN\n### Input — Error Trigger\nSelect this workflow in Settings → Error workflow of `[Odaji] 01 Bank Deposit Reconciliation v1.0.0`. The Error Trigger fires only when the main workflow **fails in an automatic run** (never for manual runs). Leave this workflow's own Error workflow setting empty (no loops).\n",
-        "height": 480,
-        "width": 320,
+        "content": "## JA\n### 入力 — Error Trigger\n本体 `[Odaji] 01 Bank Deposit Reconciliation v1.0.0` の Settings → Error workflow にこのワークフローを指定する。Error Trigger は本体が**自動実行で失敗したとき**だけ発火する（手動実行では発火しない）。このワークフロー自身の Error workflow 設定は空のままにする（無限ループ防止）。\n**このワークフロー自身も有効化（Publish）する。** 有効化されていない Error Workflow は呼び出されない（n8n 2.40.5 実測）。有効化時に `Notify …` 4 ノードの Credential が検証されるので、使わないチャネルのノードは無効化（右クリック → Deactivate）し、`NOTIFY_CHANNELS` からも外す。\n\n## EN\n### Input — Error Trigger\nSelect this workflow in Settings → Error workflow of `[Odaji] 01 Bank Deposit Reconciliation v1.0.0`. The Error Trigger fires only when the main workflow **fails in an automatic run** (never for manual runs). Leave this workflow's own Error workflow setting empty (no loops).\n**Publish (activate) this workflow as well.** An Error Workflow that is not active is never invoked (measured in n8n 2.40.5). Activation validates the credentials of the four `Notify …` nodes, so disable the nodes of channels you do not use (right-click → Deactivate) and remove them from `NOTIFY_CHANNELS`.\n",
+        "height": 800,
+        "width": 480,
         "color": 5
       }
     },
@@ -23,12 +23,12 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        280,
-        180
+        240,
+        -16
       ],
       "parameters": {
-        "content": "## JA\n### Config — 通知に必要なキーだけ（本体の Config は参照できないため同じ値をここにも入れる）\n\n| キー | 既定値 | 意味 |\n|---|---|---|\n| `LANG` | `\"ja\"` | 通知文面の言語 `ja` / `en` |\n| `NOTIFY_CHANNELS` | `[\"slack\"]` | `slack` / `email` / `line` / `chatwork` の組合せ（配列）。空なら通知しない |\n| `SLACK_CHANNEL` | `\"REPLACE_ME_SLACK_CHANNEL_ID\"` | 投稿先チャンネル ID（`C0…`）または `#name` |\n| `NOTIFY_EMAIL_TO` | `\"replace-me@example.com\"` | 通知メールの宛先 |\n| `LINE_TO_USER_ID` | `\"REPLACE_ME_LINE_USER_ID\"` | LINE push の宛先 userId |\n| `CHATWORK_ROOM_ID` | `\"REPLACE_ME_CHATWORK_ROOM_ID\"` | Chatwork のルーム ID |\n| `LINE_API_URL` | `\"https://api.line.me/v2/bot/message/push\"` | LINE Messaging API push の URL。**API をプロキシ経由にする場合以外は変更しない** |\n| `CHATWORK_API_BASE_URL` | `\"https://api.chatwork.com/v2\"` | Chatwork API のベース URL（`/rooms/{room_id}/messages` を後ろに付ける）。**API をプロキシ経由にする場合以外は変更しない** |\n| `MESSAGES` | （`shared/messages.*.json` の `error_notice`） | エラー通知の文面（`ja` / `en`） |\n\n## EN\n### Config — only the notification keys (the main Config is not reachable, so mirror the values here)\n\n| Key | Default | Meaning |\n|---|---|---|\n| `LANG` | `\"ja\"` | Notification language: `ja` / `en` |\n| `NOTIFY_CHANNELS` | `[\"slack\"]` | Any combination of `slack` / `email` / `line` / `chatwork` (array). Empty = no notification |\n| `SLACK_CHANNEL` | `\"REPLACE_ME_SLACK_CHANNEL_ID\"` | Slack channel ID (`C0…`) or `#name` |\n| `NOTIFY_EMAIL_TO` | `\"replace-me@example.com\"` | Notification email recipient |\n| `LINE_TO_USER_ID` | `\"REPLACE_ME_LINE_USER_ID\"` | LINE recipient userId |\n| `CHATWORK_ROOM_ID` | `\"REPLACE_ME_CHATWORK_ROOM_ID\"` | Chatwork room ID |\n| `LINE_API_URL` | `\"https://api.line.me/v2/bot/message/push\"` | LINE Messaging API push URL. **Do not change unless you proxy the API** |\n| `CHATWORK_API_BASE_URL` | `\"https://api.chatwork.com/v2\"` | Chatwork API base URL (`/rooms/{room_id}/messages` is appended). **Do not change unless you proxy the API** |\n| `MESSAGES` | (`error_notice` of `shared/messages.*.json`) | Error notice copy (`ja` / `en`) |\n",
-        "height": 1500,
+        "content": "## JA\n### Config — 通知に必要なキーだけ（本体の Config は参照できないため同じ値をここにも入れる）\n**キーの既定値と意味は、下の黄色い「Config キー一覧」に載せている。**\n\n## EN\n### Config — only the notification keys (the main Config is not reachable, so mirror the values here)\n**Every key, its default and its meaning are listed in the yellow \"Config keys\" note below.**\n",
+        "height": 512,
         "width": 560,
         "color": 1
       }
@@ -39,14 +39,30 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        860,
-        -120
+        848,
+        -416
       ],
       "parameters": {
         "content": "## JA\n### 出力 — エラー通知\n- `Build Error Message`（Code）：`MESSAGES[LANG].error_notice` でワークフロー名・失敗ノード・エラー・実行ログ URL を組む\n- チャネルは Config `NOTIFY_CHANNELS` で ON／OFF。Credential は本体と同じ名前のものを各ノードで選ぶ（Slack、Gmail OAuth2、Header Auth `LINE Messaging API` / `Chatwork API`）\n- ここの Notify ノードは On Error = Stop（失敗しても次の受け皿は無い）。Merge／Check は置かない\n\n## EN\n### Output — error notification\n- `Build Error Message` (Code): fills `MESSAGES[LANG].error_notice` with the workflow name, failed node, error and execution URL\n- Channels are switched on in Config `NOTIFY_CHANNELS`; select the same credentials as in the main workflow in each node (Slack, Gmail OAuth2, Header Auth `LINE Messaging API` / `Chatwork API`)\n- The Notify nodes here keep On Error = Stop (there is no further fallback); no Merge / Check node\n",
-        "height": 1000,
-        "width": 900,
+        "height": 1200,
+        "width": 896,
         "color": 4
+      }
+    },
+    {
+      "id": "927f725b-e0ce-5d1e-a7d9-dd563ae3aa70",
+      "name": "Sticky Note E2 Config Keys",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        848
+      ],
+      "parameters": {
+        "content": "## JA\n### Config キー一覧 — 本体の Config と同じ値を入れる\n\n| キー | 既定値 | 意味 |\n|---|---|---|\n| `LANG` | `\"ja\"` | 通知文面の言語 `ja` / `en` |\n| `NOTIFY_CHANNELS` | `[\"slack\"]` | `slack` / `email` / `line` / `chatwork` の組合せ（配列）。空なら通知しない |\n| `SLACK_CHANNEL` | `\"REPLACE_ME_SLACK_CHANNEL_ID\"` | 投稿先チャンネル ID（`C0…`）または `#name` |\n| `NOTIFY_EMAIL_TO` | `\"replace-me@example.com\"` | 通知メールの宛先 |\n| `LINE_TO_USER_ID` | `\"REPLACE_ME_LINE_USER_ID\"` | LINE push の宛先 userId |\n| `CHATWORK_ROOM_ID` | `\"REPLACE_ME_CHATWORK_ROOM_ID\"` | Chatwork のルーム ID |\n| `LINE_API_URL` | `\"https://api.line.me/v2/bot/message/push\"` | LINE Messaging API push の URL。**API をプロキシ経由にする場合以外は変更しない** |\n| `CHATWORK_API_BASE_URL` | `\"https://api.chatwork.com/v2\"` | Chatwork API のベース URL（`/rooms/{room_id}/messages` を後ろに付ける）。**API をプロキシ経由にする場合以外は変更しない** |\n| `MESSAGES` | （`shared/messages.*.json` の `error_notice`） | エラー通知の文面（`ja` / `en`） |\n\n## EN\n### Config keys — mirror the values of the main Config\n\n| Key | Default | Meaning |\n|---|---|---|\n| `LANG` | `\"ja\"` | Notification language: `ja` / `en` |\n| `NOTIFY_CHANNELS` | `[\"slack\"]` | Any combination of `slack` / `email` / `line` / `chatwork` (array). Empty = no notification |\n| `SLACK_CHANNEL` | `\"REPLACE_ME_SLACK_CHANNEL_ID\"` | Slack channel ID (`C0…`) or `#name` |\n| `NOTIFY_EMAIL_TO` | `\"replace-me@example.com\"` | Notification email recipient |\n| `LINE_TO_USER_ID` | `\"REPLACE_ME_LINE_USER_ID\"` | LINE recipient userId |\n| `CHATWORK_ROOM_ID` | `\"REPLACE_ME_CHATWORK_ROOM_ID\"` | Chatwork room ID |\n| `LINE_API_URL` | `\"https://api.line.me/v2/bot/message/push\"` | LINE Messaging API push URL. **Do not change unless you proxy the API** |\n| `CHATWORK_API_BASE_URL` | `\"https://api.chatwork.com/v2\"` | Chatwork API base URL (`/rooms/{room_id}/messages` is appended). **Do not change unless you proxy the API** |\n| `MESSAGES` | (`error_notice` of `shared/messages.*.json`) | Error notice copy (`ja` / `en`) |\n",
+        "height": 1008,
+        "width": 1504,
+        "color": 1
       }
     },
     {
