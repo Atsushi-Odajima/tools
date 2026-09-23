@@ -1,0 +1,4 @@
+invoice_id,stage,mode,channel,to,subject,sent_at,gmail_message_id
+INV-2026-0001,1,draft,gmail,billing@example.jp,お支払いのご確認のお願い（請求書番号 INV-2026-0001）,2026-09-06T10:00:08+09:00,18f2a9c4b7e6d301
+INV-2026-0002,1,draft,gmail,accounts@example.com,お支払いのご確認のお願い（請求書番号 INV-2026-0002）,2026-09-09T10:00:12+09:00,18f3b1d5c8f7e402
+INV-2026-0002,2,sent,gmail,accounts@example.com,【再送】お支払いのお願い（請求書番号 INV-2026-0002）,2026-09-15T10:00:05+09:00,18f5c2e6d9a8f503

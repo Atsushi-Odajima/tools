@@ -1,0 +1,4 @@
+event_id,source,event_type,object_id,occurred_at,currency,gross,fee,net,gross_jpy,fee_jpy,net_jpy,fx_rate,customer_ref,booking_status,accounting_ref,error_message
+evt_sample0001,stripe,charge.succeeded,ch_sample0001,2026-09-10T14:03:21+09:00,JPY,12000,432,11568,12000,432,11568,1,cus_sample0001,dry_run,,
+evt_sample0002,stripe,charge.succeeded,ch_sample0002,2026-09-12T09:47:05+09:00,JPY,5500,198,5302,5500,198,5302,1,buyer@example.com,booked,freee:deal:1000001,
+evt_sample0003,paypal,PAYMENT.CAPTURE.COMPLETED,5AB12345CD678901E,2026-09-15T18:20:40+09:00,JPY,8800,357,8443,8800,357,8443,1,payer@example.jp,error,,Accounting API returned 401 (token expired); retry 2/5

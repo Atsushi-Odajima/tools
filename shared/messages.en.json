@@ -1,0 +1,85 @@
+{
+  "_meta": {
+    "lang": "en",
+    "source": "CLAUDE.en.md Appendix A / B / C (2026-09-23)",
+    "note": "Source of truth for notification and email copy. Placeholders use {name}. Line breaks are \\n. Selected when Config LANG=en."
+  },
+  "recon_summary": {
+    "title": "[Reconciliation {date}] Processed {n} | Auto-matched {a} | Needs review {b} | Unmatched {c}",
+    "line_item": "• {txn_date} {payer_raw} ¥{amount} → {invoice_id}",
+    "line_item_candidates": "• {txn_date} {payer_raw} ¥{amount} → candidates: {candidates}",
+    "needs_review_heading": "■ Needs review (auto-matched by amount only, fee deducted, or combined)",
+    "unmatched_heading": "■ Unmatched (no matching invoice)",
+    "ambiguous_heading": "■ Ambiguous (multiple candidates, not auto-matched; pick one)",
+    "no_transactions": "[Reconciliation {date}] No new transactions"
+  },
+  "reminder": {
+    "stage0": {
+      "subject": "Upcoming payment due — Invoice {invoice_id}",
+      "body": "Dear {customer_name},\n\nThis is a courtesy notice that invoice {invoice_id} for ¥{remaining} is due on {due_date}.\n\n• Invoice: {invoice_id}\n• Amount due: ¥{remaining}\n• Due date: {due_date}\n• Bank details: {bank_details}\n\nIf you have already sent payment, please disregard this message. If you have any questions, please don't hesitate to contact us.\n\n{signature}"
+    },
+    "stage1": {
+      "subject": "Payment reminder — Invoice {invoice_id}",
+      "body": "Dear {customer_name},\n\nThis is a friendly reminder that invoice {invoice_id} for ¥{remaining} was due on {due_date}, and we have not yet received payment as of today.\n\n• Invoice: {invoice_id}\n• Amount due: ¥{remaining}\n• Due date: {due_date}\n\nIf you have already sent payment, please disregard this message. If you have any questions, please don't hesitate to contact us.\n\n{signature}"
+    },
+    "stage2": {
+      "subject": "Second notice — Invoice {invoice_id} is past due",
+      "body": "Dear {customer_name},\n\nFollowing our previous reminder, invoice {invoice_id} remains unpaid as of today. We kindly ask that you arrange payment by {new_deadline}.\n\n• Invoice: {invoice_id}\n• Amount due: ¥{remaining}\n• Original due date: {due_date}\n• Bank details: {bank_details}\n\nIf payment has already been made, please let us know the transfer date so we can update our records. Apologies if this message has crossed with your payment.\n\n{signature}"
+    },
+    "stage3": {
+      "subject": "Final notice — Invoice {invoice_id}",
+      "body": "Dear {customer_name},\n\nDespite our previous reminders, we have not received payment or a response regarding invoice {invoice_id}.\nIf we do not receive payment or hear from you by {final_deadline}, we will need to review the terms of our business relationship and consider further steps.\n\n• Invoice: {invoice_id}\n• Amount due: ¥{remaining}\n• Original due date: {due_date}\n• Bank details: {bank_details}\n\n{signature}"
+    }
+  },
+  "draft_summary": {
+    "title": "[Unpaid Reminder {date}] {n} drafts created today",
+    "line_item": "• {customer_name} | {invoice_id} | ¥{remaining} | stage {stage}"
+  },
+  "escalated": {
+    "title": "[Unpaid Reminder] Invoice {invoice_id} reached stage 3 (final notice)",
+    "body": "Invoice: {invoice_id}\nCustomer: {customer_name}\nAmount due: ¥{remaining}\nDue date: {due_date} ({days_overdue} days overdue)\nDeadline stated in the final notice: {final_deadline}\nStatus: escalated (automatic reminders stopped)\n\nSuggested next steps: re-check incoming payments, contact the customer directly, review the terms of the account."
+  },
+  "dispute_created": {
+    "title": "[Refund & Chargeback] New dispute ({source}) {amount} {currency} | evidence due {evidence_due_by_jst}",
+    "body": "Source: {source}\nID: {object_id}\nAmount: {amount} {currency}\nCustomer: {customer_ref}\nReason: {reason}\nEvidence due by: {evidence_due_by_jst} (JST, exact time — not end of day)\nDashboard: {dashboard_url}\n\nEvidence checklist:\n{checklist}"
+  },
+  "evidence_checklist": [
+    "Order confirmation email / invoice (customer name, amount, date)",
+    "Proof of delivery (tracking number, delivery confirmation, signature); for digital goods, access logs / download records",
+    "Record of agreement to terms and refund policy (checkbox, timestamp)",
+    "Customer communication (email / chat history)",
+    "AVS / CVC results at checkout, whether 3-D Secure authentication occurred",
+    "IP address, device, and history of prior legitimate transactions",
+    "Submit at least 24 hours before the deadline (allow for processing time on the reviewing side)"
+  ],
+  "efw_alert": {
+    "title": "[Refund & Chargeback] Early fraud warning ({source}) {object_id}",
+    "body": "Source: {source}\nID: {object_id}\nAmount: {amount} {currency}\nCustomer: {customer_ref}\nDashboard: {dashboard_url}\n\nThe card issuer has flagged this payment as suspected fraud (early fraud warning).\nConsider issuing a proactive refund before it turns into a chargeback. If the order has not shipped, hold the shipment.\nNo action is needed if you have already refunded it or confirmed the transaction is legitimate."
+  },
+  "deadline_reminder": {
+    "title": "[Refund & Chargeback] Evidence due in {days_left} day(s): {object_id}",
+    "body": "Source: {source}\nID: {object_id}\nAmount: {amount} {currency}\nCustomer: {customer_ref}\nEvidence due by: {evidence_due_by_jst} (JST, exact time)\nDays left: {days_left}\nDashboard: {dashboard_url}\n\nIf no evidence is submitted by the deadline, the dispute is lost automatically. Aim to submit at least 24 hours before the deadline."
+  },
+  "refund_failed": {
+    "title": "[Refund & Chargeback] Refund failed ({source}) {object_id}",
+    "body": "Source: {source}\nID: {object_id}\nAmount: {amount} {currency}\nCustomer: {customer_ref}\nFailure reason: {failure_reason}\nDashboard: {dashboard_url}\n\nThe customer has not been refunded. Check the reason in the dashboard, then retry or refund by another method (e.g. bank transfer)."
+  },
+  "daily_digest": {
+    "title": "[Refund & Chargeback daily {date}] Open {open} | Stalled refunds {stalled} | New today {new}",
+    "section_open_disputes": "■ Open disputes (by deadline)",
+    "section_stalled_refunds": "■ Stalled refunds (pending for more than {stale_days} business days)",
+    "section_new_today": "■ New today",
+    "line_dispute": "• due {evidence_due_by_jst} | {source} {object_id} | {amount} {currency} | {customer_ref} | {status}",
+    "line_refund": "• {source} {object_id} | {amount} {currency} | {customer_ref} | pending {days_pending} business days",
+    "line_item": "• {type} | {source} {object_id} | {amount} {currency} | {customer_ref} | {status}",
+    "empty": "None"
+  },
+  "cb_rate_alert": {
+    "title": "[Refund & Chargeback] Chargeback rate for {month} is {rate}%, above the {threshold}% threshold ({level})",
+    "body": "Month: {month}\nDisputes: {disputes}\nSuccessful payments: {payments}\nChargeback rate: {rate}% (threshold {threshold}%, level {level})\n\nEach card network defines the numerator, denominator and thresholds differently. The values in this template are a guide only; check each network's current program rules."
+  },
+  "error_notice": {
+    "title": "[n8n error] {workflow_name}",
+    "body": "Workflow: {workflow_name}\nFailed node: {last_node}\nError: {message}\nExecution log: {execution_url}\n\nCheck the execution log for the cause, fix it, and re-run. Sheet writes or emails may have partially completed, so check the ledger sheet before re-running."
+  }
+}

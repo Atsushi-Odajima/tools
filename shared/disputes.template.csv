@@ -1,0 +1,4 @@
+record_id,source,type,status,amount,currency,customer_ref,reason,opened_at,evidence_due_by,last_alert_stage,outcome,closed_at,notes
+stripe|dp_sample0001,stripe,dispute,needs_response,12000,JPY,cus_sample0001,fraudulent,2026-09-14T03:12:45+09:00,2026-09-28T08:59:59+09:00,1,,,2026-09-14 03:12 charge.dispute.created: → needs_response; 2026-09-21 09:00 deadline_alert: T-7
+stripe|re_sample0001,stripe,refund,succeeded,3300,JPY,buyer@example.com,requested_by_customer,2026-09-11T11:05:10+09:00,,0,,2026-09-11T11:05:10+09:00,2026-09-11 11:05 charge.refunded: succeeded (partial refund of ch_sample0002)
+manual|MAN-20260918-093015,manual,refund,open,5500,JPY,C-0001,商品不良による一部返品（銀行振込で返金予定）,2026-09-18T09:30:15+09:00,,0,,,2026-09-18 09:30 form: 銀行振込チャネルの返品を受付

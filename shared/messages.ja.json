@@ -1,0 +1,85 @@
+{
+  "_meta": {
+    "lang": "ja",
+    "source": "CLAUDE.md 付録A / 付録B / 付録C（2026-09-23）",
+    "note": "通知・メール文面の原本。プレースホルダは {name} 形式。改行は \\n。Config の LANG=ja で選択される。"
+  },
+  "recon_summary": {
+    "title": "【入金消込 {date}】処理 {n}件｜自動消込 {a}｜要確認 {b}｜未消込 {c}",
+    "line_item": "・{txn_date} {payer_raw} ¥{amount} → {invoice_id}",
+    "line_item_candidates": "・{txn_date} {payer_raw} ¥{amount} → 候補: {candidates}",
+    "needs_review_heading": "■ 要確認（金額のみ一致・手数料差引・合算で自動消込した分）",
+    "unmatched_heading": "■ 未消込（該当請求なし）",
+    "ambiguous_heading": "■ 候補複数（自動確定せず。候補から選んでください）",
+    "no_transactions": "【入金消込 {date}】新規の入金はありませんでした"
+  },
+  "reminder": {
+    "stage0": {
+      "subject": "お支払期限のご案内（請求書番号 {invoice_id}）",
+      "body": "{customer_name} 様\n\nいつもお世話になっております。{company}の{sender_name}です。\n下記のご請求につきまして、お支払期限が近づいておりますのでご案内申し上げます。\n\n・請求書番号：{invoice_id}\n・ご請求金額：¥{remaining}\n・お支払期限：{due_date}\n・お振込先：{bank_details}\n\n既にお手続き済みの場合は、本メールはご放念ください。\nご不明点がございましたらお気軽にご連絡ください。\n\n{signature}"
+    },
+    "stage1": {
+      "subject": "お支払いのご確認のお願い（請求書番号 {invoice_id}）",
+      "body": "{customer_name} 様\n\nいつもお世話になっております。{company}の{sender_name}です。\n{due_date}をお支払期限としてご請求しておりました下記につきまして、本日時点で入金の確認ができておりません。\n\n・請求書番号：{invoice_id}\n・ご請求金額：¥{remaining}\n・お支払期限：{due_date}\n\nなお、お振込みが行き違いになっている場合は、何卒ご容赦ください。\nご不明点がございましたらお気軽にご連絡ください。\n\n{signature}"
+    },
+    "stage2": {
+      "subject": "【再送】お支払いのお願い（請求書番号 {invoice_id}）",
+      "body": "{customer_name} 様\n\nいつもお世話になっております。{company}の{sender_name}です。\n先日ご連絡いたしました下記につきまして、本日現在も入金を確認できておりません。\n恐れ入りますが、{new_deadline}までにお振込みいただけますようお願い申し上げます。\n\n・請求書番号：{invoice_id}\n・ご請求金額：¥{remaining}\n・お支払期限：{due_date}（超過）\n・お振込先：{bank_details}\n\n既にお手続き済みの場合は、お振込日をご一報いただけますと幸いです。\nお振込みが行き違いになっている場合は、何卒ご容赦ください。\n\n{signature}"
+    },
+    "stage3": {
+      "subject": "【重要】お支払いに関する最終のご連絡（請求書番号 {invoice_id}）",
+      "body": "{customer_name} 様\n\n{company}の{sender_name}です。\n下記につきまして、再三のご連絡にもかかわらず入金の確認ができておりません。\n{final_deadline}までにお振込みまたはご連絡がない場合は、今後のお取引条件の見直し等、然るべき対応を検討させていただきます。\n\n・請求書番号：{invoice_id}\n・ご請求金額：¥{remaining}\n・お支払期限：{due_date}（超過）\n・お振込先：{bank_details}\n\n{signature}"
+    }
+  },
+  "draft_summary": {
+    "title": "【未入金リマインド {date}】本日の下書き {n} 件",
+    "line_item": "・{customer_name}｜{invoice_id}｜¥{remaining}｜stage {stage}"
+  },
+  "escalated": {
+    "title": "【未入金リマインド】請求書 {invoice_id} が最終段階（stage 3）に到達しました",
+    "body": "請求書番号：{invoice_id}\n顧客：{customer_name}\n残額：¥{remaining}\nお支払期限：{due_date}（{days_overdue}日超過）\n最終通知に記載した期限：{final_deadline}\n状態：escalated（以後の自動督促は停止します）\n\n入金の再確認、電話等での直接連絡、取引条件の見直しをご検討ください。"
+  },
+  "dispute_created": {
+    "title": "【返金・チャージバック】新規の異議申立て（{source}）{amount} {currency}｜証拠提出期限 {evidence_due_by_jst}",
+    "body": "発生元：{source}\nID：{object_id}\n金額：{amount} {currency}\n顧客：{customer_ref}\n理由：{reason}\n証拠提出期限：{evidence_due_by_jst}（JST・実時刻。当日23:59ではありません）\nダッシュボード：{dashboard_url}\n\n証拠チェックリスト：\n{checklist}"
+  },
+  "evidence_checklist": [
+    "注文確認メール／請求書（顧客名・金額・日付）",
+    "配送証明（追跡番号・配達完了・受領サイン）。デジタル商品はアクセスログ・ダウンロード記録",
+    "利用規約・返金ポリシーへの同意記録（チェックボックス・タイムスタンプ）",
+    "顧客とのやり取り（メール・チャット履歴）",
+    "決済時の AVS／CVC 結果、3D セキュア認証の有無",
+    "IP アドレス・端末・過去の正常取引履歴",
+    "提出は期限の24時間前までに（審査側の処理時間を考慮）"
+  ],
+  "efw_alert": {
+    "title": "【返金・チャージバック】不正利用の早期警告（{source}）{object_id}",
+    "body": "発生元：{source}\nID：{object_id}\n金額：{amount} {currency}\n顧客：{customer_ref}\nダッシュボード：{dashboard_url}\n\nカード発行会社から不正利用の疑いが報告されました（early fraud warning）。\nチャージバックになる前の自主的な返金をご検討ください。未発送の場合は出荷を止めてください。\n既に返金済み、または正当な取引と確認できる場合は対応不要です。"
+  },
+  "deadline_reminder": {
+    "title": "【返金・チャージバック】証拠提出期限まであと {days_left} 日：{object_id}",
+    "body": "発生元：{source}\nID：{object_id}\n金額：{amount} {currency}\n顧客：{customer_ref}\n証拠提出期限：{evidence_due_by_jst}（JST・実時刻）\n残り日数：{days_left} 日\nダッシュボード：{dashboard_url}\n\n期限までに証拠を提出しない場合、異議申立ては自動的に加盟店側の負けとして確定します。提出は期限の24時間前までを目安にしてください。"
+  },
+  "refund_failed": {
+    "title": "【返金・チャージバック】返金に失敗しました（{source}）{object_id}",
+    "body": "発生元：{source}\nID：{object_id}\n金額：{amount} {currency}\n顧客：{customer_ref}\n失敗理由：{failure_reason}\nダッシュボード：{dashboard_url}\n\n顧客への返金は完了していません。ダッシュボードで理由を確認し、再試行または別の方法（銀行振込など）での返金をご検討ください。"
+  },
+  "daily_digest": {
+    "title": "【返金・チャージバック 日次 {date}】未対応 {open}件｜停滞返金 {stalled}件｜本日新規 {new}件",
+    "section_open_disputes": "■ 未対応の異議申立て（期限順）",
+    "section_stalled_refunds": "■ 停滞中の返金（pending が {stale_days} 営業日超）",
+    "section_new_today": "■ 本日の新規",
+    "line_dispute": "・期限 {evidence_due_by_jst}｜{source} {object_id}｜{amount} {currency}｜{customer_ref}｜{status}",
+    "line_refund": "・{source} {object_id}｜{amount} {currency}｜{customer_ref}｜pending {days_pending} 営業日",
+    "line_item": "・{type}｜{source} {object_id}｜{amount} {currency}｜{customer_ref}｜{status}",
+    "empty": "該当なし"
+  },
+  "cb_rate_alert": {
+    "title": "【返金・チャージバック】{month} のチャージバック率 {rate}% がしきい値 {threshold}% を超えました（{level}）",
+    "body": "対象月：{month}\n異議申立て件数：{disputes}\n成功決済件数：{payments}\nチャージバック率：{rate}%（しきい値 {threshold}%、レベル {level}）\n\nカードブランドごとに分母・分子の定義と基準値が異なります。このテンプレートの値は目安です。各ブランドの最新のプログラム基準をご確認ください。"
+  },
+  "error_notice": {
+    "title": "【n8n エラー】{workflow_name}",
+    "body": "ワークフロー：{workflow_name}\n失敗したノード：{last_node}\nエラー：{message}\n実行ログ：{execution_url}\n\n実行ログで原因を確認し、修正後に再実行してください。シート書込みやメール送信が途中まで進んでいる可能性があるため、再実行前に台帳シートを確認してください。"
+  }
+}

@@ -1,0 +1,10 @@
+# local runtime / secrets (never commit)
+node_modules/
+n8n-data/
+.n8n/
+.env
+*.local
+secrets/
+# OS / editor
+.DS_Store
+Thumbs.db
