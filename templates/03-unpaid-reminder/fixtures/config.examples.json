@@ -1,0 +1,57 @@
+{
+  "_meta": {
+    "purpose_ja": "P3 で `Config` ノードの JSON に上書きする値の例（DESIGN.md §4 の既定値に対する差分だけを書く）。`test_common` は全ケース共通、`cases` はケースごとに `test_common` の上に重ねる。トークン・実 ID は含まない（すべてダミー）。`make_fixtures.py --expected` も `test_common` を読む。",
+    "purpose_en": "Example overrides for the `Config` node JSON in P3 (only the differences from the DESIGN.md §4 defaults). `test_common` applies to every case; each entry of `cases` is layered on top of it. No tokens or real IDs (all dummies). `make_fixtures.py --expected` reads `test_common` too.",
+    "how_to_apply": "PATCH /rest/workflows/{id} with the `Config` node's jsonOutput = defaults merged with test_common merged with cases[<id>] (or pin `Config` itself as Template 01's tests/pins do — then the Set node is not exercised, see tests/CASES.md §0.2).",
+    "stages_default": [
+      { "stage": 0, "offset_days": -3, "enabled": false },
+      { "stage": 1, "offset_days": 1, "enabled": true },
+      { "stage": 2, "offset_days": 7, "enabled": true },
+      { "stage": 3, "offset_days": 14, "enabled": true }
+    ]
+  },
+  "test_common": {
+    "SHEET_ID": "TEST_SHEET",
+    "TODAY_OVERRIDE": "2026-10-01",
+    "NOTIFY_CHANNELS": [],
+    "COMPANY": "サンプル株式会社",
+    "SENDER_NAME": "見本 太郎",
+    "SIGNATURE": "サンプル株式会社 経理部 見本 太郎\nTEL 00-0000-0000 / keiri@example.jp",
+    "BANK_DETAILS": "サンプル銀行 本店 普通 1234567 カ）サンプル",
+    "CC": "",
+    "BCC": ""
+  },
+  "cases": {
+    "U01_draft_default": {},
+    "U02_second_run_same_day": { "_note": "Config unchanged; re-pin Read Invoices / Read Reminders Log with the first run's invoice_update / log_row items applied" },
+    "U06b_promised_date_passed": { "TODAY_OVERRIDE": "2026-10-16" },
+    "U09_holiday": { "TODAY_OVERRIDE": "2026-09-21", "_pin": "Fetch Holidays = calendar_events.example.json holiday_2026-09-21" },
+    "U09b_saturday": { "TODAY_OVERRIDE": "2026-10-03" },
+    "U09c_saturday_skip_weekends_off": { "TODAY_OVERRIDE": "2026-10-03", "SKIP_WEEKENDS": false },
+    "U10_send": { "SEND_MODE": "send" },
+    "U11b_no_grouping": { "GROUP_BY_CUSTOMER": false },
+    "U12_calendar_error_holiday": { "TODAY_OVERRIDE": "2026-09-21", "_pin": "Fetch Holidays = calendar_events.example.json error" },
+    "U12b_calendar_error_business_day": { "_pin": "Fetch Holidays = calendar_events.example.json error (TODAY_OVERRIDE stays 2026-10-01)" },
+    "U15_override_plus_14": { "TODAY_OVERRIDE": "2026-10-15" },
+    "U15b_clock": { "TODAY_OVERRIDE": "" },
+    "U15c_bad_override_format": { "TODAY_OVERRIDE": "2026/10/15" },
+    "U17_stage0_enabled": {
+      "STAGES": [
+        { "stage": 0, "offset_days": -3, "enabled": true },
+        { "stage": 1, "offset_days": 1, "enabled": true },
+        { "stage": 2, "offset_days": 7, "enabled": true },
+        { "stage": 3, "offset_days": 14, "enabled": true }
+      ]
+    },
+    "U17b_stage0_next_day": { "TODAY_OVERRIDE": "2026-10-02", "STAGES": "same as U17_stage0_enabled; Read Reminders Log gets (INV-2026-101, 0) appended" },
+    "U21_static_holidays_only": { "USE_HOLIDAY_CALENDAR": false, "TODAY_OVERRIDE": "2026-09-23" },
+    "U21b_static_list_without_0923": { "USE_HOLIDAY_CALENDAR": false, "TODAY_OVERRIDE": "2026-09-23", "HOLIDAYS": "holidays.example.json HOLIDAYS minus 2026-09-23" },
+    "U22_calendar_node_deactivated": { "_note": "Config unchanged (USE_HOLIDAY_CALENDAR stays true); deactivate the Fetch Holidays node instead of pinning it" },
+    "U22b_draft_node_deactivated": { "_note": "Config unchanged (SEND_MODE draft); deactivate the Create Draft node instead of pinning it" },
+    "U23_owner_only": { "SEND_MODE": "owner_only" },
+    "U24_invalid_send_mode": { "SEND_MODE": "drafts" },
+    "U26_all_channels": { "NOTIFY_CHANNELS": ["slack", "email", "line", "chatwork"] },
+    "U26_none": { "NOTIFY_CHANNELS": [] },
+    "U28_english": { "LANG": "en" }
+  }
+}

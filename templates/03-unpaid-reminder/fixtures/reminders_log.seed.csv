@@ -1,0 +1,13 @@
+invoice_id,stage,mode,channel,to,subject,sent_at,gmail_message_id
+INV-2026-116,1,draft,gmail,esc@example.com,お支払いのご確認のお願い（請求書番号 INV-2026-116）,2026-09-11T10:00:12+09:00,18f60a1b2c3d4e01
+INV-2026-116,2,draft,gmail,esc@example.com,【再送】お支払いのお願い（請求書番号 INV-2026-116）,2026-09-17T10:00:12+09:00,18f60a1b2c3d4e02
+INV-2026-104,1,draft,gmail,billing@example.com,お支払いのご確認のお願い（請求書番号 INV-2026-104）,2026-09-18T10:00:06+09:00,18f60a1b2c3d4e03
+INV-2026-104,2,draft,gmail,billing@example.com,【再送】お支払いのお願い（請求書番号 INV-2026-104）,2026-09-24T10:00:06+09:00,18f60a1b2c3d4e04
+INV-2026-116,3,draft,gmail,esc@example.com,【重要】お支払いに関する最終のご連絡（請求書番号 INV-2026-116）,2026-09-24T10:00:12+09:00,18f60a1b2c3d4e05
+INV-2026-103,1,draft,gmail,info@example.jp,お支払いのご確認のお願い（請求書番号 INV-2026-103）,2026-09-25T10:00:05+09:00,18f60a1b2c3d4e06
+INV-2026-107,1,draft,gmail,keiri2@example.jp,お支払いのご確認のお願い（請求書番号 INV-2026-107）,2026-09-25T10:00:07+09:00,18f60a1b2c3d4e07
+INV-2026-108,1,draft,gmail,keiri@example.com,お支払いのご確認のお願い（請求書番号 INV-2026-108、INV-2026-109）,2026-09-25T10:00:09+09:00,18f60a1b2c3d4e08
+INV-2026-109,1,draft,gmail,keiri@example.com,お支払いのご確認のお願い（請求書番号 INV-2026-108、INV-2026-109）,2026-09-25T10:00:09+09:00,18f60a1b2c3d4e08
+INV-2026-110,1,draft,gmail,stop@example.jp,お支払いのご確認のお願い（請求書番号 INV-2026-110）,2026-09-25T10:00:10+09:00,18f60a1b2c3d4e09
+INV-2026-113,1,draft,gmail,ap3@example.jp,お支払いのご確認のお願い（請求書番号 INV-2026-113）,2026-09-25T10:00:11+09:00,18f60a1b2c3d4e0a
+INV-2026-117,1,draft,gmail,retry@example.jp,お支払いのご確認のお願い（請求書番号 INV-2026-117）,2026-10-01T10:00:08+09:00,18f60a1b2c3d4e0b

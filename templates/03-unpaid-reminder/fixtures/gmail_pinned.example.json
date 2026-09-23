@@ -1,0 +1,274 @@
+{
+  "_meta": {
+    "purpose_ja": "`Create Draft`（Gmail v2.2 Draft → Create）と `Send Reminder`（Message → Send）の pinned data。Gmail の Credential 無しで Collect Send Results まで流すために使う。**pin するアイテム数は Build Reminder Emails が出すメール数と同じにする**（Collect Send Results は件数が食い違うと台帳を書かずに throw する、DESIGN.md D08）。既定 seed・既定 Config では 7 通なので配列を 7 件に切る。",
+    "purpose_en": "Pinned data for `Create Draft` (Gmail v2.2 Draft → Create) and `Send Reminder` (Message → Send) so the run reaches Collect Send Results without a Gmail credential. **Pin exactly as many items as Build Reminder Emails emits** (Collect Send Results throws and writes nothing when the counts differ, DESIGN.md D08). The default seed + default Config produce 7 emails, so slice the arrays to 7.",
+    "shape_sources": [
+      "n8n Gmail node, Draft operations → Create a draft (Subject / Email Type / Message, Options To Email / CC / BCC): https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.gmail/draft-operations.md (fetched 2026-09-23)",
+      "n8n Gmail node, Message operations → Send a message (To / Subject / Email Type / Message, Options Append n8n Attribution / CC / BCC / Sender Name): https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.gmail/message-operations.md (fetched 2026-09-23)",
+      "n8n-nodes-base 2.40.2 Gmail/v2/GmailV2.node.js (local n8n-runtime, read 2026-09-23): draft create returns the response of POST /gmail/v1/users/me/drafts (Draft resource { id, message: { id, threadId, labelIds } }); message send returns POST /gmail/v1/users/me/messages/send (Message resource { id, threadId, labelIds }); with Continue On Fail a failed item is { error: \"<message> (item <i>)\" } at the same index; an address without \"@\" throws \"Invalid email address\" from prepareEmailsInput (Gmail/GenericFunctions.js)."
+    ],
+    "values_note": "All ids are fictional. `gmail_message_id` recorded in reminders_log is message.id for drafts and id for sends (DESIGN.md §3.7), i.e. 18f7000000000001 … for both node kinds here, so the same expected log rows apply to U01 (draft) and U10 (send).",
+    "how_to_use": {
+      "U01 / U03 / U04 / U08 / U11 / U13 / U14 / U19 (draft, 7 emails)": "pinData[\"Create Draft\"] = Create Draft.draft_ok[0:7]",
+      "U11-b (GROUP_BY_CUSTOMER=false, 8 emails) / U17 (stage 0 on, 8 emails)": "pinData[\"Create Draft\"] = Create Draft.draft_ok (all 8)",
+      "U10 (SEND_MODE=send, 7 emails)": "pinData[\"Send Reminder\"] = Send Reminder.send_ok[0:7]",
+      "U25 (third draft fails)": "pinData[\"Create Draft\"] = Create Draft.draft_7_third_error",
+      "U23 (owner_only) / U29 / U02 second run (0 emails)": "no Gmail pin needed: the Gmail nodes are not reached (Route by Send Mode output none / owner_only)"
+    }
+  },
+  "Create Draft": {
+    "draft_ok": [
+      {
+        "json": {
+          "id": "r-100000000000000001",
+          "message": {
+            "id": "18f7000000000001",
+            "threadId": "18f7000000000001",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000002",
+          "message": {
+            "id": "18f7000000000002",
+            "threadId": "18f7000000000002",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000003",
+          "message": {
+            "id": "18f7000000000003",
+            "threadId": "18f7000000000003",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000004",
+          "message": {
+            "id": "18f7000000000004",
+            "threadId": "18f7000000000004",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000005",
+          "message": {
+            "id": "18f7000000000005",
+            "threadId": "18f7000000000005",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000006",
+          "message": {
+            "id": "18f7000000000006",
+            "threadId": "18f7000000000006",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000007",
+          "message": {
+            "id": "18f7000000000007",
+            "threadId": "18f7000000000007",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000008",
+          "message": {
+            "id": "18f7000000000008",
+            "threadId": "18f7000000000008",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      }
+    ],
+    "draft_7_third_error": [
+      {
+        "json": {
+          "id": "r-100000000000000001",
+          "message": {
+            "id": "18f7000000000001",
+            "threadId": "18f7000000000001",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000002",
+          "message": {
+            "id": "18f7000000000002",
+            "threadId": "18f7000000000002",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "error": "Invalid email address (item 2)"
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000004",
+          "message": {
+            "id": "18f7000000000004",
+            "threadId": "18f7000000000004",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000005",
+          "message": {
+            "id": "18f7000000000005",
+            "threadId": "18f7000000000005",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000006",
+          "message": {
+            "id": "18f7000000000006",
+            "threadId": "18f7000000000006",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "r-100000000000000007",
+          "message": {
+            "id": "18f7000000000007",
+            "threadId": "18f7000000000007",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "Send Reminder": {
+    "send_ok": [
+      {
+        "json": {
+          "id": "18f7000000000001",
+          "threadId": "18f7000000000001",
+          "labelIds": [
+            "SENT"
+          ]
+        }
+      },
+      {
+        "json": {
+          "id": "18f7000000000002",
+          "threadId": "18f7000000000002",
+          "labelIds": [
+            "SENT"
+          ]
+        }
+      },
+      {
+        "json": {
+          "id": "18f7000000000003",
+          "threadId": "18f7000000000003",
+          "labelIds": [
+            "SENT"
+          ]
+        }
+      },
+      {
+        "json": {
+          "id": "18f7000000000004",
+          "threadId": "18f7000000000004",
+          "labelIds": [
+            "SENT"
+          ]
+        }
+      },
+      {
+        "json": {
+          "id": "18f7000000000005",
+          "threadId": "18f7000000000005",
+          "labelIds": [
+            "SENT"
+          ]
+        }
+      },
+      {
+        "json": {
+          "id": "18f7000000000006",
+          "threadId": "18f7000000000006",
+          "labelIds": [
+            "SENT"
+          ]
+        }
+      },
+      {
+        "json": {
+          "id": "18f7000000000007",
+          "threadId": "18f7000000000007",
+          "labelIds": [
+            "SENT"
+          ]
+        }
+      },
+      {
+        "json": {
+          "id": "18f7000000000008",
+          "threadId": "18f7000000000008",
+          "labelIds": [
+            "SENT"
+          ]
+        }
+      }
+    ]
+  }
+}

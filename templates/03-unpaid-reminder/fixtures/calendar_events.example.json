@@ -1,0 +1,75 @@
+{
+  "_meta": {
+    "purpose_ja": "`Fetch Holidays`（Google Calendar ノード v1.3、Event → Get Many、Calendar By ID = ja.japanese#holiday@group.v.calendar.google.com、After/Before = 当日の ISO 範囲）の pinned data。P3 で `PATCH /rest/workflows/{id}` の pinData[\"Fetch Holidays\"] にそのまま入れる（ASSUMPTIONS A5 / A11）。",
+    "purpose_en": "Pinned data for `Fetch Holidays` (Google Calendar node v1.3, Event → Get Many, Calendar By ID = ja.japanese#holiday@group.v.calendar.google.com, After / Before = the day's ISO range). Store it as pinData[\"Fetch Holidays\"] via `PATCH /rest/workflows/{id}` in P3 (ASSUMPTIONS A5 / A11).",
+    "shape_sources": [
+      "n8n Google Calendar node, Event operations → Get Many (Calendar By ID, Return All / Limit, After / Before, Options): https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.googlecalendar/event-operations.md (fetched 2026-09-23). The doc points to the API reference below for the item shape.",
+      "Google Calendar API, Events resource representation (kind, etag, id, status, htmlLink, created, updated, summary, description, creator{email,displayName,self}, organizer{…}, start{date|dateTime,timeZone}, end{…}, transparency, visibility, iCalUID, sequence, eventType, …): https://developers.google.com/calendar/api/v3/reference/events (fetched 2026-09-23). All-day events carry `start.date` / `end.date` (end is exclusive: the next day).",
+      "n8n-nodes-base 2.40.2 GoogleCalendar.node.js (local n8n-runtime, read 2026-09-23): `getAll` returns `responseData.items` one item per event via returnJsonArray; with typeVersion >= 1.3 the item keys are re-ordered by sortItemKeysByPriorityList(['id','summary','start','end','attendees','creator','organizer','description','location','created','updated']) — hence the key order below; on failure with Continue On Fail the item is `{ \"error\": error.message }` (no `(item N)` suffix, unlike Gmail)."
+    ],
+    "values_note": "Event ids, etags, htmlLinks and timestamps are illustrative. The real Google holiday calendar delivers the same fields (id / iCalUID formats differ). DESIGN.md §8.3-1: P2 captures one real `Fetch Holidays` output and updates this file if the shape differs.",
+    "how_to_use": {
+      "holiday (U09)": "pin `holiday_2026-09-21` and set Config TODAY_OVERRIDE=2026-09-21 → Check Business Day: reason=holiday, holiday_name=敬老の日, holiday_source=calendar → Skip Non-Business Day",
+      "holiday (2026-10-12)": "pin `holiday_2026-10-12` with TODAY_OVERRIDE=2026-10-12 (スポーツの日, a Monday) — same path, second sample",
+      "no holiday (U01 …)": "pin `none` — the shape Always Output Data produces when the API returns items: [] (one empty item)",
+      "API failure (U12)": "pin `error` — the shape On Error = Continue (regular output) produces; Check Business Day falls back to HOLIDAYS with warning holiday_calendar_unavailable",
+      "node deactivated (U22)": "do NOT pin; deactivate the node instead — a disabled node passes its input (the Resolve Run Date item) through (ASSUMPTIONS A36)"
+    }
+  },
+  "Fetch Holidays": {
+    "holiday_2026-09-21": [
+      {
+        "json": {
+          "id": "20260921_example0keiro0no0hi0000000",
+          "summary": "敬老の日",
+          "start": { "date": "2026-09-21" },
+          "end": { "date": "2026-09-22" },
+          "creator": { "email": "ja.japanese#holiday@group.v.calendar.google.com", "displayName": "日本の祝日", "self": true },
+          "organizer": { "email": "ja.japanese#holiday@group.v.calendar.google.com", "displayName": "日本の祝日", "self": true },
+          "description": "祝日",
+          "created": "2025-12-01T00:00:00.000Z",
+          "updated": "2025-12-01T00:00:00.000Z",
+          "kind": "calendar#event",
+          "etag": "\"3000000000000000\"",
+          "status": "confirmed",
+          "htmlLink": "https://www.google.com/calendar/event?eid=EXAMPLE_20260921",
+          "transparency": "transparent",
+          "visibility": "public",
+          "iCalUID": "20260921_example0keiro0no0hi0000000@google.com",
+          "sequence": 0,
+          "eventType": "default"
+        }
+      }
+    ],
+    "holiday_2026-10-12": [
+      {
+        "json": {
+          "id": "20261012_example0sports0no0hi000000",
+          "summary": "スポーツの日",
+          "start": { "date": "2026-10-12" },
+          "end": { "date": "2026-10-13" },
+          "creator": { "email": "ja.japanese#holiday@group.v.calendar.google.com", "displayName": "日本の祝日", "self": true },
+          "organizer": { "email": "ja.japanese#holiday@group.v.calendar.google.com", "displayName": "日本の祝日", "self": true },
+          "description": "祝日",
+          "created": "2025-12-01T00:00:00.000Z",
+          "updated": "2025-12-01T00:00:00.000Z",
+          "kind": "calendar#event",
+          "etag": "\"3000000000000001\"",
+          "status": "confirmed",
+          "htmlLink": "https://www.google.com/calendar/event?eid=EXAMPLE_20261012",
+          "transparency": "transparent",
+          "visibility": "public",
+          "iCalUID": "20261012_example0sports0no0hi000000@google.com",
+          "sequence": 0,
+          "eventType": "default"
+        }
+      }
+    ],
+    "none": [
+      { "json": {} }
+    ],
+    "error": [
+      { "json": { "error": "Forbidden - perhaps check your credentials?" } }
+    ]
+  }
+}
