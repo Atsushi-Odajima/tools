@@ -65,6 +65,12 @@ flowchart TD
   NT --> CK["Merge Notification Results → Check Notification Results"]
 ```
 
+本体と Error Workflow のキャンバス（作者の n8n 2.40.5 で撮影。`docs/` に同梱）：
+
+![本体ワークフローのキャンバス](docs/canvas-main.png)
+
+![Error Workflow のキャンバス](docs/canvas-error-handler.png)
+
 | 段階 | ノード | 内容 |
 |---|---|---|
 | トリガー | `Watch Drive Folder` | Google Drive の監視フォルダを毎分ポーリングし、新しいファイルがあれば起動。CSV 以外は `Skip Non-CSV File` で何もせず終了 |
@@ -134,9 +140,11 @@ flowchart TD
 | **`fixtures/`** | 試運転用の架空データ：銀行 CSV 3 本（Shift_JIS、Shift_JIS＋説明行、UTF-8 BOM）、入金通知メール 2 通（`.eml`）、請求 20 件・取引 1 件の seed、`CSV_MAPPING` / `MAIL_PARSERS` の設定例。`fixtures/README.md` に期待結果の表 |
 | `tests/CASES.md` | 受け入れテスト一覧（R01〜R23） |
 | `tests/SMOKE.md` | ローカル n8n での実行記録（15 経路） |
+| `tests/SMOKE-p3-followup.md` | Publish 時の Credential 検証と、無効化した `Notify …` ノードの素通りの検証記録 |
 | `tests/RESULTS.md` | 受け入れテストの実行記録 |
+| `tests/results/` | 経路別（Drive／Gmail・通知／Schedule・Error Workflow）の実行記録と証跡のハッシュ |
 | `tests/unit/` / `tests/pins/` | Code ノードの単体テストと、Google／通知の Credential 無しで実行するための固定データ（改変者向け） |
-| `listing/` | 販売ページの原稿（製品の動作には関係ない） |
+| `docs/` | キャンバス画像（本体・Error Workflow の全体図、Config 付箋、Config キー一覧 2 枚、サムネイル）と撮影条件（`docs/README.md`） |
 
 リポジトリ直下の **`shared/`** も使います：`sheets-schema.md`（スプレッドシートの作り方と列の定義、日英）、`invoices.template.csv` / `transactions.template.csv`（シートに取り込む空テンプレ）、`messages.ja.json` / `messages.en.json`（通知文面の原本。`Config` の `MESSAGES` に同じ内容が入っている）。
 
@@ -147,7 +155,7 @@ flowchart TD
 | 必要なもの | 用途 | 備考 |
 |---|---|---|
 | **n8n 2.x** | ワークフローの実行 | 2.40.5（セルフホスト、Docker または npm）で構築・検証。Cloud は 2.x であれば動作する想定、未検証。Code ノードを使うので、セルフホストではタスクランナーが動く標準構成であること |
-| **Google アカウント** | Google Sheets（台帳）、Google Drive（CSV の監視フォルダ）、Gmail（入金通知メールの受信、メール通知の送信） | n8n の Credential は **Google Sheets OAuth2**、**Google Drive OAuth2**、**Gmail OAuth2** の 3 種。セルフホストでは Google Cloud で OAuth クライアントを 1 つ作れば 3 種で共用できる。n8n Cloud では「Sign in with Google」（Managed OAuth2）が使える。Gmail はメールでの取込・通知を使わないなら不要 |
+| **Google アカウント** | Google Sheets（台帳）、Google Drive（CSV の監視フォルダ）、Gmail（入金通知メールの受信、メール通知の送信） | n8n の Credential は **Google Sheets OAuth2**、**Google Drive OAuth2**、**Gmail OAuth2** の 3 種。セルフホストでは Google Cloud で OAuth クライアントを 1 つ作れば 3 種で共用できる。n8n Cloud では「Sign in with Google」（Managed OAuth2）が使える。Gmail はメールでの取込・通知を使わないなら不要。その場合は `Watch Gmail Inbox` と `Notify Email`（本体・Error Workflow）を無効化（Deactivate）し、`TRIGGERS_ENABLED.gmail` を `false` にする。有効なまま Credential が無いと Publish が拒否される |
 | Google スプレッドシート 1 冊 | `invoices` と `transactions` の 2 シート | `shared/sheets-schema.md` の手順で 5 分。既存の請求一覧がある場合は列名を合わせる |
 | 銀行の入出金明細 CSV、または入金通知メール | 入金の取込元 | どちらか一方でも可。`TRIGGERS_ENABLED` で使わない系統を OFF にできる |
 | 通知先（任意、複数可） | 結果の通知 | Slack（Bot User OAuth Token を使う n8n の Slack Credential、`chat:write` スコープ）／メール（上記 Gmail OAuth2）／LINE（Messaging API のチャネルアクセストークンを Header Auth Credential `LINE Messaging API` に）／Chatwork（API トークンを Header Auth Credential `Chatwork API` に）。通知先を 1 つも設定しない運用も可（`NOTIFY_CHANNELS` を空に） |
@@ -196,7 +204,7 @@ flowchart TD
 1. スプレッドシートを作る（`shared/sheets-schema.md`）。
 2. Google の Credential（Sheets／Drive／Gmail）と、使う通知先の Credential を n8n に登録する。
 3. `error-handler.json` → `workflow.json` の順に n8n へ取り込む（ワークフロー メニューの **Import from File**）。
-4. 本体の `Config` の `REPLACE_ME_…` を置き換え、`Watch Drive Folder`（フォルダ）・`Watch Gmail Inbox`（検索式）・`Run Daily Rematch`（時刻）の 3 ノードと、Error Workflow 側の `Config` も設定する。
+4. 本体の `Config` の `REPLACE_ME_…` を置き換え、`Watch Drive Folder`（フォルダ）・`Watch Gmail Inbox`（検索式）・`Run Daily Rematch`（時刻）の 3 ノードと、Error Workflow 側の `Config` も設定する（キーの一覧はキャンバスの付箋にもあり、`docs/canvas-config-keys-1.png` / `docs/canvas-config-keys-2.png` で確認できる）。
 5. 各ノードで Credential を選び（使わない通知チャネルの `Notify …` ノードは無効化する）、本体の Settings で Error workflow を指定する。
 6. 同梱の fixtures で試運転し、結果を `fixtures/README.md` の期待値と見比べる。
 7. Error Workflow と本体を **Publish**（自動実行を有効化）する。Error Workflow は Publish されていないと呼び出されない。
@@ -221,7 +229,7 @@ flowchart TD
 名義で 1 件に絞れれば規則 1 で確定します。名義で絞れない（名義が一致しない、または同じ名義の請求が同額で複数ある）ときは自動確定せず「候補複数」として候補を通知し、`transactions.status=ambiguous`、`suggested_invoice_ids` に候補を書きます。人が `invoices` の `status` / `paid_amount` と `transactions.status` を直してください。`payer_name_alias` に振込名義（カナ）を登録しておくと、この状況を減らせます。
 
 **既に消込済みの入金を再投入したら？**
-同じ CSV を再度置いても、同じメールが再配信されても、`txn_id`（`日付|金額|正規化名義|正規化メモ`）が `transactions` に既にあれば skip し、通知は「新規の入金はありませんでした（処理済みのため skip：N 件）」になります。シートに差分は出ません。`invoices.matched_txn_ids` に記録済みの入金も再適用しません。実在する二重入金（同日・同額・同名義）は 2 件目が skip されるため、通知の skip 件数を見て人が `source=manual` で処理してください。
+同じ CSV を再度置いても、同じメールが再配信されても、`txn_id`（`日付|金額|正規化名義|正規化メモ`）が `transactions` に既にあれば skip し、通知は「新規の入金はありませんでした（処理済みのため skip：N 件）」になります。シートに差分は出ません。`invoices.matched_txn_ids` に記録済みの入金も再適用しません。実在する二重入金（同日・同額・同名義・同メモ）は 2 件目が skip されます。skip 件数が通知に出るのは、新規の入金が 1 件も処理されなかったとき（「処理済みのため skip：N 件」）だけです。それ以外は Executions で `Match Invoices` の出力（summary の `skipped_existing` / `skipped_duplicate_in_batch`）を確認し、人が `source=manual` で処理してください。
 
 **通知先を複数にできますか？**
 できます。`Config` の `NOTIFY_CHANNELS` に `slack` / `email` / `line` / `chatwork` を配列で列挙します（例：`["slack","email"]`）。設定した全チャネルへ送り、一部が失敗しても残りには届きます。全チャネルが失敗したときだけ実行が失敗し Error Workflow に回ります。Error Workflow 側の `Config` にも同じ通知設定を入れてください。
@@ -254,7 +262,7 @@ flowchart TD
 8. **曖昧・未消込・超過入金は人が確定します。** `invoices` の `status` / `paid_amount` を直し、`transactions.status` を `matched` か `ignored` にします。`ignored` は再突合の対象外です。超過入金の `status=overpaid` は人が設定します。
 9. **Error Workflow は本体の Settings で指定し、Error Workflow 自身も Publish しないと動きません。** 本体を Publish（自動実行）しないと Error Trigger は起動しません。手動実行の失敗では起動しません。さらに作者の n8n 2.40.5 では、**Error Workflow 自身が Publish されていないと呼び出されません**（ログに `is not active and cannot be executed`）。Error Workflow 側にも `Config`（通知設定）があり、本体と同じ値を入れる必要があります。
 10. **`transactions` は毎回全行読みます。** 1 万行程度を超えたら年次でシートを分けてください。
-11. **同じ実行内で `txn_id` が同じになる 2 行**（同日・同額・同名義・同メモ）は 2 行目を skip し、件数を通知に出します。
+11. **同じ実行内で `txn_id` が同じになる 2 行**（同日・同額・同名義・同メモ）は 2 行目を skip します。件数は通知には出ず、実行ログ（Executions）の `Match Invoices` の summary 出力に `skipped_duplicate_in_batch` として記録されます。
 12. **手数料差引（3a）は一部入金（3c）より優先します。** 残額との差がたまたま 110〜880 円の一部入金は手数料扱いになります。通知の「要確認」に差額を明記するので、そこで判別してください。
 13. **Gmail の検索式 `subject:` は本文を見ません。** 既定の `subject:(入金 OR Deposit) newer_than:1d` は同梱サンプル 2 通の件名に一致します。自行の件名に合わせて `Watch Gmail Inbox` の Search を変えてください。
 14. **シートの列名（1 行目）は変えないでください。** 列名で参照しているため、1 文字違うだけで動きません。右側に独自の列を足すのは構いません。日付は `yyyy-MM-dd` の文字列で扱うので、シートは「書式なしテキスト」にしておきます。
@@ -324,22 +332,25 @@ flowchart TD
 
 ## 参考 / References
 
-本文で触れた外部製品の手順・仕様は、2026-09-23 に次の公式ページを取得して確認しました。手順の詳細は `SETUP.ja.md` に書いてあり、本文書では概要のみ述べています。
+本文で触れた外部製品の手順・仕様は、2026-09-23 に次の公式ページを取得して確認しました。n8n の画面表記はセルフホストの n8n 2.40.5 で確認したものです。手順の詳細は `SETUP.ja.md` に書いてあり、本文書では概要のみ述べています。LINE／Chatwork の API 仕様（URL・ヘッダ名・本文形式）の確認記録は `ASSUMPTIONS.md` の「外部 API」表にあります。
 
-- n8n — Export and import（ワークフロー JSON の Import from File / Import from URL）: https://docs.n8n.io/build/manage-workflows/export-and-import.md （2026-09-23）
-- n8n — Create and run workflows（Publish による自動実行の有効化、Execute Workflow による手動実行）: https://docs.n8n.io/build/understand-workflows/create-and-run-workflows.md （2026-09-23）
-- n8n — Configure workflow settings（Error Workflow、Timezone、Execution order の設定場所）: https://docs.n8n.io/build/manage-workflows/configure-workflow-settings.md （2026-09-23）
-- n8n — Handle errors gracefully（Error workflow の設定手順）: https://docs.n8n.io/build/flow-logic/handle-errors-gracefully.md （2026-09-23）
-- n8n — Error Trigger（手動実行では発火しない）: https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.errortrigger.md （2026-09-23）
-- n8n — Create and edit credentials: https://docs.n8n.io/build/understand-workflows/create-and-edit-credentials.md （2026-09-23）
-- n8n — Google credentials（OAuth2 の種類、Cloud の Managed OAuth2 対応ノード）: https://docs.n8n.io/integrations/builtin/credentials/google.md （2026-09-23）
-- n8n — Google OAuth2 single service（Google Cloud での OAuth クライアント作成、API の有効化、同意画面、「このアプリは確認されていません」の対処）: https://docs.n8n.io/integrations/builtin/credentials/google/oauth-single-service.md （2026-09-23）
-- n8n — Slack credentials（Slack App の作成、`chat:write` スコープ、Bot User OAuth Token）: https://docs.n8n.io/integrations/builtin/credentials/slack.md （2026-09-23）
-- n8n — HTTP Request credentials（Header Auth の設定項目 Name / Value）: https://docs.n8n.io/integrations/builtin/credentials/httprequest.md （2026-09-23）
-- n8n — Pin and mock data（作者の検証で Google ノードを固定データで代替した根拠）: https://docs.n8n.io/build/work-with-data/pin-and-mock-data.md （2026-09-23）
-- n8n — Update your version（n8n Cloud のバージョン選択）: https://docs.n8n.io/deploy/use-n8n-cloud/update-your-version.md （2026-09-23）
-- n8n — Release notes（n8n 2.40 は 2026-09-15 リリース）: https://docs.n8n.io/changelog/release-notes.md （2026-09-23）
-- n8n — Timezone and localization（セルフホストの `GENERIC_TIMEZONE`）: https://docs.n8n.io/deploy/host-n8n/configure-n8n/basic-configuration/use-environment-variables/timezone-and-localization.md （2026-09-23）
-- LINE Developers — Messaging API reference（`POST /v2/bot/message/push`）: https://developers.line.biz/en/reference/messaging-api/ 、Channel access token（長期のチャネルアクセストークンは LINE Developers Console の Messaging API タブで発行）: https://developers.line.biz/en/docs/basics/channel-access-token/ （2026-09-23。前者はページの大部分がブラウザー側で描画されるため、エンドポイント一覧のみ確認。リクエスト形式は `ASSUMPTIONS.md` に記録した OpenAPI 定義による）
-- Chatwork API — メッセージ投稿（`POST /rooms/{room_id}/messages`、`body` 1〜65,535 文字）: https://developer.chatwork.com/reference/post-rooms-room_id-messages （2026-09-23）
-- Google Drive のアップロード時の変換設定については、Google ドライブ ヘルプ https://support.google.com/drive/answer/2423534 を 2026-09-23 に取得しましたが、該当設定の記述を確認できませんでした。設定場所は `SETUP.ja.md` の手順を参照してください。
+1. n8n Docs — Google OAuth2 single service（Google Cloud での OAuth クライアント作成、API の有効化、同意画面、n8n Cloud の Managed OAuth2／Sign in with Google、「このアプリは確認されていません」の対処）: https://docs.n8n.io/integrations/builtin/credentials/google/oauth-single-service.md
+2. n8n Docs — Google credentials（OAuth2 の種類、Managed OAuth2 対応ノード。Google Drive、Google Drive Trigger、Gmail、Gmail Trigger、Google Sheets を含む）: https://docs.n8n.io/integrations/builtin/credentials/google.md
+3. n8n Docs — Create and edit credentials（Credential の作成・命名）: https://docs.n8n.io/build/understand-workflows/create-and-edit-credentials.md
+4. n8n Docs — Slack credentials（Slack App の作成、`chat:write` スコープ、Bot User OAuth Token を Access Token に入れる）: https://docs.n8n.io/integrations/builtin/credentials/slack.md
+5. n8n Docs — HTTP Request credentials（Header Auth の設定項目 Name / Value）: https://docs.n8n.io/integrations/builtin/credentials/httprequest.md
+6. n8n Docs — Export and import（三点メニュー → Import from File / Import from URL）: https://docs.n8n.io/build/manage-workflows/export-and-import.md
+7. n8n Docs — Configure workflow settings（Error Workflow (to notify when this one errors)、Timezone、Execution order の設定場所）: https://docs.n8n.io/build/manage-workflows/configure-workflow-settings.md
+8. n8n Docs — Handle errors gracefully（Error workflow の設定手順）: https://docs.n8n.io/build/flow-logic/handle-errors-gracefully.md
+9. n8n Docs — Error Trigger（手動実行では発火しない。ページは Error Workflow の公開を不要としているが、作者のセルフホスト n8n 2.40.5 では公開されていない Error Workflow は呼び出されなかったため、本テンプレは公開を必須としている。§8・§9 の 9 参照）: https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.errortrigger.md
+10. n8n Docs — Save and publish workflows（Publish ボタンと公開ダイアログ。本番実行は公開済みバージョンを使う）: https://docs.n8n.io/build/understand-workflows/save-and-publish-workflows.md
+11. n8n Docs — Create and run workflows（Publish による自動実行の有効化、Execute Workflow による手動実行）: https://docs.n8n.io/build/understand-workflows/create-and-run-workflows.md
+12. n8n Docs — Work with nodes（ノードのコンテキストメニューの Deactivate）: https://docs.n8n.io/build/understand-workflows/workflow-components/work-with-nodes.md
+13. n8n Docs — Pin and mock data（固定データは本番実行では使われない。作者の検証で Google ノードを固定データで代替した根拠）: https://docs.n8n.io/build/work-with-data/pin-and-mock-data.md
+14. n8n Docs — Set up task runners（Code ノードはタスクランナーで実行される。internal／external モード）: https://docs.n8n.io/deploy/host-n8n/configure-n8n/set-up-task-runners.md
+15. n8n Docs — Update your version（n8n Cloud のバージョン選択：管理画面の Updates & maintenance）: https://docs.n8n.io/deploy/use-n8n-cloud/update-your-version.md
+16. n8n Docs — Release notes（n8n 2.40 は 2026-09-15 リリース）: https://docs.n8n.io/changelog/release-notes.md
+17. n8n Docs — Timezone and localization（セルフホストの `GENERIC_TIMEZONE`）: https://docs.n8n.io/deploy/host-n8n/configure-n8n/basic-configuration/use-environment-variables/timezone-and-localization.md
+18. LINE Developers — Messaging API reference（`POST /v2/bot/message/push`。ページの大部分がブラウザー側で描画されるため、エンドポイント一覧のみ確認。リクエスト形式は `ASSUMPTIONS.md` に記録した OpenAPI 定義による）: https://developers.line.biz/en/reference/messaging-api/ ／ Channel access token（種類と有効期限）: https://developers.line.biz/en/docs/basics/channel-access-token/
+19. Chatwork API — チャットにメッセージを投稿する（`POST /rooms/{room_id}/messages`、`body` 1〜65,535 文字）: https://developer.chatwork.com/reference/post-rooms-room_id-messages
+20. Google ドライブ ヘルプ — Google ドライブにファイルやフォルダをアップロードする（「アップロードしたファイルを Google ドキュメント エディタ形式に変換する」の設定場所）: https://support.google.com/drive/answer/2424368?hl=ja

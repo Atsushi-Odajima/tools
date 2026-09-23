@@ -9,7 +9,7 @@
 - `thumbnail.png`（1200×630）：本体キャンバスの取込グループ（`Check File Is CSV` 〜 `Collect Transactions`）を 58% 表示で切り出し（600×315 の 2 倍）。付箋は隠していない（本文はノード列の上にあるため切り出し範囲に入らない）。「Credential 未設定」の赤い警告バッジだけをブラウザー側の CSS で非表示にしており、ワークフロー本体は変更していない。背景は不透明なので明暗どちらの掲載ページでも使える。
 - 配置の根拠：付箋の本文の高さは Playwright で実測し（`build/build_workflow.py` の `TEXT_SIZE`）、本文の下端と最初のノード列の間を 48 px 以上、最後のノード列（ラベル込み）の下を 40 px 以上あける。実測では、どのノードも付箋の本文領域（本文＋40 px）と重ならず、本文の切れ（縦・横）と付箋どうしの重なりは 0 件（変更前は本体で本文とノードの重なり 33 件・切れ 2 枚、Error Handler で 6 件・1 枚）。
 - 作成環境：ローカル n8n 2.40.5（`ASSUMPTIONS.md`）、Playwright 1.63.0 + Chromium 141.0.7390.37（`/opt/pw-browsers/chromium-1194`）、ヘッドレス、`deviceScaleFactor: 2`、2026-09-23。オーナーでサインインし、閲覧のみ（ノードを開かず、保存・実行・pin なし）。撮影は同じ JSON を API で登録した一時コピーで行い、撮影後に削除した。
-- スクリプト：`/tmp/claude-0/-home-user-4S-search/3170e1bf-16ee-57f4-89e0-ecee08729771/scratchpad/p4c-scratch/shots-p4c.js`（共通処理は `p4-scratch/shots/lib.js`、計測は `measure.js` + `analyze.py`）。サインイン処理を含むためリポジトリには置かない。パスワードは scratch の秘密ファイルから読み、出力しない。
+- スクリプト：撮影スクリプト `shots-p4c.js`（共通処理 `lib.js`、計測 `measure.js` + `analyze.py`）はサインイン処理を含むためリポジトリには含めず、作者の作業領域に保管している。パスワードは作業領域の秘密ファイルから読み、出力しない。
 - 再作成：付箋の本文を変えたら `measure.js` で本文の高さを実測して `TEXT_SIZE` を更新し、ビルド後に `node shots-p4c.js` を再実行して `out/` の 6 ファイルをここへコピーする。
 
 ## EN
@@ -21,7 +21,7 @@
 - `thumbnail.png` (1200×630): crop of the Intake group of the main canvas (`Check File Is CSV` … `Collect Transactions`) at 58% zoom (600×315 CSS px at 2×). Sticky notes are not hidden (their text sits above the node rows, outside the crop); only the red "no credential selected" badges were hidden with browser-side CSS. The workflow itself is unchanged. Opaque background, so it works on light or dark listing pages.
 - Layout rule: the rendered height of every note's text was measured with Playwright (`TEXT_SIZE` in `build/build_workflow.py`); the build keeps at least 48 px between the bottom of the text and the first node row and at least 40 px below the last node row (labels included). Measured result: no node intersects any note's text area (text + 40 px), no note is clipped vertically or horizontally, and no notes overlap (before: 33 text/node intersections and 2 clipped notes in the main workflow, 6 and 1 in the Error Handler).
 - Environment: local n8n 2.40.5 (see `ASSUMPTIONS.md`), Playwright 1.63.0 + Chromium 141.0.7390.37 (`/opt/pw-browsers/chromium-1194`), headless, `deviceScaleFactor: 2`, 2026-09-23. Signed in as the owner, view only (no node opened, nothing saved, run or pinned). The shots were taken on temporary copies of the same JSON registered through the API and deleted afterwards.
-- Script: `/tmp/claude-0/-home-user-4S-search/3170e1bf-16ee-57f4-89e0-ecee08729771/scratchpad/p4c-scratch/shots-p4c.js` (helpers in `p4-scratch/shots/lib.js`, measurement in `measure.js` + `analyze.py`). Kept out of the repo because it contains the sign-in flow; the password is read from a scratch secrets file and never printed.
+- Script: the capture script `shots-p4c.js` (helpers in `lib.js`, measurement in `measure.js` + `analyze.py`) is kept out of the repository because it contains the sign-in flow; it is stored in the author's working area. The password is read from a secrets file in that working area and never printed.
 - Regenerate: after editing a note's text, re-measure its height with `measure.js`, update `TEXT_SIZE`, rebuild, run `node shots-p4c.js` again and copy the six files from `out/` here.
 
 ## 参考 / References（2026-09-23 取得）

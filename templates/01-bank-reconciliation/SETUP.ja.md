@@ -1,16 +1,16 @@
 # テンプレ01 入金消込 — 導入手順（SETUP）
 
 対象：`[Odaji] 01 Bank Deposit Reconciliation v1.0.0`（`workflow.json`）と `[Odaji] 01 Error Handler v1.0.0`（`error-handler.json`）。
-この手順だけで、n8n を初めて使う人が約 30 分で自分の環境に導入できることを目標にしています。上から順に進めてください。
+この手順だけで、n8n を初めて使う人が約 30 分で自分の環境に導入できることを目標にしています。上から順に進めてください。最も時間がかかりやすいのは §2（Google Cloud）です。n8n Cloud で **Sign in with Google** が使える場合は §2.1〜2.3 を省略できます。
 
 | 節 | 内容 | 目安 |
 |---|---|---|
 | 0 | 所要時間と前提 | 2 分 |
 | 1 | スプレッドシート作成 | 5 分 |
-| 2 | Google 側の準備（Cloud プロジェクト・OAuth・n8n Credential） | 10 分 |
+| 2 | Google 側の準備（Cloud プロジェクト・OAuth・n8n Credential） | 10〜15 分（Google Cloud を初めて使う場合は 15 分） |
 | 3 | 通知先の準備（Slack／メール／LINE／Chatwork） | 3〜10 分（使う分だけ） |
 | 4 | ワークフローの取込と Credential の割当 | 5 分 |
-| 5 | `Config` の編集 | 3 分 |
+| 5 | `Config` の編集 | 3〜5 分 |
 | 6 | トリガーノードに入れる値 | 2 分 |
 | 7 | 動作確認 | 5 分 |
 | 8 | 本番化 | 3 分 |
@@ -30,7 +30,7 @@
 | 項目 | 必須 | 用途 |
 |---|---|---|
 | n8n 2.x（Cloud またはセルフホスト）にログインできる管理者アカウント | 必須 | ワークフローの取込・Credential 登録 |
-| Google アカウント（Gmail が使えるもの） | 必須 | スプレッドシート、監視フォルダ、入金通知メール、メール通知 |
+| Google アカウント | 必須 | スプレッドシート、監視フォルダ。Gmail は入金通知メールの取込かメール通知を使う場合のみ（§2、§6.4） |
 | Google Cloud Console にプロジェクトを作れる権限 | セルフホストでは必須（Cloud は「Sign in with Google」で省略可、§2.4） | OAuth クライアントの発行 |
 | Slack ワークスペース（アプリをインストールできる権限） | 任意 | Slack 通知 |
 | LINE 公式アカウント＋LINE Developers（Messaging API チャネル） | 任意 | LINE 通知 |
@@ -80,7 +80,7 @@
 
 ## 2. Google 側の準備（10 分）
 
-このテンプレは Google の 3 サービスを使います。n8n の Credential は **サービスごとに 1 つ**、合計 3 つ作ります。
+このテンプレは Google の 3 サービスを使います。n8n の Credential は **サービスごとに 1 つ**、最大 3 つ作ります（**Gmail OAuth2 API** は入金通知メールの取込かメール通知を使う場合のみ。使わない場合は §6.4 のとおり `Watch Gmail Inbox` と `Notify Email` を無効化します）。
 
 | n8n の Credential 種別（画面表記） | 使うノード |
 |---|---|
@@ -101,7 +101,7 @@
 2. 次の 3 つを検索し、それぞれ **ENABLE**（有効にする）を押します。
    - **Google Sheets API**
    - **Google Drive API**（Google Sheets ノードにも必要と公式ドキュメントに明記されています）
-   - **Gmail API**
+   - **Gmail API**（Gmail の Credential を作る場合）
 3. Google Calendar API は本テンプレでは不要です。
 
 ### 2.3 OAuth 同意画面
@@ -118,7 +118,9 @@
    - 注意：**Testing かつ External** のアプリは、公式ドキュメントによると **同意とトークンが 7 日で失効** します。失効したら n8n の Credential 画面で再接続してください。長期運用では Google 側でアプリを公開（Publishing status を In production に）することを検討してください。
 
 ### 2.4 OAuth クライアントの作成（Google 側）と n8n Credential の作成
-Credential 1 つにつき、次の手順を繰り返します（3 回）。**Google 側の OAuth クライアントは 1 つを 3 つの Credential で使い回して構いません**（Client ID と Client Secret は同じ、Redirect URI は 1 つ）。
+Credential 1 つにつき、次の手順を繰り返します（最大 3 回）。**Google 側の OAuth クライアントは 1 つを 3 つの Credential で使い回して構いません**（Client ID と Client Secret は同じ、Redirect URI は 1 つ）。
+
+**n8n Cloud の場合**：Google Drive／Google Sheets／Gmail（Trigger 含む）は **Managed OAuth2** に対応しており、Credential 画面の **Sign in with Google** だけで接続できます（Google Cloud Console の作業は不要）。公式ドキュメントにこの一覧があります（参考 [1]）。この場合は §2.1〜2.3 を飛ばせます。
 
 1. n8n の左メニュー **Create**（作成ボタン）→ **Credential** を選びます。
 2. 検索欄に `Google Sheets` と入力し **Google Sheets OAuth2 API** を選びます（2 回目は **Google Drive OAuth2 API**、3 回目は **Gmail OAuth2 API**）。
@@ -129,11 +131,8 @@ Credential 1 つにつき、次の手順を繰り返します（3 回）。**Goo
 7. 表示された **Client ID** と **Client Secret** を n8n の Credential 画面の同名欄に貼ります（前後の空白に注意）。
 8. **Sign in with Google** を押し、手順 2.3 で登録した Google アカウントで許可します。
 9. Credential 名を分かる名前に変えて **Save**。名前は自由です（例：`Google Sheets (payment-ops)`）。ワークフローは Credential を**名前ではなく、§4.3 で各ノードに割り当てたもの**で参照します。
-10. スコープ（権限）は n8n の Credential が既定で設定します。**Scope 欄は変更しないでください**（Credential 画面に「The default scopes needed for the node to work are already set」と表示されます）。
+10. スコープ（権限）は n8n の Credential が既定で設定します。**Custom Scopes** は OFF のままにします（ON にすると Scope 欄と注意書き「The default scopes needed for the node to work are already set」が現れますが、既定のスコープで十分です）。
 11. 2 回目・3 回目は手順 1〜2 と 7〜9 だけで済みます（OAuth クライアントは同じものを使う）。
-
-**n8n Cloud の場合**：Google Drive／Google Sheets／Gmail（Trigger 含む）は **Managed OAuth2** に対応しており、Credential 画面の **Sign in with Google** だけで接続できます（Google Cloud Console の作業は不要）。公式ドキュメントにこの一覧があります（参考 [1]）。この場合は §2.1〜2.3 を飛ばせます。
-
 12. Google Sheets Credential に使った Google アカウントに、§1 のスプレッドシートの **編集権限** があることを確認します（自分で作ったなら不要）。
 
 ---
@@ -164,7 +163,7 @@ Credential 1 つにつき、次の手順を繰り返します（3 回）。**Goo
 
 1. Messaging API チャネルを用意します。2024 年 9 月 4 日以降、LINE Developers Console から直接は作成できず、**LINE 公式アカウントを作成 → LINE Official Account Manager で Messaging API を有効化 → LINE Developers Console にログイン** の順になります（参考 [7]）。
 2. LINE Developers Console で該当チャネルを開き、チャネルアクセストークンを発行します。公式ドキュメントは有効期限を指定する **Channel access token v2.1（最長 30 日）** を推奨しています。無人運用で更新の手間を避けたい場合は **Long-lived channel access token（無期限、Messaging API チャネルのみ）** を使えます。どちらを使うかは自分で決め、失効時は再発行して Credential を更新してください（参考 [8][9]）。
-3. 通知の宛先となる自分の userId（`U` で始まる 32 桁の 16 進数）を、チャネルの **Basic settings** タブの **Your user ID** で確認します。表示されない場合は Business ID と LINE アカウントの連携が必要です（参考 [10]）。
+3. 通知の宛先となる自分の userId（`U` の後に 16 進数 32 文字が続く文字列。形式 `U[0-9a-f]{32}`）を、チャネルの **Basic settings** タブの **Your user ID** で確認します。表示されない場合は Business ID と LINE アカウントの連携が必要です（参考 [10]）。
 4. LINE アプリで、その公式アカウントを **友だち追加** しておきます（参考 [9]）。
 5. n8n で **Create → Credential** → `Header Auth` を検索 → **Header Auth** を選びます。
 6. **Name**（ヘッダ名）に `Authorization`、**Value** に `Bearer` ＋ 半角スペース 1 つ ＋ チャネルアクセストークン を 1 つの文字列として入れます（`Bearer` の直後に半角スペースが 1 つだけあること。トークンをそのまま貼るだけでは認証されません）。
@@ -186,16 +185,16 @@ Credential 1 つにつき、次の手順を繰り返します（3 回）。**Goo
 ## 4. ワークフローの取込（5 分）
 
 ### 4.1 取込の順序
-Error Handler を先に取り込みます（本体の Settings で選択するため）。n8n 公式「Export and import」の **Import from file** を使います（参考 [14]）。
+Error Handler を先に取り込みます（本体の Settings で選択するため）。n8n 公式「Export and import」の **Import from File** を使います（参考 [14]）。
 
 1. n8n の左メニュー **Create → Workflow** で空のワークフローを開きます。
-2. 右上の **三点メニュー（…）→ Import from file** を選び、`error-handler.json` を選びます。
+2. 右上の **三点メニュー（…）→ Import from File** を選び、`error-handler.json` を選びます。
 3. ワークフロー名が `[Odaji] 01 Error Handler v1.0.0` になっていることを確認します。**この名前は変えないでください。**
 4. もう一度 **Create → Workflow** で空のワークフローを開き、同じ操作で `workflow.json` を取り込みます。名前は `[Odaji] 01 Bank Deposit Reconciliation v1.0.0` です。
 5. 2.x では編集内容は自動保存されます。1.x の場合は **Save** を押します。
 
 ### 4.2 取込直後の確認
-1. キャンバスに 30 ノードと付箋（Sticky Note）8 枚が表示され、**赤い（エラー表示の）ノードが無い** ことを確認します。「Unknown node」「Node type not found」が出た場合は n8n のバージョンが古いか、組み込みノードが無効化されています。
+1. キャンバスに 30 ノードと付箋（Sticky Note）8 枚（Error Handler は 11 ノードと付箋 4 枚）が表示され、**赤い（エラー表示の）ノードが無い** ことを確認します。「Unknown node」「Node type not found」が出た場合は n8n のバージョンが古いか、組み込みノードが無効化されています。
 2. Credential 未設定のノードには警告アイコンが出ます。これは §4.3 で解消します。
 3. 付箋の内容は日本語（`## JA`）→ 英語（`## EN`）の順で、本書と同じ内容の要約です。
 
@@ -240,13 +239,15 @@ Error Handler `[Odaji] 01 Error Handler v1.0.0`：
 3. **Timezone** が **Asia/Tokyo** になっていることを確認します（`workflow.json` に含めてあります。違っていれば選び直します）。
 4. **Save** を押します。
 5. Error Handler 側の Settings の Error Workflow は **空のまま** にします（無限ループ防止）。
-6. **Error Handler を Publish します**（Error Handler を開き、§4.3 で Credential を選ぶか使わないチャネルのノードを無効化したあと、右上の **Publish**）。作者の n8n 2.40.5 では、**Publish されていない Error Workflow は本体が失敗しても呼び出されません**（n8n のログに `Calling Error Workflow for "…". Workflow "…" is not active and cannot be executed` と出るだけです）。公式ドキュメント（参考 [20]）は公開不要としていますが、実測では必要でした。Publish が `Missing required credential` で拒否される場合は §4.3 の無効化を見直します。
+6. **Error Handler を Publish します**（Error Handler を開き、§4.3 で Credential を選ぶか使わないチャネルのノードを無効化し、§5.3 の Error Handler `Config` も編集したあと、右上の **Publish** → ダイアログ内の **Publish**。§7.2 手順 2 参照）。作者の n8n 2.40.5 では、**Publish されていない Error Workflow は本体が失敗しても呼び出されません**（n8n のログに `Calling Error Workflow for "…". Workflow "…" is not active and cannot be executed` と出るだけです）。公式ドキュメント（参考 [20]）は公開不要としていますが、実測では必要でした。Publish が `Missing required credential` で拒否される場合は §4.3 の無効化を見直します。
 
 ---
 
-## 5. `Config` の編集（3 分）
+## 5. `Config` の編集（3〜5 分）
 
 本体の `Config` ノード（Edit Fields (Set)、Mode: JSON）を開き、JSON を直接編集します。**`REPLACE_ME_` で始まる値と `replace-me@example.com` をすべて置き換えてください。** JSON の構文（引用符・カンマ）を崩さないよう注意します。
+
+JSON 欄は **Expression** モードのまま編集します（末尾の `SOURCE` に `{{ $prevNode.name }}` が入っているため）。**Fixed に切り替えないでください**（切り替えると `SOURCE` が文字列になり、`Route by Source` が正しく分岐しません）。JSON は約 160 行あります。`SHEET_ID` と `DRIVE_FOLDER_ID` は先頭付近、`SLACK_CHANNEL`／`NOTIFY_EMAIL_TO`／`LINE_TO_USER_ID`／`CHATWORK_ROOM_ID` は `NOTIFY_CHANNELS` の直後にあります。
 
 | キー | 必須 | 既定値 | 入れるもの |
 |---|---|---|---|
@@ -325,6 +326,9 @@ Error Handler `[Odaji] 01 Error Handler v1.0.0`：
 8. 一致しないメールは実行を止めず、通知の「警告」に `no_parser_matched`（ルール不一致）または `parser_no_capture`（正規表現が値を取れない）として出ます。これを見て調整します。
 9. 正規表現が文法的に誤っている場合は実行が失敗します（Config の誤りを隠さないため）。
 
+### 5.3 Error Handler の `Config`
+Error Handler `[Odaji] 01 Error Handler v1.0.0` にも `Config` ノードがあり、通知に必要な 9 キーだけを持ちます：`LANG`、`NOTIFY_CHANNELS`、`SLACK_CHANNEL`、`NOTIFY_EMAIL_TO`、`LINE_TO_USER_ID`、`CHATWORK_ROOM_ID`、`LINE_API_URL`、`CHATWORK_API_BASE_URL`、`MESSAGES`。本体と同じ値を入れ、`REPLACE_ME_…` と `replace-me@example.com` を置き換えます（Error Handler は本体の `Config` を参照できません）。JSON 欄のモードは変えずにそのまま編集します。§4.4 手順 6 の Publish より前に済ませてください。
+
 ---
 
 ## 6. トリガーノードに入れる値（2 分）
@@ -334,7 +338,7 @@ Error Handler `[Odaji] 01 Error Handler v1.0.0`：
 ### 6.1 `Watch Drive Folder`（Google Drive Trigger）
 1. ノードを開きます。
 2. **Trigger On** は「特定のフォルダ」（`Changes Involving a Specific Folder`）のままにします。
-3. **Folder** を **By ID** にし、値 `REPLACE_ME_DRIVE_FOLDER_ID` を §1 手順 10 のフォルダ ID に置き換えます（**By URL** でフォルダの URL を貼っても構いません）。
+3. **Folder** 欄左側のモードが **ID** になっていることを確認し（取込直後は ID）、値 `REPLACE_ME_DRIVE_FOLDER_ID` を §1 手順 10 のフォルダ ID に置き換えます（**Link** に切り替えてフォルダの URL を貼っても構いません。**Folder** はリストから選ぶモードで、Credential 接続後に使えます）。
 4. **Watch For** は `File Created` のまま。ポーリングは毎分（`Poll Times: Every Minute`）のままで構いません。
 
 ### 6.2 `Watch Gmail Inbox`（Gmail Trigger）
@@ -352,6 +356,7 @@ Error Handler `[Odaji] 01 Error Handler v1.0.0`：
 ### 6.4 使わない系統の止め方
 - `Config` の `TRIGGERS_ENABLED` を `false` にすると、その系統は `Route by Source` で `Skip Disabled Trigger` に落ちて正常終了します。**ただしトリガーノード自体のポーリング（Drive／Gmail API の呼出し）は続きます。**
 - API 呼出しも止めたいときは、そのトリガーノードを無効化します（ノードのメニューの **Deactivate**）。無効化したノードは `Publish` 後も動きません。
+- Gmail を使わない場合（入金通知メールもメール通知も使わない）は、`TRIGGERS_ENABLED.gmail` を `false` にしたうえで、`Watch Gmail Inbox` と `Notify Email`（本体・Error Handler の両方）を無効化します。Gmail OAuth2 API の Credential を作らずにこれらのノードを有効のまま残すと、Publish が `Missing required credential: gmailOAuth2` で拒否されます（§4.3）。
 - トリガーノードの**名前は変えないでください**。`Route by Source` がノード名（`Watch Drive Folder` / `Watch Gmail Inbox` / `Run Daily Rematch`）で分岐しています。
 
 ---
@@ -367,7 +372,7 @@ Error Handler `[Odaji] 01 Error Handler v1.0.0`：
 
 ### 7.2 CSV を監視フォルダに置く
 1. `Config` の `CSV_MAPPING` が既定値（`日付` / `摘要` / `入金額` / `出金額`、`shift_jis`）であることを確認します。
-2. 本体ワークフローを **Publish**（右上の **Publish** ボタン、または Shift+P）します。公開しないとトリガーは動きません（参考 [19]）。
+2. 本体ワークフローを公開します。右上の **Publish**（または Shift+P）を押すと公開ダイアログが開きます（Version name は既定で UUID。変更不要）。ダイアログ内の **Publish** を押して公開します。公開しないとトリガーは動きません（参考 [19]）。
 3. `fixtures/bank_A_sjis.csv` を §1 手順 10 の監視フォルダにアップロードします（ドライブの「変換」設定が OFF であることを再確認）。
 4. 1〜2 分待ち、ワークフローの **Executions** タブで実行が 1 件増え、ステータスが成功（緑）になっていることを確認します。
    - 補足：Google Drive Trigger を **Execute workflow** で手動実行すると、条件に合う直近のイベントを 1 件返します。該当が無い場合はエラーになります（公式ドキュメントの注記）。手動で確認したい場合はファイルを置いたあとに実行してください。
@@ -420,7 +425,7 @@ Error Handler `[Odaji] 01 Error Handler v1.0.0`：
 `fixtures/mail_bankX.eml` / `mail_bankY.eml` を自分の Gmail 宛てに送る（メールソフトで .eml を開いて転送するなど）と、`Watch Gmail Inbox` の Search に一致した場合に `INV-2026-018`（104,500 円）と `INV-2026-019`（19,800 円）が `paid` になります。差出人が `example.jp` / `example.com` ではないため、確認時は `MAIL_PARSERS` の `from_match` を自分の送信元に一時的に変えてください。
 
 ### 7.6 試運転データの削除
-1. `invoices` シートから `INV-2026-001`〜`INV-2026-021` の行を**すべて削除**します。
+1. `invoices` シートから `INV-2026-001`〜`INV-2026-020` の行を**すべて削除**します。
 2. `transactions` シートから試運転で追加された行（seed の 1 行を含む）を**すべて削除**します。残っていると、同じ `txn_id` の本番入金が「処理済み」として skip されることはありませんが、台帳に架空データが混ざります。
 3. Error Handler の動作確認は手動ではできません（Error Trigger は自動実行の失敗時にだけ発火します。参考 [20]）。§8 で公開したあと、`Check Notification Results` が全チャネル失敗時に実行を失敗させる設計になっているため、通知先を一時的に誤った値にして確認できます。
 
@@ -430,7 +435,7 @@ Error Handler `[Odaji] 01 Error Handler v1.0.0`：
 
 1. `invoices` シートに本番の請求を入れます。**`payer_name_alias` を必ず埋めてください。** 振込名義はカタカナ（半角カナや `ｶ)` などの法人格略記を含む）で届きます。過去の通帳から実際の振込名義を写し、複数ある場合はカンマ区切りで入れます（例：`カ)サンプルシヨウジ,サンプルシヨウジ`）。ここが空だと、名義一致が働かず「金額のみ一致（要確認）」か「未消込」が増えます。
 2. `Config` の通知先（`SLACK_CHANNEL` / `NOTIFY_EMAIL_TO` など）を本番用にし、Error Handler の `Config` にも**同じ通知設定**を入れます（Error Handler は本体の `Config` を参照できません）。
-3. 本体ワークフローが **Publish** されていることを確認します（§7.2 で公開済みなら、`Config` を変えたあとに再度 **Publish** が必要です。2.x では編集内容は公開するまで本番に反映されません）。**Error Handler も Publish されていることを確認します**（§4.4 手順 6。Publish されていないと呼び出されません。Error Handler の `Config` を変えたあとも再度 Publish が必要です）。
+3. 本体ワークフローが **Publish** されていることを確認します（§7.2 で公開済みなら、`Config` を変えたあとに再度 **Publish**（§7.2 手順 2 のダイアログ）が必要です。2.x では編集内容は公開するまで本番に反映されません）。**Error Handler も Publish されていることを確認します**（§4.4 手順 6。Publish されていないと呼び出されません。Error Handler の `Config` を変えたあとも再度 Publish が必要です）。
 4. 運用上の注意：
    - **同姓同名**：個人名の名義は同姓同名が起きます。このテンプレが金額一致を必須にしているのはそのためで、名義が違って金額だけ一致した入金は「要確認」として通知に出ます。必ず目視してください。
    - **月をまたいで CSV 形式が変わる**：銀行によっては見出し行の有無や説明行の追加が起きます。「`CSV column not found`」で失敗したら `CSV_MAPPING.skip_rows` と列見出しを見直します（§9）。
@@ -459,7 +464,7 @@ Error Handler `[Odaji] 01 Error Handler v1.0.0`：
 | `Watch Gmail Inbox` が反応しない | Search の条件に一致していない（`subject:` は本文を見ない）。既読メールも対象にするには Read Status を `Unread and read emails` にする。**Simplify を ON にしていると本文が取れず解析できない** |
 | 同じ CSV を 2 回入れたのに二重に消し込まれない（正常） | `txn_id`（日付｜金額｜正規化名義｜正規化メモ）が `transactions` に既にある取引、または請求の `matched_txn_ids` に記録済みの取引は skip する設計。同日・同額・同名義・同メモの実在する 2 重入金は 2 件目が skip されるので、通知の「処理済みのため skip」件数を見て人が `manual` で処理する |
 | Error Handler が動かない（本体の実行は失敗している） | (1) **Error Handler 自身が Publish されているか**（§4.4 手順 6。未公開だと n8n のログに `Workflow "…" is not active and cannot be executed` と出て呼び出されない）。(2) 本体の Settings → Error Workflow で選んでいるか。(3) Error Trigger は **公開後の自動実行が失敗したとき**だけ発火し、手動実行では発火しない。(4) 通知ノードの一部失敗は「処理済み」扱いなので発火しない（全チャネル失敗時のみ `Check Notification Results` が失敗させる）。(5) Error Handler の `Config` に通知先を入れたか。(6) Error Handler 側の使うチャネルの `Notify …` に Credential を選んだか |
-| Publish が `Cannot publish workflow: … Missing required credential: slackApi` / `gmailOAuth2` などで拒否される（本体・Error Handler とも） | Credential 未設定の `Notify …` ノードが有効のまま残っている。使わないチャネルのノードを右クリック → **Deactivate** で無効化するか、Credential を選ぶ（§4.3）。無効化したチャネルは `NOTIFY_CHANNELS` からも外す |
+| Publish が `Cannot publish workflow: … Missing required credential: slackApi` / `gmailOAuth2` などで拒否される（本体・Error Handler とも） | Credential 未設定のノードが有効のまま残っている（`Notify …` ノードのほか、Gmail の Credential を作っていない場合は `Watch Gmail Inbox` も該当）。使わないチャネルのノードを右クリック → **Deactivate** で無効化するか、Credential を選ぶ（§4.3、§6.4）。無効化したチャネルは `NOTIFY_CHANNELS` からも外す |
 | `Check Notification Results` の `errors` に `notify node disabled or not executed (payload passed through)` が出る | `NOTIFY_CHANNELS` に入っているチャネルの `Notify …` ノードが無効化されている。そのチャネルを使うならノードを有効化（Activate）して Credential を選ぶ。使わないなら `NOTIFY_CHANNELS` から外す（§4.3） |
 | ノードの出力に「This data is pinned」と出る | 開発用に固定された出力が残っている。バナーの **Unpin** を押す。販売物の JSON には固定データを含めていないが、自分で固定した場合は本番実行では無視される（参考 [23]） |
 | 請求が突合されず「警告」に `non_jpy_invoice` と出る | `invoices.currency` が `JPY` 以外。JPY のみ対応 |
@@ -474,7 +479,7 @@ Error Handler `[Odaji] 01 Error Handler v1.0.0`：
 - [ ] スプレッドシートに `invoices` / `transactions` があり、列名はテンプレのまま、全セルが「書式なしテキスト」
 - [ ] Google ドライブの「アップロードしたファイルを Google ドキュメント エディタ形式に変換する」が OFF
 - [ ] Google Cloud で Google Sheets API / Google Drive API / Gmail API を有効化し、同意画面（Test users または公開）と OAuth クライアント（Redirect URI）を設定した
-- [ ] n8n に Google Sheets OAuth2 API / Google Drive OAuth2 API / Gmail OAuth2 API の Credential を作り、接続済み
+- [ ] n8n に Google Sheets OAuth2 API / Google Drive OAuth2 API / Gmail OAuth2 API の Credential を作り、接続済み（Gmail は使う場合のみ。使わないなら `Watch Gmail Inbox` と `Notify Email` を無効化）
 - [ ] 使う通知先の Credential を作った（Slack API、Header Auth `LINE Messaging API`、Header Auth `Chatwork API`）
 - [ ] `error-handler.json` → `workflow.json` の順に取り込み、赤いノードが無い
 - [ ] 本体の 11 ノード、Error Handler の 4 ノードで Credential を選んだ。使わないチャネルの `Notify …` ノードは本体・Error Handler の両方で無効化（Deactivate）し、`NOTIFY_CHANNELS` からも外した
@@ -491,7 +496,7 @@ Error Handler `[Odaji] 01 Error Handler v1.0.0`：
 
 ## 参考 / References
 
-すべて 2026-09-23 に取得・確認。n8n の画面表記はセルフホストの n8n 2.40.5 で確認したものです。
+すべて 2026-09-23 に取得・確認。n8n の画面表記（Google Drive Trigger の Folder のモード名 Folder／Link／ID、Google 系 Credential の Custom Scopes、公開ダイアログを含む）はセルフホストの n8n 2.40.5 で確認したものです。
 
 1. n8n Docs — Google OAuth2 single service（Google Cloud プロジェクト・API 有効化・同意画面・OAuth クライアント・Managed OAuth2・トラブルシューティング）: https://docs.n8n.io/integrations/builtin/credentials/google/oauth-single-service.md
 2. n8n Docs — Google credentials（Managed OAuth2 対応ノード一覧・OAuth2 と Service Account）: https://docs.n8n.io/integrations/builtin/credentials/google.md
@@ -519,6 +524,7 @@ Error Handler `[Odaji] 01 Error Handler v1.0.0`：
 24. n8n Docs — HTTP Request credentials（Header Auth の Name / Value）: https://docs.n8n.io/integrations/builtin/credentials/httprequest.md
 25. Google ドライブ ヘルプ — Google ドライブにファイルやフォルダをアップロードする（「アップロードしたファイルを Google ドキュメント エディタ形式に変換する」の設定場所）: https://support.google.com/drive/answer/2424368?hl=ja
 26. Google ドキュメント エディタ ヘルプ — スプレッドシートで数値の表示形式を設定する（表示形式 → 数字）: https://support.google.com/docs/answer/56470?hl=ja
+27. n8n Docs — Work with nodes（ノードのコンテキストメニューの Deactivate）: https://docs.n8n.io/build/understand-workflows/workflow-components/work-with-nodes.md
 
 取得できなかったページ：Slack ヘルプ「チャンネルにアプリを追加する」、Chatwork ヘルプ「ルーム ID の確認方法」（いずれも本文中に明記し、代替の公式資料を示しています）。LINE／Chatwork の API 仕様（URL・ヘッダ名・本文形式）の確認記録は `ASSUMPTIONS.md` の「外部 API」表にもあります。
 
