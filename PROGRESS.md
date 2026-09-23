@@ -73,5 +73,14 @@
 ## 未解決
 - `BLOCKERS.md` を参照。
 
+## タグについて
+- `01-v1.0.0` はローカルで `7f24b9a` に作成済み。このセッションの GitHub 接続はブランチの push のみ許可されており、タグの push は 403 で拒否された（`git push origin 01-v1.0.0`）。お手元の PC で次を実行すると同じタグを公開できる:
+
+```
+git fetch origin main
+git tag -a 01-v1.0.0 7f24b9a -m "Template 01 Bank Deposit Reconciliation v1.0.0 (n8n 2.40.5)"
+git push origin 01-v1.0.0
+```
+
 ## 履歴
 - 2026-09-23: プロジェクト開始。仕様書を配置。P0 完了（Slack は代替）。01 P1 完了。リポジトリを tools に移設。01 P2 完了。01 P3 完了（22 PASS / FAIL 0、製品修正 D34）。01 P4 完了。01 P5 完了・DoD 確認・`01-v1.0.0` タグ。テンプレ03 着手。
