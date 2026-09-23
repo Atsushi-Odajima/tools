@@ -22,5 +22,6 @@ export N8N_TEMPLATES_ENABLED=false
 export N8N_PERSONALIZATION_ENABLED=false
 export N8N_HIRING_BANNER_ENABLED=false
 export N8N_RUNNERS_MODE=internal            # 開発用。本番は external 推奨 / dev only; production should use external
+export N8N_RUNNERS_BROKER_PORT="${N8N_RUNNERS_BROKER_PORT:-5679}"   # 2 台目を同じホストで動かすときは変える / change when running a second instance on the same host
 mkdir -p "$N8N_DATA_DIR"
 exec "$N8N_RUNTIME_DIR/node_modules/.bin/n8n" start
