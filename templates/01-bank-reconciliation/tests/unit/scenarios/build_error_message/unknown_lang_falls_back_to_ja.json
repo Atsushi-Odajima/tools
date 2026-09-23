@@ -1,0 +1,91 @@
+{
+  "_comment": "LANG other than \"en\" selects the Japanese copy (§6.9 lang = LANG === \"en\" ? \"en\" : \"ja\").",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "execution": {
+          "id": "231",
+          "url": "https://n8n.example.com/execution/231",
+          "retryOf": "34",
+          "error": {
+            "message": "Example Error Message",
+            "stack": "Stacktrace"
+          },
+          "lastNodeExecuted": "Node With Error",
+          "mode": "manual"
+        },
+        "workflow": {
+          "id": "1",
+          "name": "Example Workflow"
+        }
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "LANG": "fr",
+          "NOTIFY_CHANNELS": [
+            "slack"
+          ],
+          "SLACK_CHANNEL": "REPLACE_ME_SLACK_CHANNEL_ID",
+          "NOTIFY_EMAIL_TO": "replace-me@example.com",
+          "LINE_TO_USER_ID": "REPLACE_ME_LINE_USER_ID",
+          "CHATWORK_ROOM_ID": "REPLACE_ME_CHATWORK_ROOM_ID",
+          "MESSAGES": {
+            "ja": {
+              "error_notice": {
+                "title": "【n8n エラー】{workflow_name}",
+                "body": "ワークフロー：{workflow_name}\n失敗したノード：{last_node}\nエラー：{message}\n実行ログ：{execution_url}\n\n実行ログで原因を確認し、修正後に再実行してください。シート書込みやメール送信が途中まで進んでいる可能性があるため、再実行前に台帳シートを確認してください。"
+              }
+            },
+            "en": {
+              "error_notice": {
+                "title": "[n8n error] {workflow_name}",
+                "body": "Workflow: {workflow_name}\nFailed node: {last_node}\nError: {message}\nExecution log: {execution_url}\n\nCheck the execution log for the cause, fix it, and re-run. Sheet writes or emails may have partially completed, so check the ledger sheet before re-running."
+              }
+            }
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "expect": {
+    "length": 1,
+    "paths": {
+      "[0].json.title": "【n8n エラー】Example Workflow",
+      "[0].json.body_text": "ワークフロー：Example Workflow\n失敗したノード：Node With Error\nエラー：Example Error Message\n実行ログ：https://n8n.example.com/execution/231\n\n実行ログで原因を確認し、修正後に再実行してください。シート書込みやメール送信が途中まで進んでいる可能性があるため、再実行前に台帳シートを確認してください。",
+      "[0].json.chatwork_text": "ワークフロー：Example Workflow\n失敗したノード：Node With Error\nエラー：Example Error Message\n実行ログ：https://n8n.example.com/execution/231\n\n実行ログで原因を確認し、修正後に再実行してください。シート書込みやメール送信が途中まで進んでいる可能性があるため、再実行前に台帳シートを確認してください。",
+      "[0].json.line_text": "ワークフロー：Example Workflow\n失敗したノード：Node With Error\nエラー：Example Error Message\n実行ログ：https://n8n.example.com/execution/231\n\n実行ログで原因を確認し、修正後に再実行してください。シート書込みやメール送信が途中まで進んでいる可能性があるため、再実行前に台帳シートを確認してください。",
+      "[0].json.slack_blocks": [
+        {
+          "type": "header",
+          "text": {
+            "type": "plain_text",
+            "text": "【n8n エラー】Example Workflow"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "ワークフロー：Example Workflow\n失敗したノード：Node With Error\nエラー：Example Error Message\n実行ログ：https://n8n.example.com/execution/231\n\n実行ログで原因を確認し、修正後に再実行してください。シート書込みやメール送信が途中まで進んでいる可能性があるため、再実行前に台帳シートを確認してください。"
+          }
+        }
+      ],
+      "[0].pairedItem": {
+        "item": 0
+      }
+    },
+    "max_length": {
+      "[0].json.slack_blocks[0].text.text": 150,
+      "[0].json.slack_blocks[*].text.text": 3000,
+      "[0].json.line_text": 4900
+    }
+  }
+}

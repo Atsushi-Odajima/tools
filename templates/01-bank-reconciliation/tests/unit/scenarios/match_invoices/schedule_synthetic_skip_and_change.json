@@ -1,0 +1,442 @@
+{
+ "_comment": "Synthetic schedule run: ignored / matched rows are left alone (even though SYN-001 / SYN-002 would match); ガンマ (unmatched) now matches SYN-003 → rematched = 1; ゼータ (ambiguous, same candidates SYN-002,SYN-008) → not written; シータ (unmatched, no candidates before) now gets SYN-002,SYN-008 within 10% → written back, status unchanged.",
+ "input": [
+  {
+   "json": {
+    "source": "schedule",
+    "file_name": "",
+    "ignored_withdraw": 0,
+    "warnings": [],
+    "txns": [],
+    "invoices": [
+     {
+      "invoice_id": "SYN-001",
+      "customer_name": "アルファ株式会社",
+      "payer_name_alias": "アルフア",
+      "amount": 10000,
+      "currency": "JPY",
+      "due_date": "2026-09-30",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "アルファ",
+       "アルフア"
+      ]
+     },
+     {
+      "invoice_id": "SYN-002",
+      "customer_name": "ベータ商店",
+      "payer_name_alias": "ベータ",
+      "amount": 30000,
+      "currency": "JPY",
+      "due_date": "2026-09-30",
+      "status": "partial",
+      "paid_amount": 10000,
+      "_names": [
+       "ベータ商店",
+       "ベータ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-003",
+      "customer_name": "ガンマ企画",
+      "payer_name_alias": "ガンマ",
+      "amount": 20000,
+      "currency": "JPY",
+      "due_date": "2026-09-30",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "ガンマ企画",
+       "ガンマ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-004",
+      "customer_name": "デルタ",
+      "payer_name_alias": "デルタ",
+      "amount": 1000,
+      "currency": "JPY",
+      "due_date": "2026-09-10",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "デルタ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-005",
+      "customer_name": "デルタ",
+      "payer_name_alias": "デルタ",
+      "amount": 2000,
+      "currency": "JPY",
+      "due_date": "2026-09-20",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "デルタ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-006",
+      "customer_name": "デルタ",
+      "payer_name_alias": "デルタ",
+      "amount": 3000,
+      "currency": "JPY",
+      "due_date": "2026-09-30",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "デルタ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-007",
+      "customer_name": "デルタ",
+      "payer_name_alias": "デルタ",
+      "amount": 4000,
+      "currency": "JPY",
+      "due_date": "2026-10-05",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "デルタ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-008",
+      "customer_name": "イプシロン",
+      "payer_name_alias": "イプシロン",
+      "amount": 20000,
+      "currency": "JPY",
+      "due_date": "2026-10-05",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "イプシロン"
+      ]
+     }
+    ],
+    "existing": [
+     {
+      "txn_id": "2026-09-01|10000|アルフア|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-01",
+      "payer_name_raw": "アルフア",
+      "payer_name_norm": "アルフア",
+      "amount": 10000,
+      "memo": "",
+      "matched_invoice_ids": "",
+      "status": "ignored",
+      "suggested_invoice_ids": "",
+      "imported_at": "2026-09-22T09:00:00+09:00"
+     },
+     {
+      "txn_id": "2026-09-02|20000|ベータ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-02",
+      "payer_name_raw": "ベータ",
+      "payer_name_norm": "ベータ",
+      "amount": 20000,
+      "memo": "",
+      "matched_invoice_ids": "OLD-1",
+      "status": "matched",
+      "suggested_invoice_ids": "",
+      "imported_at": "2026-09-22T09:00:00+09:00"
+     },
+     {
+      "txn_id": "2026-09-03|20000|ガンマ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-03",
+      "payer_name_raw": "ガンマ",
+      "payer_name_norm": "ガンマ",
+      "amount": 20000,
+      "memo": "",
+      "matched_invoice_ids": "",
+      "status": "unmatched",
+      "suggested_invoice_ids": "",
+      "imported_at": "2026-09-22T09:00:00+09:00"
+     },
+     {
+      "txn_id": "2026-09-04|20000|ゼータ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-04",
+      "payer_name_raw": "ゼータ",
+      "payer_name_norm": "ゼータ",
+      "amount": 20000,
+      "memo": "",
+      "matched_invoice_ids": "",
+      "status": "ambiguous",
+      "suggested_invoice_ids": "SYN-002,SYN-008",
+      "imported_at": "2026-09-22T09:00:00+09:00"
+     },
+     {
+      "txn_id": "2026-09-05|20500|シータ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-05",
+      "payer_name_raw": "シータ",
+      "payer_name_norm": "シータ",
+      "amount": 20500,
+      "memo": "",
+      "matched_invoice_ids": "",
+      "status": "unmatched",
+      "suggested_invoice_ids": "",
+      "imported_at": "2026-09-22T09:00:00+09:00"
+     }
+    ]
+   },
+   "pairedItem": {
+    "item": 0
+   }
+  }
+ ],
+ "nodes": {
+  "Config": [
+   {
+    "json": {
+     "id": "fixture-bank-A",
+     "name": "bank_A_sjis.csv",
+     "mimeType": "text/csv",
+     "SOURCE": "Run Daily Rematch",
+     "TZ": "Asia/Tokyo",
+     "LANG": "ja",
+     "SHEET_ID": "REPLACE_ME_SHEET_ID",
+     "SHEET_INVOICES": "invoices",
+     "SHEET_TRANSACTIONS": "transactions",
+     "DRIVE_FOLDER_ID": "REPLACE_ME_DRIVE_FOLDER_ID",
+     "GMAIL_QUERY": "subject:(入金 OR Deposit) newer_than:1d",
+     "RUN_AT": "09:00",
+     "TRIGGERS_ENABLED": {
+      "drive": true,
+      "gmail": true,
+      "schedule": true
+     },
+     "CSV_MAPPING": {
+      "date_col": "日付",
+      "payer_col": "摘要",
+      "deposit_col": "入金額",
+      "withdraw_col": "出金額",
+      "memo_col": "",
+      "skip_rows": 0,
+      "date_format": "auto",
+      "encoding": "shift_jis"
+     },
+     "MAIL_PARSERS": [
+      {
+       "name": "bankX",
+       "from_match": "@example.jp",
+       "subject_match": "入金",
+       "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+       "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+       "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+      },
+      {
+       "name": "bankY",
+       "from_match": "@example.com",
+       "subject_match": "Deposit",
+       "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+       "payer_regex": "Remitter\\s+([^\\n]+)",
+       "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+      }
+     ],
+     "LEGAL_ENTITY_TOKENS": [
+      "カ)",
+      "(カ",
+      "ユ)",
+      "(ユ",
+      "ド)",
+      "(ド",
+      "シヤ)",
+      "(シヤ",
+      "ザイ)",
+      "(ザイ",
+      "ガク)",
+      "(ガク",
+      "イ)",
+      "(イ",
+      "ホ)",
+      "(ホ",
+      "株式会社",
+      "有限会社",
+      "合同会社",
+      "合名会社",
+      "合資会社",
+      "一般社団法人",
+      "一般財団法人",
+      "医療法人",
+      "学校法人",
+      "社会福祉法人",
+      "カブシキガイシヤ",
+      "カブシキカイシヤ",
+      "ユウゲンガイシヤ",
+      "ゴウドウガイシヤ",
+      "イツパンシヤダンホウジン",
+      "イリヨウホウジン",
+      "振込",
+      "フリコミ",
+      "ゴフリコミ"
+     ],
+     "STRIP_LEADING_DIGITS": true,
+     "FEE_SET": [
+      110,
+      165,
+      220,
+      275,
+      330,
+      440,
+      550,
+      660,
+      770,
+      880
+     ],
+     "NAME_MIN_CONTAINS": 3,
+     "NOTIFY_CHANNELS": [
+      "slack"
+     ],
+     "SLACK_CHANNEL": "REPLACE_ME_SLACK_CHANNEL_ID",
+     "NOTIFY_EMAIL_TO": "replace-me@example.com",
+     "LINE_TO_USER_ID": "REPLACE_ME_LINE_USER_ID",
+     "CHATWORK_ROOM_ID": "REPLACE_ME_CHATWORK_ROOM_ID",
+     "NOTIFY_MAX_LINES": 40
+    },
+    "pairedItem": {
+     "item": 0
+    }
+   }
+  ]
+ },
+ "now": "2026-09-23T09:00:00+09:00",
+ "expect": {
+  "length": 4,
+  "count": {
+   "invoice_update": 1,
+   "txn_row": 2,
+   "summary": 1
+  },
+  "rows": [
+   {
+    "match": {
+     "_kind": "invoice_update",
+     "invoice_id": "SYN-003"
+    },
+    "equals": {
+     "status": "paid",
+     "paid_amount": 20000,
+     "paid_date": "2026-09-03",
+     "matched_txn_ids": "2026-09-03|20000|ガンマ|",
+     "match_confidence": "auto",
+     "fee_deducted": 0
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-03|20000|ガンマ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-03",
+     "payer_name_raw": "ガンマ",
+     "payer_name_norm": "ガンマ",
+     "amount": 20000,
+     "memo": "",
+     "matched_invoice_ids": "SYN-003",
+     "status": "matched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-22T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-05|20500|シータ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-05",
+     "payer_name_raw": "シータ",
+     "payer_name_norm": "シータ",
+     "amount": 20500,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "SYN-002,SYN-008",
+     "imported_at": "2026-09-22T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "summary"
+    },
+    "equals": {
+     "n": 0,
+     "a": 0,
+     "b": 0,
+     "c": 0,
+     "rematched": 1,
+     "skipped_existing": 0,
+     "skipped_duplicate_in_batch": 0,
+     "ignored_withdraw": 0,
+     "warnings": [],
+     "needs_review": [],
+     "ambiguous": [],
+     "auto": [
+      {
+       "txn_date": "2026-09-03",
+       "payer_raw": "ガンマ",
+       "amount": 20000,
+       "source": "bank_csv",
+       "invoice_ids": [
+        "SYN-003"
+       ],
+       "reason": "auto",
+       "fee": 0,
+       "remaining_after": 0
+      }
+     ],
+     "unmatched": [
+      {
+       "txn_date": "2026-09-05",
+       "payer_raw": "シータ",
+       "amount": 20500,
+       "source": "bank_csv",
+       "reason": "no_candidate",
+       "candidates": [
+        {
+         "invoice_id": "SYN-002",
+         "remaining": 20000
+        },
+        {
+         "invoice_id": "SYN-008",
+         "remaining": 20000
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "no_rows": [
+   {
+    "_kind": "invoice_update",
+    "invoice_id": "SYN-001"
+   },
+   {
+    "_kind": "invoice_update",
+    "invoice_id": "SYN-002"
+   },
+   {
+    "_kind": "txn_row",
+    "txn_id": "2026-09-01|10000|アルフア|"
+   },
+   {
+    "_kind": "txn_row",
+    "txn_id": "2026-09-02|20000|ベータ|"
+   },
+   {
+    "_kind": "txn_row",
+    "txn_id": "2026-09-04|20000|ゼータ|"
+   }
+  ]
+ }
+}

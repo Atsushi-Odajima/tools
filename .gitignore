@@ -8,3 +8,6 @@ secrets/
 # OS / editor
 .DS_Store
 Thumbs.db
+# Python bytecode (never commit; build/ and tests/ scripts may create it)
+__pycache__/
+*.pyc

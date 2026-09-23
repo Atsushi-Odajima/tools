@@ -1,0 +1,2639 @@
+{
+  "_comment": "200 needs-review lines with NOTIFY_MAX_LINES=40 (default): 40 detail lines + 「…他 160 件」; one section (< 2,900 chars) → 2 blocks; body < 4,900 so line_text == body_text; header ≤ 150 / section ≤ 3,000 / LINE ≤ 4,900.",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "_kind": "summary",
+        "date": "2026-09-23",
+        "source": "drive",
+        "file_name": "bank_A_sjis.csv",
+        "n": 200,
+        "a": 0,
+        "b": 200,
+        "c": 0,
+        "rematched": 0,
+        "skipped_existing": 0,
+        "skipped_duplicate_in_batch": 0,
+        "ignored_withdraw": 0,
+        "auto": [],
+        "needs_review": [
+          {
+            "txn_date": "2026-09-02",
+            "payer_raw": "振込 ﾃｽﾄ001",
+            "amount": 10001,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-001"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-03",
+            "payer_raw": "振込 ﾃｽﾄ002",
+            "amount": 10002,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-002"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-04",
+            "payer_raw": "振込 ﾃｽﾄ003",
+            "amount": 10003,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-003"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-05",
+            "payer_raw": "振込 ﾃｽﾄ004",
+            "amount": 10004,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-004"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-06",
+            "payer_raw": "振込 ﾃｽﾄ005",
+            "amount": 10005,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-005"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-07",
+            "payer_raw": "振込 ﾃｽﾄ006",
+            "amount": 10006,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-006"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-08",
+            "payer_raw": "振込 ﾃｽﾄ007",
+            "amount": 10007,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-007"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-09",
+            "payer_raw": "振込 ﾃｽﾄ008",
+            "amount": 10008,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-008"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-10",
+            "payer_raw": "振込 ﾃｽﾄ009",
+            "amount": 10009,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-009"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-11",
+            "payer_raw": "振込 ﾃｽﾄ010",
+            "amount": 10010,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-010"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-12",
+            "payer_raw": "振込 ﾃｽﾄ011",
+            "amount": 10011,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-011"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-13",
+            "payer_raw": "振込 ﾃｽﾄ012",
+            "amount": 10012,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-012"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-14",
+            "payer_raw": "振込 ﾃｽﾄ013",
+            "amount": 10013,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-013"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-15",
+            "payer_raw": "振込 ﾃｽﾄ014",
+            "amount": 10014,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-014"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-16",
+            "payer_raw": "振込 ﾃｽﾄ015",
+            "amount": 10015,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-015"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-17",
+            "payer_raw": "振込 ﾃｽﾄ016",
+            "amount": 10016,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-016"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-18",
+            "payer_raw": "振込 ﾃｽﾄ017",
+            "amount": 10017,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-017"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-19",
+            "payer_raw": "振込 ﾃｽﾄ018",
+            "amount": 10018,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-018"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-20",
+            "payer_raw": "振込 ﾃｽﾄ019",
+            "amount": 10019,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-019"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-21",
+            "payer_raw": "振込 ﾃｽﾄ020",
+            "amount": 10020,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-020"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-22",
+            "payer_raw": "振込 ﾃｽﾄ021",
+            "amount": 10021,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-021"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-23",
+            "payer_raw": "振込 ﾃｽﾄ022",
+            "amount": 10022,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-022"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-24",
+            "payer_raw": "振込 ﾃｽﾄ023",
+            "amount": 10023,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-023"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-25",
+            "payer_raw": "振込 ﾃｽﾄ024",
+            "amount": 10024,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-024"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-26",
+            "payer_raw": "振込 ﾃｽﾄ025",
+            "amount": 10025,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-025"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-27",
+            "payer_raw": "振込 ﾃｽﾄ026",
+            "amount": 10026,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-026"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-28",
+            "payer_raw": "振込 ﾃｽﾄ027",
+            "amount": 10027,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-027"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-01",
+            "payer_raw": "振込 ﾃｽﾄ028",
+            "amount": 10028,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-028"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-02",
+            "payer_raw": "振込 ﾃｽﾄ029",
+            "amount": 10029,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-029"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-03",
+            "payer_raw": "振込 ﾃｽﾄ030",
+            "amount": 10030,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-030"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-04",
+            "payer_raw": "振込 ﾃｽﾄ031",
+            "amount": 10031,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-031"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-05",
+            "payer_raw": "振込 ﾃｽﾄ032",
+            "amount": 10032,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-032"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-06",
+            "payer_raw": "振込 ﾃｽﾄ033",
+            "amount": 10033,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-033"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-07",
+            "payer_raw": "振込 ﾃｽﾄ034",
+            "amount": 10034,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-034"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-08",
+            "payer_raw": "振込 ﾃｽﾄ035",
+            "amount": 10035,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-035"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-09",
+            "payer_raw": "振込 ﾃｽﾄ036",
+            "amount": 10036,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-036"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-10",
+            "payer_raw": "振込 ﾃｽﾄ037",
+            "amount": 10037,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-037"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-11",
+            "payer_raw": "振込 ﾃｽﾄ038",
+            "amount": 10038,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-038"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-12",
+            "payer_raw": "振込 ﾃｽﾄ039",
+            "amount": 10039,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-039"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-13",
+            "payer_raw": "振込 ﾃｽﾄ040",
+            "amount": 10040,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-040"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-14",
+            "payer_raw": "振込 ﾃｽﾄ041",
+            "amount": 10041,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-041"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-15",
+            "payer_raw": "振込 ﾃｽﾄ042",
+            "amount": 10042,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-042"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-16",
+            "payer_raw": "振込 ﾃｽﾄ043",
+            "amount": 10043,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-043"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-17",
+            "payer_raw": "振込 ﾃｽﾄ044",
+            "amount": 10044,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-044"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-18",
+            "payer_raw": "振込 ﾃｽﾄ045",
+            "amount": 10045,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-045"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-19",
+            "payer_raw": "振込 ﾃｽﾄ046",
+            "amount": 10046,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-046"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-20",
+            "payer_raw": "振込 ﾃｽﾄ047",
+            "amount": 10047,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-047"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-21",
+            "payer_raw": "振込 ﾃｽﾄ048",
+            "amount": 10048,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-048"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-22",
+            "payer_raw": "振込 ﾃｽﾄ049",
+            "amount": 10049,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-049"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-23",
+            "payer_raw": "振込 ﾃｽﾄ050",
+            "amount": 10050,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-050"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-24",
+            "payer_raw": "振込 ﾃｽﾄ051",
+            "amount": 10051,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-051"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-25",
+            "payer_raw": "振込 ﾃｽﾄ052",
+            "amount": 10052,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-052"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-26",
+            "payer_raw": "振込 ﾃｽﾄ053",
+            "amount": 10053,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-053"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-27",
+            "payer_raw": "振込 ﾃｽﾄ054",
+            "amount": 10054,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-054"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-28",
+            "payer_raw": "振込 ﾃｽﾄ055",
+            "amount": 10055,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-055"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-01",
+            "payer_raw": "振込 ﾃｽﾄ056",
+            "amount": 10056,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-056"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-02",
+            "payer_raw": "振込 ﾃｽﾄ057",
+            "amount": 10057,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-057"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-03",
+            "payer_raw": "振込 ﾃｽﾄ058",
+            "amount": 10058,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-058"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-04",
+            "payer_raw": "振込 ﾃｽﾄ059",
+            "amount": 10059,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-059"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-05",
+            "payer_raw": "振込 ﾃｽﾄ060",
+            "amount": 10060,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-060"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-06",
+            "payer_raw": "振込 ﾃｽﾄ061",
+            "amount": 10061,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-061"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-07",
+            "payer_raw": "振込 ﾃｽﾄ062",
+            "amount": 10062,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-062"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-08",
+            "payer_raw": "振込 ﾃｽﾄ063",
+            "amount": 10063,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-063"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-09",
+            "payer_raw": "振込 ﾃｽﾄ064",
+            "amount": 10064,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-064"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-10",
+            "payer_raw": "振込 ﾃｽﾄ065",
+            "amount": 10065,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-065"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-11",
+            "payer_raw": "振込 ﾃｽﾄ066",
+            "amount": 10066,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-066"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-12",
+            "payer_raw": "振込 ﾃｽﾄ067",
+            "amount": 10067,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-067"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-13",
+            "payer_raw": "振込 ﾃｽﾄ068",
+            "amount": 10068,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-068"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-14",
+            "payer_raw": "振込 ﾃｽﾄ069",
+            "amount": 10069,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-069"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-15",
+            "payer_raw": "振込 ﾃｽﾄ070",
+            "amount": 10070,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-070"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-16",
+            "payer_raw": "振込 ﾃｽﾄ071",
+            "amount": 10071,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-071"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-17",
+            "payer_raw": "振込 ﾃｽﾄ072",
+            "amount": 10072,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-072"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-18",
+            "payer_raw": "振込 ﾃｽﾄ073",
+            "amount": 10073,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-073"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-19",
+            "payer_raw": "振込 ﾃｽﾄ074",
+            "amount": 10074,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-074"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-20",
+            "payer_raw": "振込 ﾃｽﾄ075",
+            "amount": 10075,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-075"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-21",
+            "payer_raw": "振込 ﾃｽﾄ076",
+            "amount": 10076,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-076"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-22",
+            "payer_raw": "振込 ﾃｽﾄ077",
+            "amount": 10077,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-077"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-23",
+            "payer_raw": "振込 ﾃｽﾄ078",
+            "amount": 10078,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-078"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-24",
+            "payer_raw": "振込 ﾃｽﾄ079",
+            "amount": 10079,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-079"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-25",
+            "payer_raw": "振込 ﾃｽﾄ080",
+            "amount": 10080,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-080"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-26",
+            "payer_raw": "振込 ﾃｽﾄ081",
+            "amount": 10081,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-081"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-27",
+            "payer_raw": "振込 ﾃｽﾄ082",
+            "amount": 10082,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-082"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-28",
+            "payer_raw": "振込 ﾃｽﾄ083",
+            "amount": 10083,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-083"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-01",
+            "payer_raw": "振込 ﾃｽﾄ084",
+            "amount": 10084,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-084"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-02",
+            "payer_raw": "振込 ﾃｽﾄ085",
+            "amount": 10085,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-085"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-03",
+            "payer_raw": "振込 ﾃｽﾄ086",
+            "amount": 10086,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-086"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-04",
+            "payer_raw": "振込 ﾃｽﾄ087",
+            "amount": 10087,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-087"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-05",
+            "payer_raw": "振込 ﾃｽﾄ088",
+            "amount": 10088,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-088"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-06",
+            "payer_raw": "振込 ﾃｽﾄ089",
+            "amount": 10089,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-089"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-07",
+            "payer_raw": "振込 ﾃｽﾄ090",
+            "amount": 10090,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-090"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-08",
+            "payer_raw": "振込 ﾃｽﾄ091",
+            "amount": 10091,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-091"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-09",
+            "payer_raw": "振込 ﾃｽﾄ092",
+            "amount": 10092,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-092"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-10",
+            "payer_raw": "振込 ﾃｽﾄ093",
+            "amount": 10093,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-093"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-11",
+            "payer_raw": "振込 ﾃｽﾄ094",
+            "amount": 10094,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-094"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-12",
+            "payer_raw": "振込 ﾃｽﾄ095",
+            "amount": 10095,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-095"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-13",
+            "payer_raw": "振込 ﾃｽﾄ096",
+            "amount": 10096,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-096"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-14",
+            "payer_raw": "振込 ﾃｽﾄ097",
+            "amount": 10097,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-097"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-15",
+            "payer_raw": "振込 ﾃｽﾄ098",
+            "amount": 10098,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-098"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-16",
+            "payer_raw": "振込 ﾃｽﾄ099",
+            "amount": 10099,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-099"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-17",
+            "payer_raw": "振込 ﾃｽﾄ100",
+            "amount": 10100,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-100"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-18",
+            "payer_raw": "振込 ﾃｽﾄ101",
+            "amount": 10101,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-101"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-19",
+            "payer_raw": "振込 ﾃｽﾄ102",
+            "amount": 10102,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-102"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-20",
+            "payer_raw": "振込 ﾃｽﾄ103",
+            "amount": 10103,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-103"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-21",
+            "payer_raw": "振込 ﾃｽﾄ104",
+            "amount": 10104,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-104"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-22",
+            "payer_raw": "振込 ﾃｽﾄ105",
+            "amount": 10105,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-105"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-23",
+            "payer_raw": "振込 ﾃｽﾄ106",
+            "amount": 10106,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-106"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-24",
+            "payer_raw": "振込 ﾃｽﾄ107",
+            "amount": 10107,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-107"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-25",
+            "payer_raw": "振込 ﾃｽﾄ108",
+            "amount": 10108,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-108"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-26",
+            "payer_raw": "振込 ﾃｽﾄ109",
+            "amount": 10109,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-109"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-27",
+            "payer_raw": "振込 ﾃｽﾄ110",
+            "amount": 10110,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-110"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-28",
+            "payer_raw": "振込 ﾃｽﾄ111",
+            "amount": 10111,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-111"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-01",
+            "payer_raw": "振込 ﾃｽﾄ112",
+            "amount": 10112,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-112"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-02",
+            "payer_raw": "振込 ﾃｽﾄ113",
+            "amount": 10113,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-113"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-03",
+            "payer_raw": "振込 ﾃｽﾄ114",
+            "amount": 10114,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-114"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-04",
+            "payer_raw": "振込 ﾃｽﾄ115",
+            "amount": 10115,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-115"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-05",
+            "payer_raw": "振込 ﾃｽﾄ116",
+            "amount": 10116,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-116"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-06",
+            "payer_raw": "振込 ﾃｽﾄ117",
+            "amount": 10117,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-117"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-07",
+            "payer_raw": "振込 ﾃｽﾄ118",
+            "amount": 10118,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-118"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-08",
+            "payer_raw": "振込 ﾃｽﾄ119",
+            "amount": 10119,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-119"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-09",
+            "payer_raw": "振込 ﾃｽﾄ120",
+            "amount": 10120,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-120"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-10",
+            "payer_raw": "振込 ﾃｽﾄ121",
+            "amount": 10121,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-121"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-11",
+            "payer_raw": "振込 ﾃｽﾄ122",
+            "amount": 10122,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-122"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-12",
+            "payer_raw": "振込 ﾃｽﾄ123",
+            "amount": 10123,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-123"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-13",
+            "payer_raw": "振込 ﾃｽﾄ124",
+            "amount": 10124,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-124"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-14",
+            "payer_raw": "振込 ﾃｽﾄ125",
+            "amount": 10125,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-125"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-15",
+            "payer_raw": "振込 ﾃｽﾄ126",
+            "amount": 10126,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-126"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-16",
+            "payer_raw": "振込 ﾃｽﾄ127",
+            "amount": 10127,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-127"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-17",
+            "payer_raw": "振込 ﾃｽﾄ128",
+            "amount": 10128,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-128"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-18",
+            "payer_raw": "振込 ﾃｽﾄ129",
+            "amount": 10129,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-129"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-19",
+            "payer_raw": "振込 ﾃｽﾄ130",
+            "amount": 10130,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-130"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-20",
+            "payer_raw": "振込 ﾃｽﾄ131",
+            "amount": 10131,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-131"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-21",
+            "payer_raw": "振込 ﾃｽﾄ132",
+            "amount": 10132,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-132"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-22",
+            "payer_raw": "振込 ﾃｽﾄ133",
+            "amount": 10133,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-133"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-23",
+            "payer_raw": "振込 ﾃｽﾄ134",
+            "amount": 10134,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-134"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-24",
+            "payer_raw": "振込 ﾃｽﾄ135",
+            "amount": 10135,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-135"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-25",
+            "payer_raw": "振込 ﾃｽﾄ136",
+            "amount": 10136,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-136"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-26",
+            "payer_raw": "振込 ﾃｽﾄ137",
+            "amount": 10137,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-137"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-27",
+            "payer_raw": "振込 ﾃｽﾄ138",
+            "amount": 10138,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-138"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-28",
+            "payer_raw": "振込 ﾃｽﾄ139",
+            "amount": 10139,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-139"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-01",
+            "payer_raw": "振込 ﾃｽﾄ140",
+            "amount": 10140,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-140"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-02",
+            "payer_raw": "振込 ﾃｽﾄ141",
+            "amount": 10141,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-141"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-03",
+            "payer_raw": "振込 ﾃｽﾄ142",
+            "amount": 10142,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-142"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-04",
+            "payer_raw": "振込 ﾃｽﾄ143",
+            "amount": 10143,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-143"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-05",
+            "payer_raw": "振込 ﾃｽﾄ144",
+            "amount": 10144,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-144"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-06",
+            "payer_raw": "振込 ﾃｽﾄ145",
+            "amount": 10145,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-145"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-07",
+            "payer_raw": "振込 ﾃｽﾄ146",
+            "amount": 10146,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-146"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-08",
+            "payer_raw": "振込 ﾃｽﾄ147",
+            "amount": 10147,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-147"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-09",
+            "payer_raw": "振込 ﾃｽﾄ148",
+            "amount": 10148,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-148"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-10",
+            "payer_raw": "振込 ﾃｽﾄ149",
+            "amount": 10149,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-149"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-11",
+            "payer_raw": "振込 ﾃｽﾄ150",
+            "amount": 10150,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-150"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-12",
+            "payer_raw": "振込 ﾃｽﾄ151",
+            "amount": 10151,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-151"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-13",
+            "payer_raw": "振込 ﾃｽﾄ152",
+            "amount": 10152,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-152"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-14",
+            "payer_raw": "振込 ﾃｽﾄ153",
+            "amount": 10153,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-153"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-15",
+            "payer_raw": "振込 ﾃｽﾄ154",
+            "amount": 10154,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-154"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-16",
+            "payer_raw": "振込 ﾃｽﾄ155",
+            "amount": 10155,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-155"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-17",
+            "payer_raw": "振込 ﾃｽﾄ156",
+            "amount": 10156,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-156"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-18",
+            "payer_raw": "振込 ﾃｽﾄ157",
+            "amount": 10157,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-157"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-19",
+            "payer_raw": "振込 ﾃｽﾄ158",
+            "amount": 10158,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-158"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-20",
+            "payer_raw": "振込 ﾃｽﾄ159",
+            "amount": 10159,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-159"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-21",
+            "payer_raw": "振込 ﾃｽﾄ160",
+            "amount": 10160,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-160"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-22",
+            "payer_raw": "振込 ﾃｽﾄ161",
+            "amount": 10161,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-161"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-23",
+            "payer_raw": "振込 ﾃｽﾄ162",
+            "amount": 10162,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-162"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-24",
+            "payer_raw": "振込 ﾃｽﾄ163",
+            "amount": 10163,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-163"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-25",
+            "payer_raw": "振込 ﾃｽﾄ164",
+            "amount": 10164,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-164"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-26",
+            "payer_raw": "振込 ﾃｽﾄ165",
+            "amount": 10165,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-165"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-27",
+            "payer_raw": "振込 ﾃｽﾄ166",
+            "amount": 10166,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-166"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-28",
+            "payer_raw": "振込 ﾃｽﾄ167",
+            "amount": 10167,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-167"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-01",
+            "payer_raw": "振込 ﾃｽﾄ168",
+            "amount": 10168,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-168"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-02",
+            "payer_raw": "振込 ﾃｽﾄ169",
+            "amount": 10169,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-169"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-03",
+            "payer_raw": "振込 ﾃｽﾄ170",
+            "amount": 10170,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-170"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-04",
+            "payer_raw": "振込 ﾃｽﾄ171",
+            "amount": 10171,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-171"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-05",
+            "payer_raw": "振込 ﾃｽﾄ172",
+            "amount": 10172,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-172"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-06",
+            "payer_raw": "振込 ﾃｽﾄ173",
+            "amount": 10173,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-173"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-07",
+            "payer_raw": "振込 ﾃｽﾄ174",
+            "amount": 10174,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-174"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-08",
+            "payer_raw": "振込 ﾃｽﾄ175",
+            "amount": 10175,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-175"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-09",
+            "payer_raw": "振込 ﾃｽﾄ176",
+            "amount": 10176,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-176"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-10",
+            "payer_raw": "振込 ﾃｽﾄ177",
+            "amount": 10177,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-177"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-11",
+            "payer_raw": "振込 ﾃｽﾄ178",
+            "amount": 10178,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-178"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-12",
+            "payer_raw": "振込 ﾃｽﾄ179",
+            "amount": 10179,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-179"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-13",
+            "payer_raw": "振込 ﾃｽﾄ180",
+            "amount": 10180,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-180"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-14",
+            "payer_raw": "振込 ﾃｽﾄ181",
+            "amount": 10181,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-181"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-15",
+            "payer_raw": "振込 ﾃｽﾄ182",
+            "amount": 10182,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-182"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-16",
+            "payer_raw": "振込 ﾃｽﾄ183",
+            "amount": 10183,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-183"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-17",
+            "payer_raw": "振込 ﾃｽﾄ184",
+            "amount": 10184,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-184"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-18",
+            "payer_raw": "振込 ﾃｽﾄ185",
+            "amount": 10185,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-185"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-19",
+            "payer_raw": "振込 ﾃｽﾄ186",
+            "amount": 10186,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-186"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-20",
+            "payer_raw": "振込 ﾃｽﾄ187",
+            "amount": 10187,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-187"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-21",
+            "payer_raw": "振込 ﾃｽﾄ188",
+            "amount": 10188,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-188"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-22",
+            "payer_raw": "振込 ﾃｽﾄ189",
+            "amount": 10189,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-189"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-23",
+            "payer_raw": "振込 ﾃｽﾄ190",
+            "amount": 10190,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-190"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-24",
+            "payer_raw": "振込 ﾃｽﾄ191",
+            "amount": 10191,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-191"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-25",
+            "payer_raw": "振込 ﾃｽﾄ192",
+            "amount": 10192,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-192"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-26",
+            "payer_raw": "振込 ﾃｽﾄ193",
+            "amount": 10193,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-193"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-27",
+            "payer_raw": "振込 ﾃｽﾄ194",
+            "amount": 10194,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-194"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-28",
+            "payer_raw": "振込 ﾃｽﾄ195",
+            "amount": 10195,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-195"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-01",
+            "payer_raw": "振込 ﾃｽﾄ196",
+            "amount": 10196,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-196"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-02",
+            "payer_raw": "振込 ﾃｽﾄ197",
+            "amount": 10197,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-197"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-03",
+            "payer_raw": "振込 ﾃｽﾄ198",
+            "amount": 10198,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-198"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-04",
+            "payer_raw": "振込 ﾃｽﾄ199",
+            "amount": 10199,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-199"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          },
+          {
+            "txn_date": "2026-09-05",
+            "payer_raw": "振込 ﾃｽﾄ200",
+            "amount": 10200,
+            "source": "bank_csv",
+            "invoice_ids": [
+              "INV-2026-200"
+            ],
+            "reason": "amount_only",
+            "fee": 0,
+            "remaining_after": 0
+          }
+        ],
+        "ambiguous": [],
+        "unmatched": [],
+        "warnings": []
+      },
+      "pairedItem": {
+        "item": 0
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "id": "fixture-bank-A",
+          "name": "bank_A_sjis.csv",
+          "mimeType": "text/csv",
+          "SOURCE": "Watch Drive Folder",
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "SHEET_ID": "REPLACE_ME_SHEET_ID",
+          "SHEET_INVOICES": "invoices",
+          "SHEET_TRANSACTIONS": "transactions",
+          "DRIVE_FOLDER_ID": "REPLACE_ME_DRIVE_FOLDER_ID",
+          "GMAIL_QUERY": "subject:(入金 OR Deposit) newer_than:1d",
+          "RUN_AT": "09:00",
+          "TRIGGERS_ENABLED": {
+            "drive": true,
+            "gmail": true,
+            "schedule": true
+          },
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "auto",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ],
+          "LEGAL_ENTITY_TOKENS": [
+            "カ)",
+            "(カ",
+            "ユ)",
+            "(ユ",
+            "ド)",
+            "(ド",
+            "シヤ)",
+            "(シヤ",
+            "ザイ)",
+            "(ザイ",
+            "ガク)",
+            "(ガク",
+            "イ)",
+            "(イ",
+            "ホ)",
+            "(ホ",
+            "株式会社",
+            "有限会社",
+            "合同会社",
+            "合名会社",
+            "合資会社",
+            "一般社団法人",
+            "一般財団法人",
+            "医療法人",
+            "学校法人",
+            "社会福祉法人",
+            "カブシキガイシヤ",
+            "カブシキカイシヤ",
+            "ユウゲンガイシヤ",
+            "ゴウドウガイシヤ",
+            "イツパンシヤダンホウジン",
+            "イリヨウホウジン",
+            "振込",
+            "フリコミ",
+            "ゴフリコミ"
+          ],
+          "STRIP_LEADING_DIGITS": true,
+          "FEE_SET": [
+            110,
+            165,
+            220,
+            275,
+            330,
+            440,
+            550,
+            660,
+            770,
+            880
+          ],
+          "NAME_MIN_CONTAINS": 3,
+          "NOTIFY_CHANNELS": [
+            "slack"
+          ],
+          "SLACK_CHANNEL": "REPLACE_ME_SLACK_CHANNEL_ID",
+          "NOTIFY_EMAIL_TO": "replace-me@example.com",
+          "LINE_TO_USER_ID": "REPLACE_ME_LINE_USER_ID",
+          "CHATWORK_ROOM_ID": "REPLACE_ME_CHATWORK_ROOM_ID",
+          "NOTIFY_MAX_LINES": 40,
+          "MESSAGES": {
+            "ja": {
+              "recon_summary": {
+                "title": "【入金消込 {date}】処理 {n}件｜自動消込 {a}｜要確認 {b}｜未消込 {c}",
+                "line_item": "・{txn_date} {payer_raw} ¥{amount} → {invoice_id}",
+                "line_item_candidates": "・{txn_date} {payer_raw} ¥{amount} → 候補: {candidates}",
+                "needs_review_heading": "■ 要確認（金額のみ一致・手数料差引・合算で自動消込した分）",
+                "unmatched_heading": "■ 未消込（該当請求なし）",
+                "ambiguous_heading": "■ 候補複数（自動確定せず。候補から選んでください）",
+                "auto_heading": "■ 自動消込",
+                "warnings_heading": "■ 警告",
+                "no_transactions": "【入金消込 {date}】新規の入金はありませんでした",
+                "skipped_note": "（処理済みのため skip：{n} 件）",
+                "more_items": "…他 {n} 件",
+                "reasons": {
+                  "amount_only": "（金額のみ一致・要確認）",
+                  "fee_deducted": "（手数料 ¥{fee} 差引）",
+                  "combined": "（合算）",
+                  "partial": "（一部入金・残 ¥{remaining}）",
+                  "overpaid": "（超過入金）"
+                }
+              },
+              "error_notice": {
+                "title": "【n8n エラー】{workflow_name}",
+                "body": "ワークフロー：{workflow_name}\n失敗したノード：{last_node}\nエラー：{message}\n実行ログ：{execution_url}\n\n実行ログで原因を確認し、修正後に再実行してください。シート書込みやメール送信が途中まで進んでいる可能性があるため、再実行前に台帳シートを確認してください。"
+              }
+            },
+            "en": {
+              "recon_summary": {
+                "title": "[Reconciliation {date}] Processed {n} | Auto-matched {a} | Needs review {b} | Unmatched {c}",
+                "line_item": "• {txn_date} {payer_raw} ¥{amount} → {invoice_id}",
+                "line_item_candidates": "• {txn_date} {payer_raw} ¥{amount} → candidates: {candidates}",
+                "needs_review_heading": "■ Needs review (auto-matched by amount only, fee deducted, or combined)",
+                "unmatched_heading": "■ Unmatched (no matching invoice)",
+                "ambiguous_heading": "■ Ambiguous (multiple candidates, not auto-matched; pick one)",
+                "auto_heading": "■ Auto-matched",
+                "warnings_heading": "■ Warnings",
+                "no_transactions": "[Reconciliation {date}] No new transactions",
+                "skipped_note": "(skipped as already processed: {n})",
+                "more_items": "… and {n} more",
+                "reasons": {
+                  "amount_only": "(amount only, needs review)",
+                  "fee_deducted": "(fee ¥{fee} deducted)",
+                  "combined": "(combined)",
+                  "partial": "(partial, remaining ¥{remaining})",
+                  "overpaid": "(overpayment)"
+                }
+              },
+              "error_notice": {
+                "title": "[n8n error] {workflow_name}",
+                "body": "Workflow: {workflow_name}\nFailed node: {last_node}\nError: {message}\nExecution log: {execution_url}\n\nCheck the execution log for the cause, fix it, and re-run. Sheet writes or emails may have partially completed, so check the ledger sheet before re-running."
+              }
+            }
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "expect": {
+    "length": 1,
+    "paths": {
+      "[0].json.title": "【入金消込 2026-09-23】処理 200件｜自動消込 0｜要確認 200｜未消込 0",
+      "[0].json.slack_blocks.length": 2,
+      "[0].json.slack_blocks[0].text.text": "【入金消込 2026-09-23】処理 200件｜自動消込 0｜要確認 200｜未消込 0",
+      "[0].pairedItem": {
+        "item": 0
+      }
+    },
+    "count": {
+      "[0].json.body_text": {
+        "・2026-09-": 40,
+        "…他 160 件": 1,
+        "\n\n": 1
+      }
+    },
+    "contains": {
+      "[0].json.body_text": [
+        "■ 要確認（金額のみ一致・手数料差引・合算で自動消込した分）\n・2026-09-02 振込 ﾃｽﾄ001 ¥10,001 → INV-2026-001 （金額のみ一致・要確認）",
+        "・2026-09-13 振込 ﾃｽﾄ040 ¥10,040 → INV-2026-040 （金額のみ一致・要確認）\n…他 160 件"
+      ]
+    },
+    "not_contains": {
+      "[0].json.body_text": [
+        "ﾃｽﾄ041",
+        "INV-2026-200"
+      ]
+    },
+    "equal_paths": {
+      "[0].json.line_text": "[0].json.body_text",
+      "[0].json.chatwork_text": "[0].json.body_text"
+    },
+    "max_length": {
+      "[0].json.slack_blocks[0].text.text": 150,
+      "[0].json.slack_blocks[*].text.text": 3000,
+      "[0].json.line_text": 4900
+    }
+  }
+}

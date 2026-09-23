@@ -1,0 +1,275 @@
+{
+ "_comment": "Drive path: Parse Bank CSV output for bank_B_utf8bom.csv (5 pre-txns, ignored_withdraw=3).",
+ "input": [
+  {
+   "json": {
+    "_kind": "txn",
+    "source": "bank_csv",
+    "txn_date": "2026-09-17",
+    "payer_name_raw": "0123 カ)ダミーカコウ",
+    "amount": 41800,
+    "memo": "",
+    "_file": "bank_B_utf8bom.csv",
+    "_row": 2
+   },
+   "pairedItem": {
+    "item": 0
+   }
+  },
+  {
+   "json": {
+    "_kind": "txn",
+    "source": "bank_csv",
+    "txn_date": "2026-09-18",
+    "payer_name_raw": "ふりこみ　すずき　いちろう",
+    "amount": 15400,
+    "memo": "",
+    "_file": "bank_B_utf8bom.csv",
+    "_row": 4
+   },
+   "pairedItem": {
+    "item": 0
+   }
+  },
+  {
+   "json": {
+    "_kind": "txn",
+    "source": "bank_csv",
+    "txn_date": "2026-09-19",
+    "payer_name_raw": "ユ)ミホンプランニング",
+    "amount": 57200,
+    "memo": "",
+    "_file": "bank_B_utf8bom.csv",
+    "_row": 5
+   },
+   "pairedItem": {
+    "item": 0
+   }
+  },
+  {
+   "json": {
+    "_kind": "txn",
+    "source": "bank_csv",
+    "txn_date": "2026-09-21",
+    "payer_name_raw": "0045 タカハシ ミキ",
+    "amount": 12100,
+    "memo": "",
+    "_file": "bank_B_utf8bom.csv",
+    "_row": 7
+   },
+   "pairedItem": {
+    "item": 0
+   }
+  },
+  {
+   "json": {
+    "_kind": "txn",
+    "source": "bank_csv",
+    "txn_date": "2026-09-22",
+    "payer_name_raw": "フリコミ ワタナベ ケン",
+    "amount": 7700,
+    "memo": "",
+    "_file": "bank_B_utf8bom.csv",
+    "_row": 8
+   },
+   "pairedItem": {
+    "item": 0
+   }
+  },
+  {
+   "json": {
+    "_kind": "file_stats",
+    "file_name": "bank_B_utf8bom.csv",
+    "ignored_withdraw": 3,
+    "rows_total": 8
+   },
+   "pairedItem": {
+    "item": 0
+   }
+  }
+ ],
+ "nodes": {
+  "Config": [
+   {
+    "json": {
+     "id": "fixture-bank-B",
+     "name": "bank_B_utf8bom.csv",
+     "mimeType": "text/csv",
+     "SOURCE": "Watch Drive Folder",
+     "TZ": "Asia/Tokyo",
+     "LANG": "ja",
+     "SHEET_ID": "REPLACE_ME_SHEET_ID",
+     "SHEET_INVOICES": "invoices",
+     "SHEET_TRANSACTIONS": "transactions",
+     "DRIVE_FOLDER_ID": "REPLACE_ME_DRIVE_FOLDER_ID",
+     "GMAIL_QUERY": "subject:(入金 OR Deposit) newer_than:1d",
+     "RUN_AT": "09:00",
+     "TRIGGERS_ENABLED": {
+      "drive": true,
+      "gmail": true,
+      "schedule": true
+     },
+     "CSV_MAPPING": {
+      "date_col": "取引日",
+      "payer_col": "内容",
+      "deposit_col": "お預入",
+      "withdraw_col": "お引出",
+      "memo_col": "",
+      "skip_rows": 0,
+      "date_format": "yyyyMMdd",
+      "encoding": "utf-8"
+     },
+     "MAIL_PARSERS": [
+      {
+       "name": "bankX",
+       "from_match": "@example.jp",
+       "subject_match": "入金",
+       "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+       "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+       "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+      },
+      {
+       "name": "bankY",
+       "from_match": "@example.com",
+       "subject_match": "Deposit",
+       "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+       "payer_regex": "Remitter\\s+([^\\n]+)",
+       "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+      }
+     ],
+     "LEGAL_ENTITY_TOKENS": [
+      "カ)",
+      "(カ",
+      "ユ)",
+      "(ユ",
+      "ド)",
+      "(ド",
+      "シヤ)",
+      "(シヤ",
+      "ザイ)",
+      "(ザイ",
+      "ガク)",
+      "(ガク",
+      "イ)",
+      "(イ",
+      "ホ)",
+      "(ホ",
+      "株式会社",
+      "有限会社",
+      "合同会社",
+      "合名会社",
+      "合資会社",
+      "一般社団法人",
+      "一般財団法人",
+      "医療法人",
+      "学校法人",
+      "社会福祉法人",
+      "カブシキガイシヤ",
+      "カブシキカイシヤ",
+      "ユウゲンガイシヤ",
+      "ゴウドウガイシヤ",
+      "イツパンシヤダンホウジン",
+      "イリヨウホウジン",
+      "振込",
+      "フリコミ",
+      "ゴフリコミ"
+     ],
+     "STRIP_LEADING_DIGITS": true,
+     "FEE_SET": [
+      110,
+      165,
+      220,
+      275,
+      330,
+      440,
+      550,
+      660,
+      770,
+      880
+     ],
+     "NAME_MIN_CONTAINS": 3,
+     "NOTIFY_CHANNELS": [
+      "slack"
+     ],
+     "SLACK_CHANNEL": "REPLACE_ME_SLACK_CHANNEL_ID",
+     "NOTIFY_EMAIL_TO": "replace-me@example.com",
+     "LINE_TO_USER_ID": "REPLACE_ME_LINE_USER_ID",
+     "CHATWORK_ROOM_ID": "REPLACE_ME_CHATWORK_ROOM_ID",
+     "NOTIFY_MAX_LINES": 40
+    },
+    "pairedItem": {
+     "item": 0
+    }
+   }
+  ]
+ },
+ "now": "2026-09-23T09:00:00+09:00",
+ "expect": {
+  "length": 1,
+  "paths": {
+   "[0].json.source": "drive",
+   "[0].json.txns": [
+    {
+     "_kind": "txn",
+     "source": "bank_csv",
+     "txn_date": "2026-09-17",
+     "payer_name_raw": "0123 カ)ダミーカコウ",
+     "amount": 41800,
+     "memo": "",
+     "_file": "bank_B_utf8bom.csv",
+     "_row": 2
+    },
+    {
+     "_kind": "txn",
+     "source": "bank_csv",
+     "txn_date": "2026-09-18",
+     "payer_name_raw": "ふりこみ　すずき　いちろう",
+     "amount": 15400,
+     "memo": "",
+     "_file": "bank_B_utf8bom.csv",
+     "_row": 4
+    },
+    {
+     "_kind": "txn",
+     "source": "bank_csv",
+     "txn_date": "2026-09-19",
+     "payer_name_raw": "ユ)ミホンプランニング",
+     "amount": 57200,
+     "memo": "",
+     "_file": "bank_B_utf8bom.csv",
+     "_row": 5
+    },
+    {
+     "_kind": "txn",
+     "source": "bank_csv",
+     "txn_date": "2026-09-21",
+     "payer_name_raw": "0045 タカハシ ミキ",
+     "amount": 12100,
+     "memo": "",
+     "_file": "bank_B_utf8bom.csv",
+     "_row": 7
+    },
+    {
+     "_kind": "txn",
+     "source": "bank_csv",
+     "txn_date": "2026-09-22",
+     "payer_name_raw": "フリコミ ワタナベ ケン",
+     "amount": 7700,
+     "memo": "",
+     "_file": "bank_B_utf8bom.csv",
+     "_row": 8
+    }
+   ],
+   "[0].json.warnings": [],
+   "[0].json.ignored_withdraw": 3,
+   "[0].json.file_name": "bank_B_utf8bom.csv",
+   "[0].pairedItem": {
+    "item": 0
+   }
+  },
+  "absent": [
+   "[0].json.txns[0].txn_id",
+   "[0].json.txns[0].payer_name_norm"
+  ]
+ }
+}

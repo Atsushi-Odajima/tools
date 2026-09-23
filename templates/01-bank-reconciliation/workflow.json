@@ -1,0 +1,1403 @@
+{
+  "name": "[Odaji] 01 Bank Deposit Reconciliation v1.0.0",
+  "nodes": [
+    {
+      "id": "8334bd1e-c611-5972-937e-783e2de3af2e",
+      "name": "Sticky Note S1 Input",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        -120
+      ],
+      "parameters": {
+        "content": "## JA\n### 入力 — 3 系統のトリガー\n- **Watch Drive Folder**：監視フォルダに CSV が置かれたら起動（毎分ポーリング）。フォルダ ID は **このノードの Folder** に入れる（Config の `DRIVE_FOLDER_ID` は参照用。トリガーは Config より前に動くため式で参照できない）\n- **Watch Gmail Inbox**：入金通知メールで起動（5 分ごと、Simplify OFF、既読・未読とも、最大 10 通／回）。検索式は **このノードの Search** に入れる（Config の `GMAIL_QUERY` と同じ値にする）\n- **Run Daily Rematch**：毎日 09:00 JST に未消込・曖昧の取引を再突合。時刻は **このノード** で変える（Config の `RUN_AT` と同じ値にする）\n- `TRIGGERS_ENABLED` で OFF にした系統は `Route by Source` で `Skip Disabled Trigger` に落ちるだけで、**トリガーノード自体のポーリング（Drive／Gmail API の呼出し）は続く**。呼出しも止めたいときはそのトリガーノードを無効化（Deactivate）する\n- トリガーのノード名を変えたら `Route by Source` のルール（`SOURCE` の比較値）も直す\n\n## EN\n### Input — three triggers\n- **Watch Drive Folder**: fires when a CSV is created in the watched folder (polls every minute). Put the folder ID into **this node's Folder** (Config `DRIVE_FOLDER_ID` is a documented mirror; triggers run before Config and cannot read it)\n- **Watch Gmail Inbox**: fires on deposit-notification mails (every 5 minutes, Simplify OFF, read and unread, max 10 per poll). Put the search into **this node's Search** (keep it equal to Config `GMAIL_QUERY`)\n- **Run Daily Rematch**: re-matches unmatched / ambiguous transactions daily at 09:00 JST. Change the time in **this node** (keep it equal to Config `RUN_AT`)\n- A source switched off in `TRIGGERS_ENABLED` only falls through `Route by Source` into `Skip Disabled Trigger`; **the trigger node keeps polling (Drive / Gmail API calls continue)**. Deactivate the trigger node to stop the calls as well\n- If you rename a trigger node, update the matching rule (`SOURCE` value) in `Route by Source`\n",
+        "height": 1100,
+        "width": 320,
+        "color": 5
+      }
+    },
+    {
+      "id": "7ca4fbcb-6f3e-5d98-a683-5fc41b2dbc0e",
+      "name": "Sticky Note S2 Config",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        280,
+        -120
+      ],
+      "parameters": {
+        "content": "## JA\n### Config — 買い手が触るのは **この Config** と入力グループの **トリガー 3 ノード**だけ\n`REPLACE_ME_…` と `replace-me@…` を自分の値に置き換える。トークン類（Slack / Google / LINE / Chatwork）は Config に書かず n8n の Credential に登録する。\nワークフロー Settings の Error workflow に `[Odaji] 01 Error Handler v1.0.0` を指定し、そのワークフロー内の Config にも同じ通知設定を入れる。\n\n| キー | 既定値 | 意味 |\n|---|---|---|\n| `TZ` | `\"Asia/Tokyo\"` | 日付判定と `imported_at` のタイムゾーン。ワークフロー Settings の Timezone とも一致させる |\n| `LANG` | `\"ja\"` | 通知文面の言語 `ja` / `en` |\n| `SHEET_ID` | `\"REPLACE_ME_SHEET_ID\"` | スプレッドシートの ID（URL の `/d/<ID>/`） |\n| `SHEET_INVOICES` | `\"invoices\"` | 請求一覧のシート名 |\n| `SHEET_TRANSACTIONS` | `\"transactions\"` | 取引台帳のシート名 |\n| `DRIVE_FOLDER_ID` | `\"REPLACE_ME_DRIVE_FOLDER_ID\"` | 監視フォルダ ID。**参照用**。実値は `Watch Drive Folder` ノードにも入れる（トリガーは Config を参照できない） |\n| `GMAIL_QUERY` | `\"subject:(入金 OR Deposit) newer_than:1d\"` | Gmail 検索式。**参照用**。実値は `Watch Gmail Inbox` ノードの Search に入れる。既定は同梱 fixture 2 通の件名に一致する（`subject:` は本文を見ない） |\n| `RUN_AT` | `\"09:00\"` | 再突合の時刻（JST）。**参照用**。実値は `Run Daily Rematch` ノードに入れる |\n| `TRIGGERS_ENABLED` | `{\"drive\": true, \"gmail\": true, \"schedule\": true}` | 3 系統のトリガーの ON／OFF。`Route by Source` が false の系統を `Skip Disabled Trigger` に落とす（OFF でもトリガーのポーリングは続く） |\n| `CSV_MAPPING` | （Config の JSON を参照 / see the JSON） | 銀行 CSV の列対応：`date_col` 取引日 / `payer_col` 振込名義（摘要）/ `deposit_col` 入金額（空・0 の行は無視）/ `withdraw_col` 出金額（説明用、無ければ `\"\"`）/ `memo_col` メモ列（無ければ `\"\"`）/ `skip_rows` 見出しより前に捨てる行数 / `date_format` `auto`・`yyyy/MM/dd`・`yyyyMMdd`・`yyyy-MM-dd` / `encoding` `shift_jis`・`utf-8`・`auto`（UTF-8 BOM があれば常に UTF-8）。銀行 B 形式の例は `fixtures/csv_mapping.examples.json` |\n| `MAIL_PARSERS` | （Config の JSON を参照 / see the JSON） | 入金通知メールの解析ルール（先頭から順に試し、最初に一致したものを使う）：`name` 識別名 / `from_match` 差出人に含まれる文字列（大文字小文字無視）/ `subject_match` 件名に含まれる文字列 / `amount_regex`・`payer_regex`・`date_regex` NFKC 正規化後の本文に対する正規表現。**第 1 グループ**が値。`date_regex` が無ければメールの受信日。正本は `fixtures/mail_parsers.example.json` |\n| `LEGAL_ENTITY_TOKENS` | （Config の JSON を参照 / see the JSON） | 名義から除去する法人格等。`X)` は先頭のみ、`(X` は末尾のみ、それ以外はどこでも除去（全角で追加しても可） |\n| `STRIP_LEADING_DIGITS` | `true` | 名義先頭の数字列（振込人番号・支店コード）を除去 |\n| `FEE_SET` | `[110, 165, 220, 275, 330, 440, 550, 660, 770, 880]` | 先方負担の振込手数料として許容する差額（円） |\n| `NAME_MIN_CONTAINS` | `3` | 包含一致に必要な最小文字数（短い方に適用） |\n| `NOTIFY_CHANNELS` | `[\"slack\"]` | `slack` / `email` / `line` / `chatwork` の組合せ（配列）。空なら通知しない |\n| `SLACK_CHANNEL` | `\"REPLACE_ME_SLACK_CHANNEL_ID\"` | 投稿先チャンネル ID（`C0…`）または `#name` |\n| `NOTIFY_EMAIL_TO` | `\"replace-me@example.com\"` | 通知メールの宛先 |\n| `LINE_TO_USER_ID` | `\"REPLACE_ME_LINE_USER_ID\"` | LINE push の宛先 userId |\n| `CHATWORK_ROOM_ID` | `\"REPLACE_ME_CHATWORK_ROOM_ID\"` | Chatwork のルーム ID |\n| `LINE_API_URL` | `\"https://api.line.me/v2/bot/message/push\"` | LINE Messaging API push の URL。**API をプロキシ経由にする場合以外は変更しない** |\n| `CHATWORK_API_BASE_URL` | `\"https://api.chatwork.com/v2\"` | Chatwork API のベース URL（`/rooms/{room_id}/messages` を後ろに付ける）。**API をプロキシ経由にする場合以外は変更しない** |\n| `NOTIFY_MAX_LINES` | `40` | 通知の各セクションに載せる明細の上限行数。超過分は「…他 N 件」 |\n| `MESSAGES` | （`shared/messages.ja.json` / `messages.en.json`） | 通知文面（`shared/messages.*.json` の `recon_summary` と `error_notice`、`ja` / `en`）。`LANG` で選ぶ。文言を変えるときはここを編集 |\n| `SOURCE` | `{{ $prevNode.name }}` | 自動設定 `{{ $prevNode.name }}`（発火したトリガー名）。**変更しない** |\n\n`TRIGGERS_ENABLED` の 3 キー（`drive` / `gmail` / `schedule`）は `true` / `false`。`Route by Source` は `SOURCE`（トリガー名）と `TRIGGERS_ENABLED.<key>` の AND で振り分け、OFF の系統と未知の `SOURCE` は `Skip Disabled Trigger` で正常終了する。\n\n## EN\n### Config — the buyer edits only **this Config** and the **three trigger nodes** in the Input group\nReplace every `REPLACE_ME_…` / `replace-me@…` with your own values. Tokens (Slack / Google / LINE / Chatwork) never go into Config; register them as n8n Credentials.\nSet the workflow Settings → Error workflow to `[Odaji] 01 Error Handler v1.0.0` and mirror the notification keys into that workflow's Config.\n\n| Key | Default | Meaning |\n|---|---|---|\n| `TZ` | `\"Asia/Tokyo\"` | Time zone for date handling and `imported_at`; keep equal to the workflow Timezone setting |\n| `LANG` | `\"ja\"` | Notification language: `ja` / `en` |\n| `SHEET_ID` | `\"REPLACE_ME_SHEET_ID\"` | Spreadsheet ID from the URL (`/d/<ID>/`) |\n| `SHEET_INVOICES` | `\"invoices\"` | Sheet name for invoices |\n| `SHEET_TRANSACTIONS` | `\"transactions\"` | Sheet name for the transaction ledger |\n| `DRIVE_FOLDER_ID` | `\"REPLACE_ME_DRIVE_FOLDER_ID\"` | Watched folder ID, **for reference only**: the live value goes into the `Watch Drive Folder` node (triggers cannot read Config) |\n| `GMAIL_QUERY` | `\"subject:(入金 OR Deposit) newer_than:1d\"` | Gmail search, **for reference only**: the live value goes into the `Watch Gmail Inbox` node. The default matches both bundled fixture subjects (`subject:` does not search the body) |\n| `RUN_AT` | `\"09:00\"` | Daily re-match time (JST), **for reference only**: the live value goes into the `Run Daily Rematch` node |\n| `TRIGGERS_ENABLED` | `{\"drive\": true, \"gmail\": true, \"schedule\": true}` | Per-trigger on/off. `Route by Source` drops disabled sources into `Skip Disabled Trigger` (a disabled trigger still polls) |\n| `CSV_MAPPING` | （Config の JSON を参照 / see the JSON） | Bank CSV column mapping: `date_col` date / `payer_col` remitter (description) / `deposit_col` deposit (empty or 0 rows are ignored) / `withdraw_col` withdrawal (informational, `\"\"` if none) / `memo_col` optional memo column (`\"\"` if none) / `skip_rows` rows discarded before the header / `date_format` `auto`, `yyyy/MM/dd`, `yyyyMMdd`, `yyyy-MM-dd` / `encoding` `shift_jis`, `utf-8`, `auto` (a UTF-8 BOM always wins). Bank format B example: `fixtures/csv_mapping.examples.json` |\n| `MAIL_PARSERS` | （Config の JSON を参照 / see the JSON） | Mail parser rules, first match wins: `name` label / `from_match` substring of From (case-insensitive) / `subject_match` substring of Subject / `amount_regex`, `payer_regex`, `date_regex` JavaScript regexes on the NFKC-normalized body, **group 1** = value; without `date_regex` the email date is used. Source of truth: `fixtures/mail_parsers.example.json` |\n| `LEGAL_ENTITY_TOKENS` | （Config の JSON を参照 / see the JSON） | Tokens stripped from remitter names: `X)` only at the start, `(X` only at the end, others anywhere (full-width input is accepted) |\n| `STRIP_LEADING_DIGITS` | `true` | Strip a leading run of digits (remitter / branch code) |\n| `FEE_SET` | `[110, 165, 220, 275, 330, 440, 550, 660, 770, 880]` | Accepted fee differences in yen (fee deducted by the payer) |\n| `NAME_MIN_CONTAINS` | `3` | Minimum characters for a containment name match (applied to the shorter name) |\n| `NOTIFY_CHANNELS` | `[\"slack\"]` | Any combination of `slack` / `email` / `line` / `chatwork` (array). Empty = no notification |\n| `SLACK_CHANNEL` | `\"REPLACE_ME_SLACK_CHANNEL_ID\"` | Slack channel ID (`C0…`) or `#name` |\n| `NOTIFY_EMAIL_TO` | `\"replace-me@example.com\"` | Notification email recipient |\n| `LINE_TO_USER_ID` | `\"REPLACE_ME_LINE_USER_ID\"` | LINE recipient userId |\n| `CHATWORK_ROOM_ID` | `\"REPLACE_ME_CHATWORK_ROOM_ID\"` | Chatwork room ID |\n| `LINE_API_URL` | `\"https://api.line.me/v2/bot/message/push\"` | LINE Messaging API push URL. **Do not change unless you proxy the API** |\n| `CHATWORK_API_BASE_URL` | `\"https://api.chatwork.com/v2\"` | Chatwork API base URL (`/rooms/{room_id}/messages` is appended). **Do not change unless you proxy the API** |\n| `NOTIFY_MAX_LINES` | `40` | Max detail lines per notification section; the rest becomes \"… and N more\" |\n| `MESSAGES` | （`shared/messages.ja.json` / `messages.en.json`） | Notification copy (`recon_summary` and `error_notice` from `shared/messages.*.json`, `ja` / `en`), selected by `LANG`; edit here to change wording |\n| `SOURCE` | `{{ $prevNode.name }}` | Set automatically to `{{ $prevNode.name }}` (the trigger that fired). **Do not change** |\n\n`TRIGGERS_ENABLED` has three booleans (`drive` / `gmail` / `schedule`). `Route by Source` routes on `SOURCE` (trigger name) AND `TRIGGERS_ENABLED.<key>`; disabled sources and unknown `SOURCE` values end in `Skip Disabled Trigger` without an error.\n",
+        "height": 2900,
+        "width": 780,
+        "color": 1
+      }
+    },
+    {
+      "id": "b1f553d9-48b4-51bb-94d3-4d384a1c67da",
+      "name": "Sticky Note S3 Intake",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        -320
+      ],
+      "parameters": {
+        "content": "## JA\n### 取込 — CSV とメールを取引（pre-txn）にする\n- `Check File Is CSV`：名前が `.csv` で終わるか MIME が `text/csv` / Google スプレッドシートのものだけ通す。それ以外は `Skip Non-CSV File` で正常終了\n- `Download File`：Google Drive からバイナリで取得。スプレッドシートに変換されていた場合は UTF-8 の CSV としてエクスポートされ、`Parse Bank CSV` は `CSV_MAPPING.encoding` に関わらず UTF-8 として読む（Drive の変換で既に壊れた文字は直らないので、Drive の「アップロードを変換」は OFF にする）\n- `Parse Bank CSV`（Code）：**Shift_JIS の復号は Code ノードの `TextDecoder('shift_jis')`** で行う（Extract From File には Shift_JIS が無い）。UTF-8 BOM は除去、`CSV_MAPPING.skip_rows` 行を捨ててから見出しを読む。出金行・入金額が空／0 の行は無視。列が見つからなければ明示的に失敗する（黙って 0 件にしない）。同じポーリングで複数の CSV が届いた場合は全ファイルを解析する（`file_stats` はファイルごと）\n- `Parse Mail`（Code）：`MAIL_PARSERS` を先頭から試し、最初に一致したパーサで本文（NFKC 正規化後）から金額・名義・日付を抽出。一致しない／取れないメールは警告として通知に出す。自行の通知に合わせて `fixtures/mail_parsers.example.json` を参考に正規表現を調整する\n- `Collect Transactions`（Code）：3 経路の合流点。常に 1 アイテム `{ source, txns[], warnings[] }` を返す\n\n## EN\n### Intake — CSV and mail → pre-transactions\n- `Check File Is CSV`: passes only files whose name ends in `.csv` or whose MIME type is `text/csv` / a Google Sheet; anything else ends in `Skip Non-CSV File` without an error\n- `Download File`: downloads the file as binary from Google Drive; a converted Google Sheet is exported as UTF-8 CSV and `Parse Bank CSV` decodes it as UTF-8 regardless of `CSV_MAPPING.encoding` (characters already broken by Drive's conversion are not repaired, so turn Drive's \"convert uploads\" off)\n- `Parse Bank CSV` (Code): **Shift_JIS is decoded in the Code node with `TextDecoder('shift_jis')`** (Extract From File has no Shift_JIS). Strips a UTF-8 BOM, discards `CSV_MAPPING.skip_rows` lines before the header, ignores withdrawal rows and rows with an empty / zero deposit, and fails loudly when a mapped column is missing. When several CSVs arrive in the same poll, every file is parsed (one `file_stats` per file)\n- `Parse Mail` (Code): tries `MAIL_PARSERS` in order and extracts amount / remitter / date from the NFKC-normalized body with the first matching parser; mails that match no parser or yield no capture become warnings in the notification. Adjust the regexes to your bank's mails using `fixtures/mail_parsers.example.json`\n- `Collect Transactions` (Code): merge point of the three paths; always emits one item `{ source, txns[], warnings[] }`\n",
+        "height": 1100,
+        "width": 1020,
+        "color": 5
+      }
+    },
+    {
+      "id": "9f01c7df-1cdb-5551-bb32-73389ab267eb",
+      "name": "Sticky Note S4 Matching",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2120,
+        -120
+      ],
+      "parameters": {
+        "content": "## JA\n### 突合 — 名義正規化と規則 1〜5\n- `Read Invoices` / `Read Transactions`：Google Sheets Get Row(s)、Values (unformatted)。Execute Once（取引数に関わらず 1 回だけ読む）＋ Always Output Data（空シートでも後段を止めない）\n- `Normalize Payer`（Code）：**名義正規化と `txn_id`（`日付|金額|正規化名義|正規化メモ`）を決める唯一の場所**。NFKC → ひらがな→カタカナ → `LEGAL_ENTITY_TOKENS` 除去 → 空白・記号除去（`ー` は保持）→ 先頭の数字列除去。`customer_name` と `payer_name_alias` も同じ関数で正規化して比較する\n- `Match Invoices`（Code）：`transactions` に既存の `txn_id`、および請求の `matched_txn_ids` に既に記録された `txn_id` は skip（冪等。後者は台帳行だけを書き直す）。規則 1 名義＋金額一致 → `auto`／2 金額のみ一致 1 件 → `amount_only`（要確認）／3a 差額が `FEE_SET` → `fee_deducted`／3b 同一名義 2〜3 件の合計が一意に一致 → `combined`／3c 残額未満 → `partial`／3d 超過・4 候補複数 → `ambiguous`（自動確定しない、候補上位 3 件）／5 該当なし → `unmatched`。**自動確定は 1・2・3a・3b・3c のみ**\n- `currency` が `JPY` 以外の請求は対象外にし、`non_jpy_invoice` として警告に出す。`status` が `unpaid` / `partial` 以外の請求は候補にならない\n- Schedule 経路は `unmatched` / `ambiguous` の既存行だけを再突合し、変化した行だけ書き戻す\n- `Route Match Results`：`_kind` = `invoice_update` / `txn_row` / `summary` を出力 0 / 1 / 2 に分ける\n\n## EN\n### Matching — name normalization and rules 1–5\n- `Read Invoices` / `Read Transactions`: Google Sheets Get Row(s), Values (unformatted), Execute Once (one read per run regardless of transaction count) + Always Output Data (an empty sheet does not stop the run)\n- `Normalize Payer` (Code): **the only place that defines name normalization and `txn_id` (`date|amount|normalized name|normalized memo`)**: NFKC → hiragana→katakana → strip `LEGAL_ENTITY_TOKENS` → strip spaces / punctuation (keeps `ー`) → strip leading digits. `customer_name` and `payer_name_alias` are normalized with the same function\n- `Match Invoices` (Code): `txn_id`s already in `transactions`, and `txn_id`s already recorded in an invoice's `matched_txn_ids`, are skipped (idempotent; the latter only rewrites the ledger row). Rule 1 name + amount → `auto` / 2 amount only, one candidate → `amount_only` (needs review) / 3a difference in `FEE_SET` → `fee_deducted` / 3b unique 2–3 invoice subset of one payer → `combined` / 3c below remaining → `partial` / 3d overpaid and 4 several candidates → `ambiguous` (never auto-confirmed, top 3 suggested) / 5 nothing → `unmatched`. **Only 1, 2, 3a, 3b and 3c auto-confirm**\n- Invoices whose `currency` is not `JPY` are excluded with a `non_jpy_invoice` warning; invoices whose `status` is not `unpaid` / `partial` are never candidates\n- The schedule path re-matches only existing `unmatched` / `ambiguous` rows and writes back only those that changed\n- `Route Match Results`: splits `_kind` = `invoice_update` / `txn_row` / `summary` into outputs 0 / 1 / 2\n",
+        "height": 1200,
+        "width": 1300,
+        "color": 1
+      }
+    },
+    {
+      "id": "941a9a7b-f6fe-5cf7-abbe-530983893ff6",
+      "name": "Sticky Note S5 Output",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3440,
+        -120
+      ],
+      "parameters": {
+        "content": "## JA\n### 出力 — シート更新と通知\n- `Update Invoices`：`invoices` を `invoice_id` で Append or Update（`status` / `paid_amount` / `paid_date` / `matched_txn_ids` / `match_confidence` / `fee_deducted`）。`Upsert Transactions`：`transactions` を `txn_id` で Append or Update。どちらも **Cell Format: Let n8n format**（文字列を文字列のまま保存）、余分な項目（`_kind`）は無視。**通知より先にシートへ書く**ので、通知が失敗しても再実行は全件 skip で安全\n- `Build Notification`（Code）：`MESSAGES[LANG].recon_summary` でサマリ（処理 N 件／自動消込 A／要確認 B／未消込 C）と明細を組む。Drive／Gmail 実行は常に通知、Schedule 実行は変化か取込警告があるときだけ\n- 通知チャネルは Config `NOTIFY_CHANNELS`（`slack` / `email` / `line` / `chatwork`）で ON／OFF。`Check … Enabled` が false のチャネルは実行されない\n- Credential：`Notify Slack` は Slack の Credential、`Notify Email` は Gmail OAuth2、`Notify LINE` は Header Auth Credential **`LINE Messaging API`**（ヘッダ名 `Authorization`、値は `Bearer ` の後にチャネルアクセストークン）、`Notify Chatwork` は Header Auth Credential **`Chatwork API`**（ヘッダ名 `X-ChatWorkToken`、値は API トークン）。各ノードで選択する\n- LINE／Chatwork の URL は Config `LINE_API_URL` / `CHATWORK_API_BASE_URL` から読む（API をプロキシ経由にする場合以外は変更しない）\n- **通知は設定した全チャネルを試し、全チャネルが失敗したときだけ** `Check Notification Results` が実行を失敗させて Error Workflow に回す。一部失敗は `Check Notification Results` の出力（`channels_failed`）と実行ログで分かる\n\n## EN\n### Output — sheet writes and notifications\n- `Update Invoices`: Append or Update on `invoices` matched by `invoice_id` (`status` / `paid_amount` / `paid_date` / `matched_txn_ids` / `match_confidence` / `fee_deducted`). `Upsert Transactions`: Append or Update on `transactions` matched by `txn_id`. Both use **Cell Format: Let n8n format** (strings stay strings) and ignore extra fields (`_kind`). **Sheets are written before the notification**, so a re-run after a failed notification safely skips everything\n- `Build Notification` (Code): builds the summary (processed N / auto-matched A / needs review B / unmatched C) and detail lines from `MESSAGES[LANG].recon_summary`. Drive / Gmail runs always notify; schedule runs only when something changed or an intake warning exists\n- Channels are switched on in Config `NOTIFY_CHANNELS` (`slack` / `email` / `line` / `chatwork`); a channel whose `Check … Enabled` is false never runs\n- Credentials: `Notify Slack` uses your Slack credential, `Notify Email` Gmail OAuth2, `Notify LINE` a Header Auth credential named **`LINE Messaging API`** (header `Authorization`, value `Bearer ` followed by the channel access token), `Notify Chatwork` a Header Auth credential named **`Chatwork API`** (header `X-ChatWorkToken`, value = the API token). Select them in each node\n- LINE / Chatwork URLs come from Config `LINE_API_URL` / `CHATWORK_API_BASE_URL` (do not change unless you proxy the API)\n- **Every configured channel is attempted; only when all of them fail** does `Check Notification Results` fail the run and hand it to the Error Workflow. A partial failure shows in that node's output (`channels_failed`) and in the execution log\n",
+        "height": 1400,
+        "width": 1300,
+        "color": 4
+      }
+    },
+    {
+      "id": "77544c32-f166-5d1e-81ea-7a59c00ea89b",
+      "name": "Sticky Note S6 Caution",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        800
+      ],
+      "parameters": {
+        "content": "## JA\n### 注意 — 導入前に必ず読む\n- **振込名義はカナで届く。** `invoices.payer_name_alias` に振込名義（カナ、カンマ区切り）を入れないと自動消込率が大きく落ちる。漢字の `customer_name` だけでは一致しない\n- **同姓同名**は起きる。だから金額一致を必須にしている。金額のみ一致（規則 2）は通知の「要確認」で目視する\n- **銀行 CSV は月をまたぐと形式が変わる**ことがある（見出し行の有無・説明行）。`CSV_MAPPING.skip_rows` と列見出しを見直す\n- **曖昧・未消込は自動確定しない。** シートの `invoices.status` / `paid_amount` と `transactions.status`（`matched` か `ignored`）を人が直す。`ignored` は再突合の対象外\n- **Error Workflow の設定**：Settings → Error workflow に `[Odaji] 01 Error Handler v1.0.0` を選ぶ → 保存 → 本体を有効化（Activate）。Error Trigger は自動実行でしか発火しない。Error Workflow 側の Config にも通知設定を入れる\n- 設定は Config だけでは足りない 3 か所：`Watch Drive Folder`（フォルダ）、`Watch Gmail Inbox`（検索式）、`Run Daily Rematch`（時刻）\n- 通貨は JPY のみ。`transactions` は毎回全件読むので 1 万行を超えたら年次でシートを分ける\n\n## EN\n### Caution — read before going live\n- **Remitter names arrive in katakana.** Fill `invoices.payer_name_alias` (katakana, comma-separated) or the auto-match rate drops sharply; a kanji `customer_name` alone does not match\n- **People share names**, which is why an amount match is mandatory; amount-only matches (rule 2) are listed under \"needs review\" for a human check\n- **Bank CSV layouts drift between months** (header row present or not, extra description lines): review `CSV_MAPPING.skip_rows` and the column headers\n- **Ambiguous and unmatched rows are never auto-confirmed.** Fix `invoices.status` / `paid_amount` and `transactions.status` (`matched` or `ignored`) by hand; `ignored` rows are excluded from re-matching\n- **Error Workflow setup**: Settings → Error workflow → select `[Odaji] 01 Error Handler v1.0.0` → save → activate this workflow. The Error Trigger only fires for automatic runs. Mirror the notification keys into the error workflow's Config\n- Three settings live outside Config: `Watch Drive Folder` (folder), `Watch Gmail Inbox` (search), `Run Daily Rematch` (time)\n- JPY only. `transactions` is read in full on every run; split the sheet yearly beyond ~10,000 rows\n",
+        "height": 900,
+        "width": 1020,
+        "color": 3
+      }
+    },
+    {
+      "id": "8027a033-552a-5ccd-86a5-e7dc091712ad",
+      "name": "Watch Drive Folder",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "oAuth2",
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_ME_DRIVE_FOLDER_ID"
+        },
+        "event": "fileCreated",
+        "options": {}
+      }
+    },
+    {
+      "id": "6d1cb9d1-f365-5196-9822-6e9754a30bc8",
+      "name": "Watch Gmail Inbox",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 5,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "authentication": "oAuth2",
+        "simple": false,
+        "maxResults": 10,
+        "filters": {
+          "q": "subject:(入金 OR Deposit) newer_than:1d",
+          "readStatus": "both"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "dcd5fcd0-9e4b-555d-a1a8-a57f70b095bf",
+      "name": "Run Daily Rematch",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "0f451c6e-cf7b-5598-bd02-822c65ce628a",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        300,
+        200
+      ],
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"TZ\": \"Asia/Tokyo\",\n  \"LANG\": \"ja\",\n  \"SHEET_ID\": \"REPLACE_ME_SHEET_ID\",\n  \"SHEET_INVOICES\": \"invoices\",\n  \"SHEET_TRANSACTIONS\": \"transactions\",\n  \"DRIVE_FOLDER_ID\": \"REPLACE_ME_DRIVE_FOLDER_ID\",\n  \"GMAIL_QUERY\": \"subject:(入金 OR Deposit) newer_than:1d\",\n  \"RUN_AT\": \"09:00\",\n  \"TRIGGERS_ENABLED\": {\n    \"drive\": true,\n    \"gmail\": true,\n    \"schedule\": true\n  },\n  \"CSV_MAPPING\": {\n    \"date_col\": \"日付\",\n    \"payer_col\": \"摘要\",\n    \"deposit_col\": \"入金額\",\n    \"withdraw_col\": \"出金額\",\n    \"memo_col\": \"\",\n    \"skip_rows\": 0,\n    \"date_format\": \"auto\",\n    \"encoding\": \"shift_jis\"\n  },\n  \"MAIL_PARSERS\": [\n    {\n      \"name\": \"bankX\",\n      \"from_match\": \"@example.jp\",\n      \"subject_match\": \"入金\",\n      \"amount_regex\": \"(?:入金額|お振込金額|金額)[：:]\\\\s*([0-9,]+)\",\n      \"payer_regex\": \"(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\\\s*([^\\\\n]+)\",\n      \"date_regex\": \"(?:日付|お取引日|取引日)[：:]\\\\s*(\\\\d{4}[/\\\\-年]\\\\d{1,2}[/\\\\-月]\\\\d{1,2})\"\n    },\n    {\n      \"name\": \"bankY\",\n      \"from_match\": \"@example.com\",\n      \"subject_match\": \"Deposit\",\n      \"amount_regex\": \"Amount\\\\s+(?:JPY|¥)?\\\\s*([0-9,]+)\",\n      \"payer_regex\": \"Remitter\\\\s+([^\\\\n]+)\",\n      \"date_regex\": \"Transaction Date\\\\s+(\\\\d{4}-\\\\d{2}-\\\\d{2})\"\n    }\n  ],\n  \"LEGAL_ENTITY_TOKENS\": [\n    \"カ)\",\n    \"(カ\",\n    \"ユ)\",\n    \"(ユ\",\n    \"ド)\",\n    \"(ド\",\n    \"シヤ)\",\n    \"(シヤ\",\n    \"ザイ)\",\n    \"(ザイ\",\n    \"ガク)\",\n    \"(ガク\",\n    \"イ)\",\n    \"(イ\",\n    \"ホ)\",\n    \"(ホ\",\n    \"株式会社\",\n    \"有限会社\",\n    \"合同会社\",\n    \"合名会社\",\n    \"合資会社\",\n    \"一般社団法人\",\n    \"一般財団法人\",\n    \"医療法人\",\n    \"学校法人\",\n    \"社会福祉法人\",\n    \"カブシキガイシヤ\",\n    \"カブシキカイシヤ\",\n    \"ユウゲンガイシヤ\",\n    \"ゴウドウガイシヤ\",\n    \"イツパンシヤダンホウジン\",\n    \"イリヨウホウジン\",\n    \"振込\",\n    \"フリコミ\",\n    \"ゴフリコミ\"\n  ],\n  \"STRIP_LEADING_DIGITS\": true,\n  \"FEE_SET\": [\n    110,\n    165,\n    220,\n    275,\n    330,\n    440,\n    550,\n    660,\n    770,\n    880\n  ],\n  \"NAME_MIN_CONTAINS\": 3,\n  \"NOTIFY_CHANNELS\": [\n    \"slack\"\n  ],\n  \"SLACK_CHANNEL\": \"REPLACE_ME_SLACK_CHANNEL_ID\",\n  \"NOTIFY_EMAIL_TO\": \"replace-me@example.com\",\n  \"LINE_TO_USER_ID\": \"REPLACE_ME_LINE_USER_ID\",\n  \"CHATWORK_ROOM_ID\": \"REPLACE_ME_CHATWORK_ROOM_ID\",\n  \"LINE_API_URL\": \"https://api.line.me/v2/bot/message/push\",\n  \"CHATWORK_API_BASE_URL\": \"https://api.chatwork.com/v2\",\n  \"NOTIFY_MAX_LINES\": 40,\n  \"MESSAGES\": {\n    \"ja\": {\n      \"recon_summary\": {\n        \"title\": \"【入金消込 {date}】処理 {n}件｜自動消込 {a}｜要確認 {b}｜未消込 {c}\",\n        \"line_item\": \"・{txn_date} {payer_raw} ¥{amount} → {invoice_id}\",\n        \"line_item_candidates\": \"・{txn_date} {payer_raw} ¥{amount} → 候補: {candidates}\",\n        \"needs_review_heading\": \"■ 要確認（金額のみ一致・手数料差引・合算で自動消込した分）\",\n        \"unmatched_heading\": \"■ 未消込（該当請求なし）\",\n        \"ambiguous_heading\": \"■ 候補複数（自動確定せず。候補から選んでください）\",\n        \"auto_heading\": \"■ 自動消込\",\n        \"warnings_heading\": \"■ 警告\",\n        \"no_transactions\": \"【入金消込 {date}】新規の入金はありませんでした\",\n        \"skipped_note\": \"（処理済みのため skip：{n} 件）\",\n        \"more_items\": \"…他 {n} 件\",\n        \"reasons\": {\n          \"amount_only\": \"（金額のみ一致・要確認）\",\n          \"fee_deducted\": \"（手数料 ¥{fee} 差引）\",\n          \"combined\": \"（合算）\",\n          \"partial\": \"（一部入金・残 ¥{remaining}）\",\n          \"overpaid\": \"（超過入金）\"\n        }\n      },\n      \"error_notice\": {\n        \"title\": \"【n8n エラー】{workflow_name}\",\n        \"body\": \"ワークフロー：{workflow_name}\\n失敗したノード：{last_node}\\nエラー：{message}\\n実行ログ：{execution_url}\\n\\n実行ログで原因を確認し、修正後に再実行してください。シート書込みやメール送信が途中まで進んでいる可能性があるため、再実行前に台帳シートを確認してください。\"\n      }\n    },\n    \"en\": {\n      \"recon_summary\": {\n        \"title\": \"[Reconciliation {date}] Processed {n} | Auto-matched {a} | Needs review {b} | Unmatched {c}\",\n        \"line_item\": \"• {txn_date} {payer_raw} ¥{amount} → {invoice_id}\",\n        \"line_item_candidates\": \"• {txn_date} {payer_raw} ¥{amount} → candidates: {candidates}\",\n        \"needs_review_heading\": \"■ Needs review (auto-matched by amount only, fee deducted, or combined)\",\n        \"unmatched_heading\": \"■ Unmatched (no matching invoice)\",\n        \"ambiguous_heading\": \"■ Ambiguous (multiple candidates, not auto-matched; pick one)\",\n        \"auto_heading\": \"■ Auto-matched\",\n        \"warnings_heading\": \"■ Warnings\",\n        \"no_transactions\": \"[Reconciliation {date}] No new transactions\",\n        \"skipped_note\": \"(skipped as already processed: {n})\",\n        \"more_items\": \"… and {n} more\",\n        \"reasons\": {\n          \"amount_only\": \"(amount only, needs review)\",\n          \"fee_deducted\": \"(fee ¥{fee} deducted)\",\n          \"combined\": \"(combined)\",\n          \"partial\": \"(partial, remaining ¥{remaining})\",\n          \"overpaid\": \"(overpayment)\"\n        }\n      },\n      \"error_notice\": {\n        \"title\": \"[n8n error] {workflow_name}\",\n        \"body\": \"Workflow: {workflow_name}\\nFailed node: {last_node}\\nError: {message}\\nExecution log: {execution_url}\\n\\nCheck the execution log for the cause, fix it, and re-run. Sheet writes or emails may have partially completed, so check the ledger sheet before re-running.\"\n      }\n    }\n  },\n  \"SOURCE\": \"{{ $prevNode.name }}\"\n}",
+        "includeOtherFields": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "f53e0a12-b951-5282-8d86-68bdff7f2a6b",
+      "name": "Route by Source",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        200
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "580b2f3f-69d2-5e57-8da6-0fa4ed1cd565",
+                    "leftValue": "={{ $json.SOURCE }}",
+                    "rightValue": "Watch Drive Folder",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "acc29f62-e7ff-5008-9056-1d16b0e2c19f",
+                    "leftValue": "={{ $json.TRIGGERS_ENABLED.drive }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "drive"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "7a18e45b-e817-5b09-b9d2-b8b80bd625f5",
+                    "leftValue": "={{ $json.SOURCE }}",
+                    "rightValue": "Watch Gmail Inbox",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "c7840111-2f61-59d4-8018-1a28700121b9",
+                    "leftValue": "={{ $json.TRIGGERS_ENABLED.gmail }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "gmail"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b37fd42d-8e44-5cb4-bc2c-75b6aefe5cca",
+                    "leftValue": "={{ $json.SOURCE }}",
+                    "rightValue": "Run Daily Rematch",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "eb087b37-368c-5627-a9ef-4c21d39497a3",
+                    "leftValue": "={{ $json.TRIGGERS_ENABLED.schedule }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "schedule"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "disabled"
+        }
+      }
+    },
+    {
+      "id": "236a50b2-5b2f-58e3-af8a-3d72431e5f55",
+      "name": "Skip Disabled Trigger",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        840,
+        620
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "6ddf0bbd-ec53-53ee-8400-e84490b2720a",
+      "name": "Check File Is CSV",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a380a70a-9451-54b2-b269-f3f22bf95308",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": ".csv",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            },
+            {
+              "id": "d380fd77-97d2-56a1-8794-fea518fd0be1",
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "text/csv",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "ba40961f-a5b2-5ed6-ae8c-244c9a9d39ce",
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "application/vnd.google-apps.spreadsheet",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      }
+    },
+    {
+      "id": "8858e68b-3bf7-5751-861e-2dc397c87792",
+      "name": "Skip Non-CSV File",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        -180
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "f33d54a4-88ce-5ebb-aa8b-6546d02ed775",
+      "name": "Download File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1360,
+        0
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "file",
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "sheetsToFormat": "text/csv"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "71b568de-2ba6-57a5-a3c5-74f5ab1632c9",
+      "name": "Parse Bank CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1620,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Parse Bank CSV — n8n Code node (JavaScript, Mode: Run Once for All Items). No require().\n// Source of truth: templates/01-bank-reconciliation/code/parse_bank_csv.js; workflow.json embeds this text verbatim\n// (ASSUMPTIONS A15). Logic: DESIGN.md §6.2 + §6.5. Input: the items from \"Download File\" (one per file the Drive\n// trigger emitted — several when more than one CSV lands in the folder within one poll, D31), each with binary.data\n// holding a bank CSV. Output per input item i (pairedItem.item = i): pre-txn items { _kind: 'txn' } (no\n// payer_name_norm / txn_id yet — \"Normalize Payer\" owns those), { _kind: 'warning', type: 'bad_date' } for rows whose\n// date cannot be read, and one { _kind: 'file_stats' } item. Withdrawal / empty / zero deposit rows are ignored (R07).\n// Shift_JIS is decoded here with TextDecoder because Extract From File has no shift_jis option (ASSUMPTIONS A6).\n// A file whose source mimeType is a Google Sheet (Drive converted the upload) is exported by Download File as UTF-8 CSV\n// without BOM, so it is decoded as UTF-8 regardless of CSV_MAPPING.encoding (D22).\n\n// ---- shared helpers: toInt / num / str — identical text in every Code node (DESIGN §6.1) ----\n// 数値化：全角→半角、カンマ・¥・円・空白を除去して整数（円）。失敗は toInt() = null / num() = 0\nconst toInt = (v) => {\n  if (v === null || v === undefined) return null;\n  if (typeof v === 'number') return Number.isFinite(v) ? Math.trunc(v) : null;\n  const s = String(v).normalize('NFKC').replace(/[,\\s¥￥円]/g, '');\n  if (!/^-?\\d+(\\.\\d+)?$/.test(s)) return null;\n  return parseInt(s, 10);\n};\nconst num = (v) => toInt(v) ?? 0;\nconst str = (v) => (v === null || v === undefined) ? '' : String(v).trim();\n// ---- end shared helpers ----\n\n// ---- shared: normalizeDate — identical text in Parse Bank CSV and Parse Mail (DESIGN §6.1 / §6.5) ----\n// 受け付ける形式：yyyy/MM/dd, yyyyMMdd, yyyy-MM-dd（仕様）＋ yyyy.MM.dd / yyyy年M月d日 / 区切りありの非ゼロ埋め\n// format が 'auto' 以外なら Luxon の fromFormat で厳密に解釈する。返り値は 'yyyy-MM-dd' か null（2026/02/30 等）\nfunction normalizeDate(value, format, tz) {\n  const s = str(value).normalize('NFKC');\n  if (!s) return null;\n  let y, m, d;\n  if (format && format !== 'auto') {\n    const dt = DateTime.fromFormat(s, format, { zone: tz });           // 明示指定は厳密に\n    return dt.isValid ? dt.toFormat('yyyy-MM-dd') : null;\n  }\n  let mt = s.match(/^(\\d{4})(\\d{2})(\\d{2})$/);                          // yyyyMMdd\n  if (!mt) mt = s.match(/^(\\d{4})[\\/\\-.年](\\d{1,2})[\\/\\-.月](\\d{1,2})日?/); // yyyy/M/d, yyyy-MM-dd, yyyy.M.d, yyyy年M月d日（末尾に時刻があっても可）\n  if (!mt) return null;\n  [y, m, d] = [Number(mt[1]), Number(mt[2]), Number(mt[3])];\n  const dt = DateTime.fromObject({ year: y, month: m, day: d }, { zone: tz });\n  return dt.isValid ? dt.toFormat('yyyy-MM-dd') : null;                 // 2026/02/30 等は null\n}\n// ---- end shared normalizeDate ----\n\n// ---- バイナリ → 文字列（A6：Extract From File は使わない）----\nfunction decodeCsvBuffer(buf, encoding) {\n  // UTF-8 BOM は設定に関わらず UTF-8（fixture B）\n  if (buf.length >= 3 && buf[0] === 0xef && buf[1] === 0xbb && buf[2] === 0xbf) {\n    return new TextDecoder('utf-8').decode(buf.subarray(3));\n  }\n  const enc = str(encoding || 'shift_jis').toLowerCase();\n  if (enc === 'auto') {\n    try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); }   // 不正な UTF-8 なら例外\n    catch (e) { return new TextDecoder('shift_jis').decode(buf); }\n  }\n  return new TextDecoder(enc).decode(buf);   // 'shift_jis' / 'utf-8' / 'euc-jp'。未対応名は RangeError → 実行失敗（意図的）\n}\n\n// ---- RFC 4180 風の CSV パース（引用符内のカンマ・改行・\"\" に対応）----\nfunction parseCsvText(text) {\n  const rows = []; let row = []; let field = ''; let inQuotes = false;\n  for (let i = 0; i < text.length; i++) {\n    const c = text[i];\n    if (inQuotes) {\n      if (c === '\"') { if (text[i + 1] === '\"') { field += '\"'; i++; } else { inQuotes = false; } }\n      else { field += c; }\n    } else if (c === '\"') { inQuotes = true; }\n    else if (c === ',') { row.push(field); field = ''; }\n    else if (c === '\\r') { /* CRLF の \\r は捨てる */ }\n    else if (c === '\\n') { row.push(field); rows.push(row); row = []; field = ''; }\n    else { field += c; }\n  }\n  if (field !== '' || row.length) { row.push(field); rows.push(row); }\n  return rows.filter((r) => r.some((f) => f.trim() !== ''));   // 空行除去\n}\n\n// ---- 列対応・出金除外・pre-txn 生成 ----\n// rows: string[][]（parseCsvText の出力）。payer_name_norm / txn_id は付けない（Normalize Payer の責務）\nfunction parseBankCsv(rows, m, ctx) {\n  const skip = num(m.skip_rows);\n  const nk = (s) => str(s).normalize('NFKC');\n  const body = rows.slice(skip);\n  if (!body.length) throw new Error(`CSV has no header row after skip_rows=${skip}`);\n  const header = body[0].map(nk);\n  const dataRows = body.slice(1).map((r) => Object.fromEntries(header.map((h, i) => [h, r[i] ?? ''])));\n  const col = (name, required) => {\n    const key = header.find((h) => h === nk(name));\n    if (!key && required) throw new Error(`CSV column not found: \"${name}\". header = ${header.join(' | ')}`);\n    return key || null;\n  };\n  const dateKey = col(m.date_col, true), payerKey = col(m.payer_col, true), depKey = col(m.deposit_col, true);\n  const memoKey = m.memo_col ? col(m.memo_col, false) : null;   // withdraw_col は判定に使わない（deposit が空/0 なら無視）\n\n  const txns = []; const warnings = []; let ignored = 0;\n  dataRows.forEach((r, idx) => {\n    const rowNo = skip + 2 + idx;                        // 1 始まりの物理行番号（見出し = skip+1。空行は数えない）\n    const deposit = toInt(r[depKey]);\n    if (!(deposit > 0)) { ignored++; return; }           // R07：出金行・空行・小計行を無視\n    const txn_date = normalizeDate(r[dateKey], m.date_format, ctx.tz);\n    if (!txn_date) { warnings.push({ type: 'bad_date', row: rowNo, value: str(r[dateKey]) }); return; }\n    txns.push({ _kind: 'txn', source: 'bank_csv', txn_date, payer_name_raw: str(r[payerKey]), amount: deposit,\n                memo: memoKey ? str(r[memoKey]) : '', _file: ctx.fileName, _row: rowNo });\n  });\n  return { txns, warnings, ignored_withdraw: ignored };\n}\n\n// ---- ノード本体 ----\n// DECISION (D31): Google Drive Trigger emits EVERY file created since the last poll as one item each of a single execution\n// (GoogleDriveTrigger.node.js poll() → returnJsonArray(files)); Check File Is CSV / Download File run per item. All input items\n// are parsed here (not only item 0) and every output item is paired with its source item index.\n// DECISION (D22): Download File passes the trigger json through (download.operation.js `json: item.json`), so the source\n// mimeType is visible. A Google Sheet export is always UTF-8 (no BOM) → decode as utf-8, not CSV_MAPPING.encoding.\nconst cfg = $('Config').first().json;\nconst inputs = $input.all();\nconst out = [];\nfor (let i = 0; i < inputs.length; i++) {\n  const it = inputs[i];\n  const ctx = { tz: cfg.TZ, fileName: it.json.name || it.binary?.data?.fileName || '' };\n  const isSheetExport = str(it.json.mimeType) === 'application/vnd.google-apps.spreadsheet';\n  const buf = await this.helpers.getBinaryDataBuffer(i, 'data');        // itemIndex, binary property（A12 で動作確認済み）\n  const text = decodeCsvBuffer(buf, isSheetExport ? 'utf-8' : cfg.CSV_MAPPING.encoding);\n  const { txns, warnings, ignored_withdraw } = parseBankCsv(parseCsvText(text), cfg.CSV_MAPPING, ctx);\n  out.push(\n    ...txns.map((t) => ({ json: t, pairedItem: { item: i } })),\n    ...warnings.map((w) => ({ json: { _kind: 'warning', ...w }, pairedItem: { item: i } })),\n    { json: { _kind: 'file_stats', file_name: ctx.fileName, ignored_withdraw, rows_total: txns.length + warnings.length + ignored_withdraw }, pairedItem: { item: i } },\n  );\n}\nreturn out;\n"
+      }
+    },
+    {
+      "id": "ecb78b91-98d9-5c2b-992f-fe89fe80e931",
+      "name": "Parse Mail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Parse Mail — n8n Code node (JavaScript, Mode: Run Once for All Items). No require().\n// Source of truth: templates/01-bank-reconciliation/code/parse_mail.js; workflow.json embeds this text verbatim\n// (ASSUMPTIONS A15). Logic: DESIGN.md §6.3 + §6.5. Input: Gmail Trigger items (Simplify OFF: text / html / subject /\n// from / date / id). Each mail yields exactly one item: a pre-txn { _kind: 'txn', source: 'gmail' } (no payer_name_norm /\n// txn_id yet — \"Normalize Payer\" owns those) or a { _kind: 'warning' } item (no_parser_matched / parser_no_capture /\n// bad_date). Config MAIL_PARSERS are tried in order; the first whose from_match and subject_match both hold is used (D15).\n\n// ---- shared helpers: toInt / num / str — identical text in every Code node (DESIGN §6.1) ----\n// 数値化：全角→半角、カンマ・¥・円・空白を除去して整数（円）。失敗は toInt() = null / num() = 0\nconst toInt = (v) => {\n  if (v === null || v === undefined) return null;\n  if (typeof v === 'number') return Number.isFinite(v) ? Math.trunc(v) : null;\n  const s = String(v).normalize('NFKC').replace(/[,\\s¥￥円]/g, '');\n  if (!/^-?\\d+(\\.\\d+)?$/.test(s)) return null;\n  return parseInt(s, 10);\n};\nconst num = (v) => toInt(v) ?? 0;\nconst str = (v) => (v === null || v === undefined) ? '' : String(v).trim();\n// ---- end shared helpers ----\n\n// ---- shared: normalizeDate — identical text in Parse Bank CSV and Parse Mail (DESIGN §6.1 / §6.5) ----\n// 受け付ける形式：yyyy/MM/dd, yyyyMMdd, yyyy-MM-dd（仕様）＋ yyyy.MM.dd / yyyy年M月d日 / 区切りありの非ゼロ埋め\n// format が 'auto' 以外なら Luxon の fromFormat で厳密に解釈する。返り値は 'yyyy-MM-dd' か null（2026/02/30 等）\nfunction normalizeDate(value, format, tz) {\n  const s = str(value).normalize('NFKC');\n  if (!s) return null;\n  let y, m, d;\n  if (format && format !== 'auto') {\n    const dt = DateTime.fromFormat(s, format, { zone: tz });           // 明示指定は厳密に\n    return dt.isValid ? dt.toFormat('yyyy-MM-dd') : null;\n  }\n  let mt = s.match(/^(\\d{4})(\\d{2})(\\d{2})$/);                          // yyyyMMdd\n  if (!mt) mt = s.match(/^(\\d{4})[\\/\\-.年](\\d{1,2})[\\/\\-.月](\\d{1,2})日?/); // yyyy/M/d, yyyy-MM-dd, yyyy.M.d, yyyy年M月d日（末尾に時刻があっても可）\n  if (!mt) return null;\n  [y, m, d] = [Number(mt[1]), Number(mt[2]), Number(mt[3])];\n  const dt = DateTime.fromObject({ year: y, month: m, day: d }, { zone: tz });\n  return dt.isValid ? dt.toFormat('yyyy-MM-dd') : null;                 // 2026/02/30 等は null\n}\n// ---- end shared normalizeDate ----\n\n// ---- HTML 本文 → テキスト（text が無いメールだけに使う）----\nfunction htmlToText(html) {\n  return str(html)\n    .replace(/<br\\s*\\/?>/gi, '\\n').replace(/<\\/(p|div|tr|li|h\\d)>/gi, '\\n').replace(/<[^>]+>/g, '')\n    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\");\n}\n// from_match / subject_match：大文字小文字無視・NFKC 後の部分一致。needle が空なら常に一致（D15）\nconst includesCI = (hay, needle) => !needle || str(hay).normalize('NFKC').toLowerCase().includes(str(needle).normalize('NFKC').toLowerCase());\nconst re = (src) => new RegExp(src, 'u');     // 買い手の正規表現。無効なら SyntaxError → 実行失敗（Config の誤りを隠さない）\n// DECISION: Gmail Trigger (Simplify OFF) gives `from` as { text, value: [{ address, name }] } (DESIGN §3.1, to be\n// confirmed live in P2 §8.3-4). The pseudocode reads from.text; if a runtime shape has no `text`, fall back to the\n// addresses in `value` instead of producing \"[object Object]\". Strings are used as-is.\nconst fromText = (f) => {\n  if (f && typeof f === 'object') {\n    if (str(f.text)) return str(f.text);\n    if (Array.isArray(f.value)) return f.value.map((v) => str(v && (v.address || v.name))).filter(Boolean).join(', ');\n    return '';\n  }\n  return str(f);\n};\n\n// email: Gmail Trigger（Simplify OFF）の json。戻り値は { txn } または { warning }。txn は pre-txn（txn_id 無し）\nfunction parseMail(email, parsers, ctx) {\n  const from = fromText(email.from ?? email.headers?.from);\n  const subject = str(email.subject);\n  const rawBody = str(email.text) || htmlToText(email.html);            // text 優先\n  const body = rawBody.normalize('NFKC');                               // 全角数字・全角コロン → 半角、半角カナ → 全角カナ\n  const messageId = str(email.id);\n  for (const p of parsers) {\n    if (!includesCI(from, p.from_match) || !includesCI(subject, p.subject_match)) continue;\n    const amountM = re(p.amount_regex).exec(body);\n    const payerM = re(p.payer_regex).exec(body);\n    const dateM = p.date_regex ? re(p.date_regex).exec(body) : null;\n    const amount = amountM ? toInt(amountM[1]) : null;\n    if (!(amount > 0) || !payerM) {\n      return { warning: { type: 'parser_no_capture', parser: p.name, message_id: messageId, from, subject } };\n    }\n    let txn_date = dateM ? normalizeDate(dateM[1], 'auto', ctx.tz) : null;\n    if (!txn_date) {\n      // 本文に日付が無い／読めない → メールの受信日（TZ の暦日）\n      const received = DateTime.fromJSDate(new Date(email.date)).setZone(ctx.tz);\n      // DECISION: the pseudocode uses the email date unconditionally; an absent or unparsable `date` would otherwise\n      // become the literal \"Invalid DateTime\" and poison txn_id. Emit a bad_date warning instead (safe default).\n      if (!received.isValid) {\n        return { warning: { type: 'bad_date', parser: p.name, message_id: messageId, from, subject, value: str(email.date) } };\n      }\n      txn_date = received.toFormat('yyyy-MM-dd');\n    }\n    const memo = `${subject} (gmail:${messageId})`;                     // D14：別メールの同額入金を潰さない\n    return { txn: { _kind: 'txn', source: 'gmail', txn_date, payer_name_raw: str(payerM[1]), amount, memo, _message_id: messageId, _parser: p.name } };\n  }\n  return { warning: { type: 'no_parser_matched', message_id: messageId, from, subject } };\n}\n\n// ---- ノード本体 ----\nconst cfg = $('Config').first().json;\nconst ctx = { tz: cfg.TZ };\nconst out = [];\n$input.all().forEach((item, i) => {\n  const r = parseMail(item.json, cfg.MAIL_PARSERS, ctx);\n  out.push({ json: r.txn ?? { _kind: 'warning', ...r.warning }, pairedItem: { item: i } });\n});\nreturn out;\n"
+      }
+    },
+    {
+      "id": "4a1a2bd5-7dda-5947-b69d-520a63a64dde",
+      "name": "Collect Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1880,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Collect Transactions — n8n Code node (JavaScript, Run Once for All Items). DESIGN.md §6.4 / D01.\n// Merge point of the three trigger paths. Always returns exactly ONE item\n//   { source, txns, warnings, ignored_withdraw, file_name }\n// so that Match Invoices never references a node that did not run in this execution.\n// Input items: Parse Bank CSV output (pre-txns `_kind:'txn'`, `_kind:'warning'`, one `_kind:'file_stats'` per file),\n// Parse Mail output (pre-txns / warnings), or the Config item on the Schedule path (no `_kind` → txns = []).\n// payer_name_norm / txn_id are NOT assigned here (Normalize Payer owns them, D27).\n// Shared helpers (toInt / num / str) are byte-identical in every Code node of this template (DESIGN.md §6.1).\n\n// ---- shared helpers: toInt / num / str — identical text in every Code node (DESIGN §6.1) ----\n// 数値化：全角→半角、カンマ・¥・円・空白を除去して整数（円）。失敗は toInt() = null / num() = 0\nconst toInt = (v) => {\n  if (v === null || v === undefined) return null;\n  if (typeof v === 'number') return Number.isFinite(v) ? Math.trunc(v) : null;\n  const s = String(v).normalize('NFKC').replace(/[,\\s¥￥円]/g, '');\n  if (!/^-?\\d+(\\.\\d+)?$/.test(s)) return null;\n  return parseInt(s, 10);\n};\nconst num = (v) => toInt(v) ?? 0;\nconst str = (v) => (v === null || v === undefined) ? '' : String(v).trim();\n// ---- end shared helpers ----\n\n// ---- ノード本体 / node body (DESIGN.md §6.4) ----\n// DECISION: txn / warning objects are passed through unchanged (their `_kind` key included), exactly as the §6.4\n// pseudocode does; §3.4 draws warnings without `_kind` but the extra key is harmless downstream (Build Notification\n// reads `type`, and `_kind` never reaches a sheet). Normalize Payer strips `_kind` from txns when it builds txn_id.\n// DECISION: the pseudocode's local is named `items`; renamed to `inputs` because `items` is n8n's legacy Code-node alias for\n// $input.all() (a sandbox global). Redeclaring it is a SyntaxError in tests/unit/run-code-node.mjs (which passes the alias as a\n// parameter) and would only shadow the global inside n8n. Logic is unchanged.\nconst inputs = $input.all().map((i) => i.json);\nconst cfg = $('Config').first().json;\nconst source = ({ 'Watch Drive Folder': 'drive', 'Watch Gmail Inbox': 'gmail', 'Run Daily Rematch': 'schedule' })[cfg.SOURCE] || 'unknown';\nconst txns = inputs.filter((j) => j._kind === 'txn');\nconst warnings = inputs.filter((j) => j._kind === 'warning');\n// DECISION (D31): Parse Bank CSV emits one file_stats item PER FILE (several files can arrive in one Drive poll), so the stats are\n// aggregated here: ignored_withdraw = sum, file_name = the file names joined with \", \" (Gmail / Schedule paths have none → 0 / \"\").\nconst stats = inputs.filter((j) => j._kind === 'file_stats');\nconst ignored_withdraw = stats.reduce((sum, f) => sum + num(f.ignored_withdraw), 0);\nconst file_name = stats.map((f) => str(f.file_name)).filter(Boolean).join(', ');\nreturn [{ json: { source, txns, warnings, ignored_withdraw, file_name }, pairedItem: { item: 0 } }];\n"
+      }
+    },
+    {
+      "id": "8e62eb53-0a91-5ec0-878c-7d5ac48fcc30",
+      "name": "Read Invoices",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2140,
+        200
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Config').first().json.SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Config').first().json.SHEET_INVOICES }}"
+        },
+        "options": {
+          "outputFormatting": {
+            "values": {
+              "general": "UNFORMATTED_VALUE",
+              "date": "FORMATTED_STRING"
+            }
+          }
+        }
+      },
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "83feaac9-92c1-5f0a-bb4c-6be27d8f5d6e",
+      "name": "Read Transactions",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2400,
+        200
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Config').first().json.SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Config').first().json.SHEET_TRANSACTIONS }}"
+        },
+        "options": {
+          "outputFormatting": {
+            "values": {
+              "general": "UNFORMATTED_VALUE",
+              "date": "FORMATTED_STRING"
+            }
+          }
+        }
+      },
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "f415eac3-1a9c-53ac-96d1-24dbf76cd613",
+      "name": "Normalize Payer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2660,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Normalize Payer — n8n Code node (JavaScript, Run Once for All Items). DESIGN.md §6.6 / D27.\n// The ONLY place that defines remitter-name normalization, memo_norm and txn_id. Runs right after Read Transactions:\n//   $input.all()                      = Read Transactions rows (Always Output Data: an empty sheet yields one {} row → skipped)\n//   $('Read Invoices').all()          = invoices rows ({} rows skipped); each row gets _names = normalized customer_name + aliases\n//   $('Collect Transactions').first() = { source, txns (pre-txn, no txn_id), warnings, ignored_withdraw, file_name }\n// Output: exactly ONE item { source, file_name, ignored_withdraw, warnings, txns, invoices, existing } for Match Invoices.\n// Shared helpers toInt / num / str (every Code node) and esc / hiraToKata / splitCsvList / uniq are byte-identical to DESIGN.md §6.1.\n\n// ---- shared helpers: toInt / num / str — identical text in every Code node (DESIGN §6.1) ----\n// 数値化：全角→半角、カンマ・¥・円・空白を除去して整数（円）。失敗は toInt() = null / num() = 0\nconst toInt = (v) => {\n  if (v === null || v === undefined) return null;\n  if (typeof v === 'number') return Number.isFinite(v) ? Math.trunc(v) : null;\n  const s = String(v).normalize('NFKC').replace(/[,\\s¥￥円]/g, '');\n  if (!/^-?\\d+(\\.\\d+)?$/.test(s)) return null;\n  return parseInt(s, 10);\n};\nconst num = (v) => toInt(v) ?? 0;\nconst str = (v) => (v === null || v === undefined) ? '' : String(v).trim();\n// ---- end shared helpers ----\nconst esc = (s) => s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');            // 正規表現エスケープ\nconst hiraToKata = (s) => s.replace(/[ぁ-ゖ]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) + 0x60));\nconst splitCsvList = (s) => str(s).split(/[,、，]/).map((x) => x.trim()).filter(Boolean);\nconst uniq = (arr) => [...new Set(arr)];\n\n// 仕様の 5 手順。tokens = cfg.LEGAL_ENTITY_TOKENS, stripLeadingDigits = cfg.STRIP_LEADING_DIGITS\n// トークン除去は 2 段階：(a) どこでも除去するトークン（振込・フリコミ・株式会社 等）を先に消し、\n// (b) そのあとで前株 `X)`（先頭のみ）・後株 `(X`（末尾のみ）を当てる。1 回の走査で長さ順に混ぜると\n// fixture A-1（`振込` + 半角の前株略記 + 名義）は前株トークンが先頭に来る前に試されて残り、`カサンプルシヨウジ` になる（fixture で確認済み）\nfunction normalizePayer(raw, tokens, stripLeadingDigits) {\n  let s = str(raw).normalize('NFKC');                                   // 1. NFKC：全角英数→半角、半角カナ→全角カナ（濁点合成）、全角括弧→半角\n  s = hiraToKata(s);                                                    // 2. ひらがな→カタカナ\n  s = s.replace(/[\\s　]+/g, '');                                    // 4a. 空白は先に除去（トークン照合を安定させる）\n  const toks = uniq((tokens || []).map((t) => hiraToKata(str(t).normalize('NFKC')).replace(/[\\s　]+/g, '')).filter(Boolean))\n    .sort((a, b) => b.length - a.length);                               // 長いトークンから\n  const anchored = (t) => t.endsWith(')') || t.startsWith('(');\n  for (const t of toks) {                                               // 3a. どこでも除去（株式会社・振込・フリコミ 等）\n    if (!anchored(t)) s = s.split(t).join('');\n  }\n  for (const t of toks) {                                               // 3b. 法人格略記のアンカー付き除去（D19）\n    if (t.endsWith(')')) s = s.replace(new RegExp('^(\\\\d*)' + esc(t)), '$1');        // 前株形 カ) … 先頭のみ（先頭の数字列は許容）\n    else if (t.startsWith('(')) s = s.replace(new RegExp(esc(t) + '$'), '');         // 後株形 (カ … 末尾のみ\n  }\n  s = s.replace(/[^\\p{L}\\p{N}ー]/gu, '');                                // 4b. 文字・数字・長音「ー」以外（・ 記号 括弧）を除去\n  if (stripLeadingDigits) s = s.replace(/^\\d+/, '');                    // 5. 先頭の振込人番号・支店コード\n  return s;\n}\n\n// memo_norm：NFKC → 空白除去 → `|` を `/` に → 小文字化。記号は残す（shared/sheets-schema.md と同じ定義）\nconst normalizeMemo = (memo) => str(memo).normalize('NFKC').replace(/[\\s　]+/g, '').replace(/\\|/g, '/').toLowerCase();\n\nfunction buildTxnId(txnDateIso, amount, payerNorm, memoNorm) {\n  return `${txnDateIso}|${amount}|${payerNorm}|${memoNorm}`;            // §5：date|amount|payer_norm|memo_norm\n}\n\n// pre-txn（_kind: 'txn'）→ txn。_file / _row / _message_id / _parser はそのまま通す\nfunction buildTxn(t, cfg) {\n  const { _kind, ...rest } = t;\n  const payer_name_norm = normalizePayer(t.payer_name_raw, cfg.LEGAL_ENTITY_TOKENS, cfg.STRIP_LEADING_DIGITS);\n  const memo_norm = normalizeMemo(t.memo);\n  return { txn_id: buildTxnId(t.txn_date, t.amount, payer_name_norm, memo_norm), ...rest, payer_name_norm };\n}\n\n// 請求側の比較対象：customer_name の正規化値 + payer_name_alias 各要素の正規化値（重複除去・空除去）\nfunction invoiceNames(inv, cfg) {\n  return uniq([inv.customer_name, ...splitCsvList(inv.payer_name_alias)]\n    .map((n) => normalizePayer(n, cfg.LEGAL_ENTITY_TOKENS, cfg.STRIP_LEADING_DIGITS)).filter(Boolean));\n}\n\n// ---- ノード本体（Read Transactions の直後。常に 1 アイテム）----\nconst cfg = $('Config').first().json;\nconst collected = $('Collect Transactions').first().json;               // { source, txns(pre-txn), warnings, ignored_withdraw, file_name }\nconst invoices = $('Read Invoices').all().map((i) => i.json)\n  .filter((i) => str(i.invoice_id))                                     // Always Output Data の {} を除外\n  .map((i) => ({ ...i, _names: invoiceNames(i, cfg) }));\nconst existing = $input.all().map((i) => i.json)\n  .filter((r) => str(r.txn_id))\n  .map((r) => ({ ...r, payer_name_norm: str(r.payer_name_norm) || normalizePayer(r.payer_name_raw, cfg.LEGAL_ENTITY_TOKENS, cfg.STRIP_LEADING_DIGITS) }));\nconst txns = (collected.txns || []).map((t) => buildTxn(t, cfg));\nreturn [{ json: { source: collected.source, file_name: collected.file_name, ignored_withdraw: num(collected.ignored_withdraw),\n                  warnings: collected.warnings || [], txns, invoices, existing }, pairedItem: { item: 0 } }];\n"
+      }
+    },
+    {
+      "id": "4bd6a9c6-f2af-59a6-92fa-394ab4333d2c",
+      "name": "Match Invoices",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2920,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Match Invoices — n8n Code node (JavaScript, Run Once for All Items). DESIGN.md §6.7 / D07–D13 / D18 / D28.\n// The matching core. Input: $input.first().json = the ONE item emitted by Normalize Payer\n//   { source, file_name, ignored_withdraw, warnings, txns (with txn_id / payer_name_norm), invoices (with _names), existing }.\n// Rules (auto-confirm only 1, 2, 3a, 3b, 3c):\n//   1 name+amount (auto) / 2 amount only, one candidate (amount_only) / 3a fee in FEE_SET, one name (fee_deducted)\n//   3b unique 2–3 invoice subset of one payer summing to the amount (combined) / 3c amount < remaining, one name (partial, auto)\n//   3d overpaid → ambiguous, never confirmed / 4 several candidates → ambiguous / 5 nothing → unmatched.\n// Output (single output, split later by Route Match Results on _kind):\n//   { _kind: 'invoice_update', invoice_id, status, paid_amount, paid_date, matched_txn_ids, match_confidence, fee_deducted }  (one per invoice, aggregated)\n//   { _kind: 'txn_row', <every transactions column of shared/sheets-schema.md> }\n//   { _kind: 'summary', date, source, file_name, n, a, b, c, rematched, skipped_existing, skipped_duplicate_in_batch, ignored_withdraw,\n//     auto[], needs_review[], ambiguous[], unmatched[], warnings[] }\n// Idempotency: txn_ids already in `existing` are skipped (R09); a txn_id already recorded in some invoice's `matched_txn_ids`\n// (Update Invoices succeeded but Upsert Transactions failed on a previous run) is not applied again — only its ledger row is\n// (re)written (D32); duplicates inside one batch are skipped and counted (D13); on the schedule run only existing\n// unmatched / ambiguous rows are re-matched and written back only when changed (D10).\n// Shared helpers toInt / num / str (every Code node) and splitCsvList / uniq (also in Normalize Payer) are byte-identical to DESIGN.md §6.1.\n\n// ---- shared helpers: toInt / num / str — identical text in every Code node (DESIGN §6.1) ----\n// 数値化：全角→半角、カンマ・¥・円・空白を除去して整数（円）。失敗は toInt() = null / num() = 0\nconst toInt = (v) => {\n  if (v === null || v === undefined) return null;\n  if (typeof v === 'number') return Number.isFinite(v) ? Math.trunc(v) : null;\n  const s = String(v).normalize('NFKC').replace(/[,\\s¥￥円]/g, '');\n  if (!/^-?\\d+(\\.\\d+)?$/.test(s)) return null;\n  return parseInt(s, 10);\n};\nconst num = (v) => toInt(v) ?? 0;\nconst str = (v) => (v === null || v === undefined) ? '' : String(v).trim();\n// ---- end shared helpers ----\nconst splitCsvList = (s) => str(s).split(/[,、，]/).map((x) => x.trim()).filter(Boolean);\nconst uniq = (arr) => [...new Set(arr)];\n\n// 最長共通部分文字列の長さ（候補スコア用。名義は 10〜20 文字なので O(n*m) で十分）\nfunction lcsLength(a, b) {\n  let best = 0;\n  const prev = new Array(b.length + 1).fill(0);\n  for (let i = 1; i <= a.length; i++) {\n    let diagonal = 0;\n    for (let j = 1; j <= b.length; j++) {\n      const tmp = prev[j];\n      prev[j] = a[i - 1] === b[j - 1] ? diagonal + 1 : 0;\n      if (prev[j] > best) best = prev[j];\n      diagonal = tmp;\n    }\n  }\n  return best;\n}\n\n// ---- 名義照合（完全一致／包含。短い方が NAME_MIN_CONTAINS 文字以上）----\nfunction nameRank(payerNorm, inv, cfg) {\n  if (!payerNorm) return 0;\n  let rank = 0;\n  const minContains = num(cfg.NAME_MIN_CONTAINS) || 3;\n  for (const name of inv._names || []) {\n    if (name === payerNorm) return 3;\n    const shorter = Math.min(name.length, payerNorm.length);\n    if (shorter >= minContains && (payerNorm.includes(name) || name.includes(payerNorm))) rank = Math.max(rank, 2);\n    else if (lcsLength(name, payerNorm) >= 2) rank = Math.max(rank, 1);   // 候補提示用の弱い類似（突合には使わない）\n  }\n  return rank;\n}\nconst nameMatch = (payerNorm, inv, cfg) => nameRank(payerNorm, inv, cfg) >= 2;\n\n// ---- 3b：byName の 2〜3 件の部分集合で remaining の合計 == amount のもの（全列挙。件数が多いときは due_date 昇順で先頭 12 件に制限）----\nfunction subsetsSummingTo(list, target, minK, maxK) {\n  const cands = [...list].sort((a, b) => str(a.due_date).localeCompare(str(b.due_date)) || a.invoice_id.localeCompare(b.invoice_id)).slice(0, 12);\n  const hits = [];\n  const walk = (start, chosen, sum) => {\n    if (chosen.length >= minK && sum === target) hits.push([...chosen]);\n    if (chosen.length === maxK || sum >= target) return;                     // remaining > 0 なので枝刈り可\n    for (let i = start; i < cands.length; i++) walk(i + 1, [...chosen, cands[i]], sum + cands[i].remaining);\n  };\n  walk(0, [], 0);\n  return hits;\n}\n\n// ---- 候補スコア（suggested_invoice_ids 上位 3 件）----\n// score = nameRank * 10 + amountProximity * 9  … 名義の段階（3 完全 / 2 包含 / 1 部分共通 / 0）が常に金額近似より優先\n// amountProximity = 1 - min(1, |remaining - amount| / max(remaining, amount))   … 1.0 = 同額\n// withThreshold=true（未消込）のときは nameRank >= 1 または amountProximity >= 0.9（差 10% 以内）の請求だけを候補にする\nfunction rankCandidates(txn, invs, cfg, withThreshold) {\n  return invs.map((inv) => {\n    const nr = nameRank(txn.payer_name_norm, inv, cfg);\n    const diff = Math.abs(inv.remaining - txn.amount);\n    const prox = 1 - Math.min(1, diff / Math.max(inv.remaining, txn.amount, 1));\n    return { inv, nr, prox, diff, score: nr * 10 + prox * 9 };\n  })\n  .filter((x) => !withThreshold || x.nr >= 1 || x.prox >= 0.9)\n  .sort((x, y) => y.score - x.score || x.diff - y.diff || str(x.inv.due_date).localeCompare(str(y.inv.due_date)) || x.inv.invoice_id.localeCompare(y.inv.invoice_id))\n  .slice(0, 3)\n  .map((x) => ({ invoice_id: x.inv.invoice_id, remaining: x.inv.remaining, score: Math.round(x.score * 100) / 100 }));\n}\n\n// ---- 本体 ----\nfunction matchInvoices(newTxns, invoices, existingRows, cfg, ctx) {\n  const today = ctx.now.toFormat('yyyy-MM-dd');\n  const nowStr = ctx.now.toFormat(\"yyyy-MM-dd'T'HH:mm:ssZZ\");          // ISO 8601 + JST オフセット（sheets-schema.md の datetime）例 2026-09-23T09:05:12+09:00\n  const feeSet = (Array.isArray(cfg.FEE_SET) ? cfg.FEE_SET : []).map(num);   // DECISION: Config の FEE_SET は数値化してから比較（\"220\" と書かれても効く）\n\n  const summary = { date: today, source: ctx.source, file_name: ctx.file_name, n: 0, a: 0, b: 0, c: 0, rematched: 0,\n                    skipped_existing: 0, skipped_duplicate_in_batch: 0, ignored_withdraw: num(ctx.ignored_withdraw),\n                    auto: [], needs_review: [], ambiguous: [], unmatched: [], warnings: [...(ctx.warnings || [])] };\n\n  // 台帳の整形：open = currency が JPY（空欄は JPY 扱い）かつ status ∈ {unpaid, partial} かつ remaining > 0。_names は Normalize Payer 済み\n  const open = invoices\n    .map((i) => ({ ...i, invoice_id: str(i.invoice_id), status: str(i.status).toLowerCase(),\n                   amount: num(i.amount), paid_amount: num(i.paid_amount), fee_deducted: num(i.fee_deducted) }))\n    .filter((i) => i.status === 'unpaid' || i.status === 'partial')\n    .filter((i) => {                                                     // sheets-schema.md：01 は JPY のみ。他通貨は対象外にして警告（D28）\n      const c = str(i.currency).toUpperCase();\n      if (c && c !== 'JPY') { summary.warnings.push({ type: 'non_jpy_invoice', invoice_id: i.invoice_id, currency: c }); return false; }\n      return true;\n    })\n    .map((i) => ({ ...i, remaining: i.amount - i.paid_amount }))\n    .filter((i) => i.remaining > 0);\n\n  const existingById = new Map(existingRows.map((r) => [str(r.txn_id), r]));\n  // D32：請求側の matched_txn_ids に既に記録された txn_id → 入金は適用済み（前回 Update Invoices 成功・Upsert Transactions 失敗）。\n  // 再適用すると同じ入金が同一名義の別請求に消し込まれるため、台帳行だけを書き直して skip する\n  const appliedTo = new Map();                  // txn_id → [invoice_id, …]\n  for (const inv of invoices) for (const id of splitCsvList(inv.matched_txn_ids)) appliedTo.set(id, [...(appliedTo.get(id) || []), str(inv.invoice_id)]);\n  const consumed = new Set();                    // この実行で消費した invoice_id（全額・一部を問わず）\n  const invoiceUpdates = new Map();              // invoice_id → 更新行（集約）\n  const txnRows = [];\n\n  // 処理キュー：新規（冪等チェック済み）＋ Schedule 経路なら既存の unmatched / ambiguous\n  const queue = []; const seen = new Set();\n  for (const t of newTxns) {\n    if (existingById.has(t.txn_id)) { summary.skipped_existing++; continue; }          // R09：既存は skip\n    if (seen.has(t.txn_id)) { summary.skipped_duplicate_in_batch++; continue; }        // D13：同一実行内の重複\n    if (appliedTo.has(t.txn_id)) {                                                       // D32：請求に適用済み → 台帳行の修復のみ\n      txnRows.push({ ...txnRowBase(t, nowStr), matched_invoice_ids: appliedTo.get(t.txn_id).join(','), status: 'matched', suggested_invoice_ids: '' });\n      summary.skipped_existing++; seen.add(t.txn_id); continue;\n    }\n    seen.add(t.txn_id); queue.push({ txn: t, isNew: true, prev: null });\n  }\n  if (ctx.source === 'schedule') {                                                       // D10：再突合は Schedule のみ\n    for (const r of existingRows) {\n      const st = str(r.status).toLowerCase();\n      if (st !== 'unmatched' && st !== 'ambiguous') continue;                          // matched / ignored は対象外\n      queue.push({ txn: rowToTxn(r), isNew: false, prev: r });\n    }\n  }\n\n  for (const { txn, isNew, prev } of queue) {\n    const avail = open.filter((i) => !consumed.has(i.invoice_id));\n    const byAmt = avail.filter((i) => i.remaining === txn.amount);\n    const byName = avail.filter((i) => nameMatch(txn.payer_name_norm, i, cfg));\n    const both = byAmt.filter((i) => byName.includes(i));\n    let r;\n    if (both.length === 1) {                                                       // 1. 名義・金額一致\n      r = full([both[0]], 'auto', 0);\n    } else if (both.length >= 2) {                                                 // 4. 同額・同名義が複数\n      r = ambiguous(both, 'multiple_full_matches');\n    } else if (byAmt.length === 1 && byName.length === 0) {                         // 2. 金額のみ一致・候補1\n      r = full([byAmt[0]], 'amount_only', 0);\n    } else if (byAmt.length >= 2 && byName.length === 0) {                          // 4. 同額請求が複数・名義不一致（R06）\n      r = ambiguous(byAmt, 'same_amount_multiple');\n    } else if (byAmt.length === 0) {                                               // 3. 金額一致なし\n      if (byName.length === 1) {\n        const inv = byName[0]; const fee = inv.remaining - txn.amount;\n        if (feeSet.includes(fee)) r = full([inv], 'fee_deducted', fee);              // 3a. 手数料差引（名義1件）\n        else if (txn.amount < inv.remaining) r = partial(inv);                      // 3c. 一部入金\n        else r = ambiguous([inv], 'overpaid');                                      // 3d. 超過 → 自動確定しない（D07）\n      } else if (byName.length >= 2) {\n        const combos = subsetsSummingTo(byName, txn.amount, 2, 3);\n        if (combos.length === 1) r = full(combos[0], 'combined', 0);                // 3b. 合算（一意のときだけ）\n        else r = ambiguous(byName, combos.length > 1 ? 'multiple_combinations' : 'name_multiple');   // 4.\n      } else {\n        r = unmatched();                                                            // 5. 候補なし\n      }\n    } else {                                                                       // 4. 金額一致と名義一致が別の請求を指す\n      r = ambiguous(uniq([...byAmt, ...byName]), 'amount_name_conflict');\n    }\n    apply(r, txn, isNew, prev);\n  }\n\n  return { invoiceUpdates: [...invoiceUpdates.values()], txnRows, summary };\n\n  // ---- 判定結果の生成 ----\n  function full(invs, confidence, fee) { return { kind: 'matched', invoices: invs, confidence, fee }; }\n  function partial(inv) { return { kind: 'partial', invoices: [inv], confidence: 'auto', fee: 0 }; }\n  function ambiguous(cands, reason) { return { kind: 'ambiguous', candidates: cands, reason }; }\n  function unmatched() { return { kind: 'unmatched' }; }\n\n  // ---- 適用：invoice 更新行・txn 行・サマリ ----\n  // DECISION (T07 / R18 note): a・b・c は新規 txn だけを数え、n = a + b + c を保つ（D11「新規のみ」）。再突合で matched になった既存行は\n  //   rematched にだけ数え、明細（auto / needs_review）には載せる。変化のない既存の unmatched / ambiguous は書き戻さず明細にも載せない。\n  //   候補だけが変わった既存行は書き戻し、明細にも載せる（人が見る材料）。\n  function apply(r, txn, isNew, prev) {\n    const line = { txn_date: txn.txn_date, payer_raw: txn.payer_name_raw, amount: txn.amount, source: txn.source };\n    const importedAt = prev ? str(prev.imported_at) : nowStr;\n    if (isNew) summary.n++;\n\n    if (r.kind === 'matched' || r.kind === 'partial') {\n      const ids = [];\n      for (const inv of r.invoices) {\n        const add = r.confidence === 'combined' ? inv.remaining : txn.amount;      // 合算は各請求の残額を充当\n        const paid = inv.paid_amount + add;\n        const status = r.kind === 'partial' ? 'partial' : 'paid';                  // fee_deducted は残額-手数料=入金なので paid\n        const prevUpd = invoiceUpdates.get(inv.invoice_id);                        // 同一実行で 2 回目は来ない（consumed）が念のため集約\n        invoiceUpdates.set(inv.invoice_id, {\n          invoice_id: inv.invoice_id, status, paid_amount: paid, paid_date: txn.txn_date,\n          matched_txn_ids: uniq([...splitCsvList(prevUpd ? prevUpd.matched_txn_ids : inv.matched_txn_ids), txn.txn_id]).join(','),\n          match_confidence: r.confidence, fee_deducted: r.confidence === 'fee_deducted' ? r.fee : inv.fee_deducted });\n        consumed.add(inv.invoice_id);                                              // D09：以後の txn からは見えない\n        ids.push(inv.invoice_id);\n      }\n      txnRows.push({ ...txnRowBase(txn, importedAt), matched_invoice_ids: ids.join(','), status: 'matched', suggested_invoice_ids: '' });\n      const detail = { ...line, invoice_ids: ids, reason: r.kind === 'partial' ? 'partial' : r.confidence, fee: r.fee,\n                       remaining_after: r.kind === 'partial' ? r.invoices[0].remaining - txn.amount : 0 };\n      if (r.confidence === 'auto') { if (isNew) summary.a++; summary.auto.push(detail); }       // 規則 1・3c\n      else { if (isNew) summary.b++; summary.needs_review.push(detail); }                       // 規則 2・3a・3b → 要確認\n      if (!isNew) summary.rematched++;\n      return;\n    }\n\n    // ambiguous / unmatched：invoice は書かない\n    const cands = r.kind === 'ambiguous' ? rankCandidates(txn, r.candidates, cfg, false) : rankCandidates(txn, avail(), cfg, true);\n    const suggested = cands.map((c) => c.invoice_id).join(',');\n    const status = r.kind;\n    const detail = { ...line, reason: r.reason || 'no_candidate', candidates: cands.map((c) => ({ invoice_id: c.invoice_id, remaining: c.remaining })) };\n    const changed = isNew || str(prev.status).toLowerCase() !== status || str(prev.suggested_invoice_ids) !== suggested;\n    if (changed) {\n      txnRows.push({ ...txnRowBase(txn, importedAt), matched_invoice_ids: '', status, suggested_invoice_ids: suggested });   // 既存行は変化があるときだけ書く\n    }\n    if (isNew) summary.c++;\n    if (changed) (status === 'ambiguous' ? summary.ambiguous : summary.unmatched).push(detail);\n    function avail() { return open.filter((i) => !consumed.has(i.invoice_id)); }\n  }\n\n  function txnRowBase(txn, importedAt) {\n    return { txn_id: txn.txn_id, source: txn.source, txn_date: txn.txn_date, payer_name_raw: txn.payer_name_raw,\n             payer_name_norm: txn.payer_name_norm, amount: txn.amount, memo: txn.memo, imported_at: importedAt };\n  }\n  function rowToTxn(r) {           // transactions の既存行 → txn（再突合用。payer_name_norm は Normalize Payer が補完済み）\n    return { txn_id: str(r.txn_id), source: str(r.source), txn_date: str(r.txn_date), payer_name_raw: str(r.payer_name_raw),\n             payer_name_norm: str(r.payer_name_norm), amount: num(r.amount), memo: str(r.memo) };\n  }\n}\n\n// ---- 入力 ----\nconst cfg = $('Config').first().json;\nconst now = $now.setZone(cfg.TZ);                                        // DECISION: DateTime.now().setZone(TZ) と同値（A12）。$now は単体実行でも固定できる\nconst data = $input.first().json;                                        // Normalize Payer の 1 アイテム\n\nconst result = matchInvoices(data.txns || [], data.invoices || [], data.existing || [], cfg, {\n  now, source: data.source, warnings: data.warnings, ignored_withdraw: data.ignored_withdraw, file_name: data.file_name });\nreturn [\n  ...result.invoiceUpdates.map((u) => ({ json: { _kind: 'invoice_update', ...u }, pairedItem: { item: 0 } })),\n  ...result.txnRows.map((r) => ({ json: { _kind: 'txn_row', ...r }, pairedItem: { item: 0 } })),\n  { json: { _kind: 'summary', ...result.summary }, pairedItem: { item: 0 } },\n];\n"
+      }
+    },
+    {
+      "id": "e6d5f8b0-d384-5cfb-ac24-3dfdcb52241c",
+      "name": "Route Match Results",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3180,
+        200
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "3a38a733-46e1-5696-9fdc-8d362543e945",
+                    "leftValue": "={{ $json._kind }}",
+                    "rightValue": "invoice_update",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "invoice_update"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e3a152e0-0a54-52e6-8b55-d78f17d170b3",
+                    "leftValue": "={{ $json._kind }}",
+                    "rightValue": "txn_row",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "txn_row"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9934e1d8-a68f-5117-8228-492b665860c9",
+                    "leftValue": "={{ $json._kind }}",
+                    "rightValue": "summary",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "summary"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "afc556e8-c6f5-5ef9-8510-bcccae1bb9b5",
+      "name": "Update Invoices",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3460,
+        0
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Config').first().json.SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Config').first().json.SHEET_INVOICES }}"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null,
+          "matchingColumns": [
+            "invoice_id"
+          ],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "RAW",
+          "handlingExtraData": "ignoreIt"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "c274c4a9-9845-5574-a9d1-a73460b9aa11",
+      "name": "Upsert Transactions",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3460,
+        200
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Config').first().json.SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Config').first().json.SHEET_TRANSACTIONS }}"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null,
+          "matchingColumns": [
+            "txn_id"
+          ],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "RAW",
+          "handlingExtraData": "ignoreIt"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "adbc2a6e-2369-5d05-aa69-2274bd13f030",
+      "name": "Build Notification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3460,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Build Notification — n8n Code node (JavaScript, Run Once for All Items). DESIGN.md §6.8 / §3.7 / D12 / D16 / D28.\n// Source of truth: templates/01-bank-reconciliation/code/build_notification.js; workflow.json embeds this text verbatim (ASSUMPTIONS A15).\n// Input : $input.first().json = the ONE `_kind: 'summary'` item of Match Invoices (Route Match Results output 2):\n//         { date, source, file_name, n, a, b, c, rematched, skipped_existing, skipped_duplicate_in_batch, ignored_withdraw,\n//           auto[], needs_review[], ambiguous[], unmatched[], warnings[] }\n// Output: exactly ONE item { title, body_text, slack_blocks, line_text, chatwork_text } consumed by Check … Enabled → Notify …,\n//         or [] when no notification is due (D12) — then no downstream node runs.\n// Copy  : cfg.MESSAGES[LANG].recon_summary (shared/messages.*.json incl. the D16 keys). Sections in order: needs review → ambiguous →\n//         unmatched → auto → warnings; each capped at cfg.NOTIFY_MAX_LINES lines (default 40) followed by more_items.\n// Limits: Slack header ≤ 150 chars, section text ≤ 3,000 chars (chunked at 2,900; docs.slack.dev Block Kit reference, 2026-09-23);\n//         LINE text ≤ 4,900 (API limit 5,000); Chatwork gets the full body (API limit 65,535; ASSUMPTIONS.md 外部 API).\n// Shared helpers toInt / num / str (every Code node) and fill / fmtYen (also in Build Error Message) are byte-identical to DESIGN.md §6.1.\n\n// ---- shared helpers: toInt / num / str — identical text in every Code node (DESIGN §6.1) ----\n// 数値化：全角→半角、カンマ・¥・円・空白を除去して整数（円）。失敗は toInt() = null / num() = 0\nconst toInt = (v) => {\n  if (v === null || v === undefined) return null;\n  if (typeof v === 'number') return Number.isFinite(v) ? Math.trunc(v) : null;\n  const s = String(v).normalize('NFKC').replace(/[,\\s¥￥円]/g, '');\n  if (!/^-?\\d+(\\.\\d+)?$/.test(s)) return null;\n  return parseInt(s, 10);\n};\nconst num = (v) => toInt(v) ?? 0;\nconst str = (v) => (v === null || v === undefined) ? '' : String(v).trim();\n// ---- end shared helpers ----\n\n// ---- shared: fill / fmtYen — identical text in Build Notification and Build Error Message (DESIGN §6.1) ----\nconst fill = (tpl, vars) => String(tpl).replace(/\\{(\\w+)\\}/g, (m, k) => (k in vars ? String(vars[k]) : m));   // {name} 置換。未知のキーは残す\nconst fmtYen = (n, lang) => Number(n).toLocaleString(lang === 'en' ? 'en-US' : 'ja-JP');                       // 33000 → \"33,000\"\n// ---- end shared fill / fmtYen ----\n\n// ---- ノード本体 / node body (DESIGN.md §6.8) ----\nconst cfg = $('Config').first().json;\nconst s = $input.first().json;                                        // summary\nconst lang = cfg.LANG === 'en' ? 'en' : 'ja';\nconst m = cfg.MESSAGES && cfg.MESSAGES[lang] && cfg.MESSAGES[lang].recon_summary;   // shared/messages.*.json の recon_summary（D16 のキーを含む）\nif (!m) throw new Error(`Config.MESSAGES.${lang}.recon_summary is missing`);         // Config の誤りは隠さず失敗させる（§2.5）\n// DECISION: the summary's arrays and counters are read through arr() / num() so a partial or hand-edited summary (missing key,\n// numeric string) cannot throw on .filter / .map or print \"undefined\"; Match Invoices always emits every key, so the normal path is unchanged.\nconst arr = (v) => (Array.isArray(v) ? v : []);\nconst warnings = arr(s.warnings);\n\n// D12：Drive / Gmail 実行は常に通知（0 件でも no_transactions）。Schedule 実行は状態が変わったか、取込警告があるときだけ。\n// non_jpy_invoice は常設の状態なので Schedule 実行の判定には数えない（USD 請求が 1 件あるだけで毎朝通知しない、D28）\nconst actionableWarnings = warnings.filter((w) => w.type !== 'non_jpy_invoice');\nif (s.source === 'schedule' && num(s.rematched) === 0 && actionableWarnings.length === 0) return [];\n\nconst yen = (n) => fmtYen(n, lang);\nconst reasonText = (d) => {                                            // D16：messages.*.json の recon_summary.reasons\n  const r = m.reasons;\n  switch (d.reason) {\n    case 'amount_only': return r.amount_only;\n    case 'fee_deducted': return fill(r.fee_deducted, { fee: yen(d.fee) });\n    case 'combined': return r.combined;\n    case 'partial': return fill(r.partial, { remaining: yen(d.remaining_after) });\n    case 'overpaid': return r.overpaid;\n    default: return '';                                                // auto / same_amount_multiple / no_candidate 等は理由句なし\n  }\n};\nconst lineMatched = (d) => fill(m.line_item, { txn_date: d.txn_date, payer_raw: d.payer_raw, amount: yen(d.amount),\n                                                invoice_id: arr(d.invoice_ids).join(', ') + (reasonText(d) ? ` ${reasonText(d)}` : '') });\nconst lineCands = (d) => fill(m.line_item_candidates, { txn_date: d.txn_date, payer_raw: d.payer_raw, amount: yen(d.amount),\n                                                          candidates: arr(d.candidates).length\n                                                            ? arr(d.candidates).map((c) => `${c.invoice_id}(¥${yen(c.remaining)})`).join(', ') + (reasonText(d) ? ` ${reasonText(d)}` : '')\n                                                            : '—' });\nconst lineWarning = (w) => '・' + [w.type, w.parser, w.subject || w.value, w.invoice_id, w.currency].filter(Boolean).join(' ');   // 例: ・non_jpy_invoice INV-2026-022 USD\n\nfunction section(heading, lines) {                                     // 見出し + 明細（NOTIFY_MAX_LINES 行まで）+ 「…他 N 件」\n  if (!lines.length) return null;\n  const max = num(cfg.NOTIFY_MAX_LINES) || 40;\n  const shown = lines.slice(0, max);\n  if (lines.length > max) shown.push(fill(m.more_items, { n: lines.length - max }));\n  return [heading, ...shown].join('\\n');\n}\n\nlet title;\nlet sections = [];\nif (num(s.n) === 0 && num(s.rematched) === 0) {\n  title = fill(m.no_transactions, { date: str(s.date) });\n  if (num(s.skipped_existing)) sections.push(fill(m.skipped_note, { n: num(s.skipped_existing) }));      // 「（処理済みのため skip：N 件）」（R09）\n} else {\n  title = fill(m.title, { date: str(s.date), n: num(s.n), a: num(s.a), b: num(s.b), c: num(s.c) });\n  sections.push(section(m.needs_review_heading, arr(s.needs_review).map(lineMatched)));\n  sections.push(section(m.ambiguous_heading, arr(s.ambiguous).map(lineCands)));\n  sections.push(section(m.unmatched_heading, arr(s.unmatched).map(lineCands)));\n  sections.push(section(m.auto_heading, arr(s.auto).map(lineMatched)));\n}\nif (warnings.length) sections.push(section(m.warnings_heading, warnings.map(lineWarning)));\nsections = sections.filter(Boolean);\n\nconst body_text = [title, ...sections].join('\\n\\n').trim();\nconst chunk = (text, size) => { const out = []; for (let i = 0; i < text.length; i += size) out.push(text.slice(i, i + size)); return out; };\nconst slack_blocks = [\n  { type: 'header', text: { type: 'plain_text', text: title.slice(0, 150) } },                                   // header text ≤ 150 文字\n  ...sections.flatMap((sec) => chunk(sec, 2900).map((t) => ({ type: 'section', text: { type: 'mrkdwn', text: t } }))),   // section text ≤ 3,000 文字\n];\nreturn [{ json: { title, body_text, slack_blocks, line_text: body_text.slice(0, 4900), chatwork_text: body_text }, pairedItem: { item: 0 } }];\n"
+      }
+    },
+    {
+      "id": "87231463-0022-549a-8aff-aa1ed6654b34",
+      "name": "Check Slack Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3720,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8c2a44f6-c15b-5f9e-b5c4-d774dd7b69b5",
+              "leftValue": "={{ $('Config').first().json.NOTIFY_CHANNELS }}",
+              "rightValue": "slack",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "197d2a5c-c6f4-509f-be55-dfa552a4886c",
+      "name": "Check Email Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3720,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "31248365-d19e-5b87-b24a-a44a6fe29322",
+              "leftValue": "={{ $('Config').first().json.NOTIFY_CHANNELS }}",
+              "rightValue": "email",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "64d05f2f-6b53-5c48-91fd-9f6948127ec8",
+      "name": "Check LINE Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3720,
+        600
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "eeb1dbe0-dcbe-5411-90ab-cc941c1db456",
+              "leftValue": "={{ $('Config').first().json.NOTIFY_CHANNELS }}",
+              "rightValue": "line",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "5d105772-1c24-5b99-a02f-545b54aece0f",
+      "name": "Check Chatwork Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3720,
+        800
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "398ff0f1-9976-5c39-9982-cabc694e9467",
+              "leftValue": "={{ $('Config').first().json.NOTIFY_CHANNELS }}",
+              "rightValue": "chatwork",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "197d573a-0e69-5734-a52f-753319d3834a",
+      "name": "Notify Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        3980,
+        200
+      ],
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Config').first().json.SLACK_CHANNEL }}"
+        },
+        "messageType": "block",
+        "blocksUi": "={{ JSON.stringify({ blocks: $json.slack_blocks }) }}",
+        "text": "={{ $json.title }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "e832bed7-fe71-57c0-b563-bea988144b09",
+      "name": "Notify Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3980,
+        400
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.NOTIFY_EMAIL_TO }}",
+        "subject": "={{ $json.title }}",
+        "emailType": "text",
+        "message": "={{ $json.body_text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "86f8bfb2-8e8f-5d94-b4f9-e96534a95fdb",
+      "name": "Notify LINE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3980,
+        600
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.LINE_API_URL }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $('Config').first().json.LINE_TO_USER_ID, messages: [{ type: 'text', text: $json.line_text }] }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "6b86f4b3-8ac4-5c0b-aa4b-3d33acf1dd04",
+      "name": "Notify Chatwork",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3980,
+        800
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.CHATWORK_API_BASE_URL }}/rooms/{{ $('Config').first().json.CHATWORK_ROOM_ID }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "body",
+              "value": "={{ $json.chatwork_text }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "b355ec21-ebad-552a-b64b-d36b98ba66dd",
+      "name": "Merge Notification Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4240,
+        500
+      ],
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 8
+      }
+    },
+    {
+      "id": "8d69d215-c4b0-59ae-9aab-e65238c3c83b",
+      "name": "Check Notification Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4500,
+        500
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Check Notification Results — n8n Code node (JavaScript, Run Once for All Items). DESIGN.md §6.10 / D17 / §8.2.\n// Source of truth: templates/01-bank-reconciliation/code/check_notification_results.js; workflow.json embeds this text verbatim (ASSUMPTIONS A15).\n// Input : every item that reached Merge Notification Results (Append, 8 inputs): the success output (main[0]) and the error output\n//         (main[1]) of Notify Slack / Notify Email / Notify LINE / Notify Chatwork. Build Notification emits ONE item, so each attempted\n//         channel contributes exactly one item to exactly one of its two outputs; channels absent from NOTIFY_CHANNELS contribute nothing.\n// Error-output item shape (n8n 2.40.5): the engine merges the paired input json into the node's error item\n//         (n8n-core workflow-execute.js handleNodeErrorOutput) → { json: { …title, body_text, …, error: <error> } } where <error> is\n//         an OBJECT { message, name, stack } (+ json.details) for HTTP Request v4.5 — measured in local n8n, execution 15, see\n//         tests/unit/DISCREPANCIES.md — or the message STRING for nodes that push { json: { error: error.message } } (Slack / Gmail sources).\n//         Both shapes are handled below; only the message text is reported.\n// Output: ONE item { channels_attempted, channels_ok, channels_failed, errors[] }. Throws — and thereby reaches the Error Workflow —\n//         only when every attempted channel failed (CLAUDE.md §4.3「全チャネル失敗時は Error Workflow へ」). A partial failure is\n//         recorded in this output and in the execution log while the run succeeds (the sheets are already written; a re-run is safe).\n// Shared helpers toInt / num / str are byte-identical in every Code node (DESIGN.md §6.1).\n\n// ---- shared helpers: toInt / num / str — identical text in every Code node (DESIGN §6.1) ----\n// 数値化：全角→半角、カンマ・¥・円・空白を除去して整数（円）。失敗は toInt() = null / num() = 0\nconst toInt = (v) => {\n  if (v === null || v === undefined) return null;\n  if (typeof v === 'number') return Number.isFinite(v) ? Math.trunc(v) : null;\n  const s = String(v).normalize('NFKC').replace(/[,\\s¥￥円]/g, '');\n  if (!/^-?\\d+(\\.\\d+)?$/.test(s)) return null;\n  return parseInt(s, 10);\n};\nconst num = (v) => toInt(v) ?? 0;\nconst str = (v) => (v === null || v === undefined) ? '' : String(v).trim();\n// ---- end shared helpers ----\n\n// ---- ノード本体 / node body (DESIGN.md §6.10) ----\n// DECISION: the pseudocode's local is named `items`; renamed to `inputs` because `items` is n8n's legacy Code-node alias for $input.all()\n// (a sandbox global). Redeclaring it is a SyntaxError in tests/unit/run-code-node.mjs (which passes the alias as a parameter) and would\n// only shadow the global inside n8n. Logic is unchanged.\nconst inputs = $input.all().map((i) => i.json);\nconst failed = inputs.filter((j) => j.error !== undefined && j.error !== null);      // error 出力のアイテムだけが json.error を持つ\nconst ok = inputs.length - failed.length;\nconst messages = failed.map((j) => (typeof j.error === 'string' ? j.error : (j.error.message || JSON.stringify(j.error))));\nif (inputs.length > 0 && ok === 0) {\n  throw new Error(`All notification channels failed (${failed.length}): ${messages.join(' / ')}`);   // 仕様 §4.3：全チャネル失敗時は Error Workflow へ\n}\n// DECISION: pairedItem is attached only when an input item exists to pair with. The 0-item case is theoretical — with no data on any\n// Merge input n8n never executes this node (NOTIFY_CHANNELS = [] ends at the four IF nodes, §6.10) — but a dangling { item: 0 } is avoided.\nreturn [{ json: { channels_attempted: inputs.length, channels_ok: ok, channels_failed: failed.length, errors: messages },\n          ...(inputs.length ? { pairedItem: { item: 0 } } : {}) }];\n"
+      }
+    }
+  ],
+  "connections": {
+    "Watch Drive Folder": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watch Gmail Inbox": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Daily Rematch": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Route by Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Source": {
+      "main": [
+        [
+          {
+            "node": "Check File Is CSV",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Mail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Collect Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip Disabled Trigger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check File Is CSV": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip Non-CSV File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "Parse Bank CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Bank CSV": {
+      "main": [
+        [
+          {
+            "node": "Collect Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Mail": {
+      "main": [
+        [
+          {
+            "node": "Collect Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Transactions": {
+      "main": [
+        [
+          {
+            "node": "Read Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Invoices": {
+      "main": [
+        [
+          {
+            "node": "Read Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Transactions": {
+      "main": [
+        [
+          {
+            "node": "Normalize Payer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Payer": {
+      "main": [
+        [
+          {
+            "node": "Match Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Invoices": {
+      "main": [
+        [
+          {
+            "node": "Route Match Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Match Results": {
+      "main": [
+        [
+          {
+            "node": "Update Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upsert Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Notification": {
+      "main": [
+        [
+          {
+            "node": "Check Slack Enabled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Email Enabled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check LINE Enabled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Chatwork Enabled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Slack Enabled": {
+      "main": [
+        [
+          {
+            "node": "Notify Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Email Enabled": {
+      "main": [
+        [
+          {
+            "node": "Notify Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check LINE Enabled": {
+      "main": [
+        [
+          {
+            "node": "Notify LINE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Chatwork Enabled": {
+      "main": [
+        [
+          {
+            "node": "Notify Chatwork",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Slack": {
+      "main": [
+        [
+          {
+            "node": "Merge Notification Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Notification Results",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Notify Email": {
+      "main": [
+        [
+          {
+            "node": "Merge Notification Results",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Merge Notification Results",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Notify LINE": {
+      "main": [
+        [
+          {
+            "node": "Merge Notification Results",
+            "type": "main",
+            "index": 2
+          }
+        ],
+        [
+          {
+            "node": "Merge Notification Results",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Notify Chatwork": {
+      "main": [
+        [
+          {
+            "node": "Merge Notification Results",
+            "type": "main",
+            "index": 3
+          }
+        ],
+        [
+          {
+            "node": "Merge Notification Results",
+            "type": "main",
+            "index": 7
+          }
+        ]
+      ]
+    },
+    "Merge Notification Results": {
+      "main": [
+        [
+          {
+            "node": "Check Notification Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Tokyo",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
+  }
+}

@@ -1,0 +1,381 @@
+{
+  "_comment": "D31: two Download File items in one execution (two CSVs created in the same Drive poll). Both must be parsed: the 11 A pre-txns + A file_stats paired to item 0, then the 7 edge pre-txns + its bad_date warning + file_stats paired to item 1 (24 items). Before D31 only item 0 was read (12 items, one file).",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "id": "fixture-bank_A_sjis.csv",
+        "name": "bank_A_sjis.csv",
+        "mimeType": "text/csv"
+      },
+      "binary": {
+        "data": {
+          "data": "k/qVdCyTRZd2LJP8i+CKeiyPb4vginosjmONgg0KMjAyNi8wOS8wMSyQVY2eILYpu93M39m81rO83iwiMzMsMDAwIiwsIjEsMjMzLDAwMCINCjIwMjYvMDkvMDEstrDE3iC73czf2bawxN4sLCIxMiw4MDAiLCIxLDIyMCwyMDAiDQoyMDI2LzA5LzAyLJBVjZ4gw73EurO33tazKNUsIjU0LDc4MCIsLCIxLDI3NCw5ODAiDQoyMDI2LzA5LzAzLIN0g4qDUoN+gUCDhIN9g1+BQINeg42DRSwiOSw4MDAiLCwiMSwyODQsNzgwIg0KMjAyNi8wOS8wNCyQVY2eILvEsyC5srosIjEyOCwwMDAiLCwiMSw0MTIsNzgwIg0KMjAyNi8wOS8wNSyQVY2eILYpw73EzN7Cu90sIjEsMjM0LDU2NyIsLCIyLDY0NywzNDciDQoyMDI2LzA5LzA1LMPe3bfY1rO33SC73czf2cPe3djWuCwsIjgsNDUwIiwiMiw2MzgsODk3Ig0KMjAyNi8wOS8wOCyQVY2eILvdzN/ZvL3D0Si2LCIxMDAsMDAwIiwsIjIsNzM4LDg5NyINCjIwMjYvMDkvMDkskFWNniC1tcreIM+7tSwiNDQsMDAwIiwsIjIsNzgyLDg5NyINCjIwMjYvMDkvMTAsQVRNIMu3wN68LCwiMzAsMDAwIiwiMiw3NTIsODk3Ig0KMjAyNi8wOS8xMSyQVY2eILYp0M7dvNaztrIsIjY2LDAwMCIsLCIyLDgxOCw4OTciDQoyMDI2LzA5LzEyLJBVjZ4gw73Eud2+wii2LCI4OCwwMDAiLCwiMiw5MDYsODk3Ig0KMjAyNi8wOS8xNCyQVY2eILYpu93M39nMsL3exLO31rMsIjI3LDUwMCIsLCIyLDkzNCwzOTciDQoyMDI2LzA5LzE1LJBVjZ4gxbbR1yC83tuzLCI1LDUwMCIsLCIyLDkzOSw4OTciDQoyMDI2LzA5LzE2LMO9s9jWsywsIjQ0MCIsIjIsOTM5LDQ1NyINCg==",
+          "mimeType": "text/csv",
+          "fileName": "bank_A_sjis.csv",
+          "fileSize": "781 B"
+        }
+      }
+    },
+    {
+      "json": {
+        "id": "fixture-bank_edge_cases.csv",
+        "name": "bank_edge_cases.csv",
+        "mimeType": "text/csv"
+      },
+      "binary": {
+        "data": {
+          "data": "k/qVdCyTRZd2LJP8i+CKeiyPb4vginosjmONgg0KMjAyNi8wMi8zMCyQVY2eIMrer8Tew96wxCwiMSwwMDAiLCwiMSwwMDAiDQoyMDI2LzA5LzIwLJBVjZ4gvt7bLDAsLCIxLDAwMCINCjIwMjYvMDkvMjEsIpBVjZ4gtim23c8sstgiLIJQgk+BQ4JPgk+CTywsIjExLDAwMCINCjIwMjYvMDkvMjIsIpBVjZ4gIiLGvN6tsyIiILLd1rMiLCIyLDAwMCIsLCIxMywwMDAiDQoyMDI2LTA5LTIzLJBVjZ4gyrLM3SwzMDAwLCwiMTYsMDAwIg0KMjAyNjA5MjQskFWNniDRuLfe2Cw0MDAwLCwiMjAsMDAwIg0KMjAyNi8wOS8yNiyQVY2eINC83rayLDUwMDANCjIwMjYvOS8yOCyQVY2eIMvEucAsNjAwMCwsIjMwLDUwMCINCoJRgk+CUYJVlE6CWIyOglGCWJP6LJBVjZ4gvt7dtrgsIjcsMDAwIiwsIjM3LDUwMCINCjIwMjYvMDkvMzAskFWNniDPssW9LC01MDAsLCIzNywwMDAiDQo=",
+          "mimeType": "text/csv",
+          "fileName": "bank_edge_cases.csv",
+          "fileSize": "434 B"
+        }
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "auto",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expect": {
+    "items": [
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-01",
+          "payer_name_raw": "振込 ｶ)ｻﾝﾌﾟﾙｼﾖｳｼﾞ",
+          "amount": 33000,
+          "memo": "",
+          "_file": "bank_A_sjis.csv",
+          "_row": 2
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-02",
+          "payer_name_raw": "振込 ﾃｽﾄｺｳｷﾞﾖｳ(ﾕ",
+          "amount": 54780,
+          "memo": "",
+          "_file": "bank_A_sjis.csv",
+          "_row": 4
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-03",
+          "payer_name_raw": "フリコミ　ヤマダ　タロウ",
+          "amount": 9800,
+          "memo": "",
+          "_file": "bank_A_sjis.csv",
+          "_row": 5
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-04",
+          "payer_name_raw": "振込 ｻﾄｳ ｹｲｺ",
+          "amount": 128000,
+          "memo": "",
+          "_file": "bank_A_sjis.csv",
+          "_row": 6
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-05",
+          "payer_name_raw": "振込 ｶ)ﾃｽﾄﾌﾞﾂｻﾝ",
+          "amount": 1234567,
+          "memo": "",
+          "_file": "bank_A_sjis.csv",
+          "_row": 7
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-08",
+          "payer_name_raw": "振込 ｻﾝﾌﾟﾙｼｽﾃﾑ(ｶ",
+          "amount": 100000,
+          "memo": "",
+          "_file": "bank_A_sjis.csv",
+          "_row": 9
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-09",
+          "payer_name_raw": "振込 ｵｵﾊﾞ ﾏｻｵ",
+          "amount": 44000,
+          "memo": "",
+          "_file": "bank_A_sjis.csv",
+          "_row": 10
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-11",
+          "payer_name_raw": "振込 ｶ)ﾐﾎﾝｼﾖｳｶｲ",
+          "amount": 66000,
+          "memo": "",
+          "_file": "bank_A_sjis.csv",
+          "_row": 12
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-12",
+          "payer_name_raw": "振込 ﾃｽﾄｹﾝｾﾂ(ｶ",
+          "amount": 88000,
+          "memo": "",
+          "_file": "bank_A_sjis.csv",
+          "_row": 13
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-14",
+          "payer_name_raw": "振込 ｶ)ｻﾝﾌﾟﾙﾌｰｽﾞﾄｳｷﾖｳ",
+          "amount": 27500,
+          "memo": "",
+          "_file": "bank_A_sjis.csv",
+          "_row": 14
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-15",
+          "payer_name_raw": "振込 ﾅｶﾑﾗ ｼﾞﾛｳ",
+          "amount": 5500,
+          "memo": "",
+          "_file": "bank_A_sjis.csv",
+          "_row": 15
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "file_stats",
+          "file_name": "bank_A_sjis.csv",
+          "ignored_withdraw": 4,
+          "rows_total": 15
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-21",
+          "payer_name_raw": "振込 ｶ)ｶﾝﾏ,ｲﾘ",
+          "amount": 10000,
+          "memo": "",
+          "_file": "bank_edge_cases.csv",
+          "_row": 4
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-22",
+          "payer_name_raw": "振込 \"ﾆｼﾞｭｳ\" ｲﾝﾖｳ",
+          "amount": 2000,
+          "memo": "",
+          "_file": "bank_edge_cases.csv",
+          "_row": 5
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-23",
+          "payer_name_raw": "振込 ﾊｲﾌﾝ",
+          "amount": 3000,
+          "memo": "",
+          "_file": "bank_edge_cases.csv",
+          "_row": 6
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-24",
+          "payer_name_raw": "振込 ﾑｸｷﾞﾘ",
+          "amount": 4000,
+          "memo": "",
+          "_file": "bank_edge_cases.csv",
+          "_row": 7
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-26",
+          "payer_name_raw": "振込 ﾐｼﾞｶｲ",
+          "amount": 5000,
+          "memo": "",
+          "_file": "bank_edge_cases.csv",
+          "_row": 8
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-28",
+          "payer_name_raw": "振込 ﾋﾄｹﾀ",
+          "amount": 6000,
+          "memo": "",
+          "_file": "bank_edge_cases.csv",
+          "_row": 9
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-29",
+          "payer_name_raw": "振込 ｾﾞﾝｶｸ",
+          "amount": 7000,
+          "memo": "",
+          "_file": "bank_edge_cases.csv",
+          "_row": 10
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 2,
+          "value": "2026/02/30"
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "_kind": "file_stats",
+          "file_name": "bank_edge_cases.csv",
+          "ignored_withdraw": 2,
+          "rows_total": 10
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      }
+    ]
+  }
+}

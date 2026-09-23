@@ -1,0 +1,71 @@
+{
+  "_comment": "R17(a): a mail from someone@example.org with subject 会議のご案内 matches no MAIL_PARSERS entry → warning no_parser_matched carrying message_id / from / subject.",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "id": "18f3aabb00000009",
+        "date": "2026-09-20T10:00:00+09:00",
+        "from": {
+          "text": "someone@example.org"
+        },
+        "subject": "会議のご案内",
+        "text": "来週の会議についてご連絡します。"
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "auto",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expect": {
+    "items": [
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "no_parser_matched",
+          "message_id": "18f3aabb00000009",
+          "subject": "会議のご案内",
+          "from": "someone@example.org"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  }
+}

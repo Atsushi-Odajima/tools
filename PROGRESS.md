@@ -12,13 +12,20 @@
 | テンプレ | P0 | P1 | P2 | P3 | P4 | P5 | P6 |
 |---|---|---|---|---|---|---|---|
 | 共通 | 完了（2026-09-23） | - | - | - | - | - | - |
-| 01 入金消込 | - | 完了（2026-09-23） | 進行中 | 未着手 | 未着手 | 未着手 | 任意 |
+| 01 入金消込 | - | 完了（2026-09-23） | 完了（2026-09-23） | 進行中 | 未着手 | 未着手 | 任意 |
 | 03 未入金リマインド | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 | 04 返金・CB | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 | 02 Webhook会計 | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 
 ## 次の一手
-- 01 P2: `code/*.js`（8 ノード）→ 単体・結合テスト → `build/build_workflow.py` で `workflow.json` / `error-handler.json` 生成 → n8n-mcp 検証 → ローカル n8n 登録 → pinned data で 6 経路のスモーク実行 → 敵対的レビュー → 修正（Workflow で実行中）。
+- 01 P3: `tests/CASES.md` の R01〜R23 をローカル n8n で実行し `tests/RESULTS.md` に実行 ID・入出力・合否を記録（Google/Slack/Gmail は pinned、ライブ検証は BLOCKERS H1/H2）。
+
+## P2 の証跡（2026-09-23）
+- `code/*.js` 8 本（Parse Bank CSV / Parse Mail / Collect Transactions / Normalize Payer / Match Invoices / Build Notification / Build Error Message / Check Notification Results）。`tests/unit/run-all.sh` 10 スイート合格（結合 119 アサーション）。`workflow.json` 埋め込み版でも同結果。
+- `build/build_workflow.py` → `workflow.json`（36 ノード、付箋 6）/ `error-handler.json`（14 ノード）。決定的ビルド（`--check`）。秘密 grep 0、組み込みノードのみ、credentials ブロック無し。
+- n8n-mcp `validate_workflow`（runtime）: 両ファイル valid・エラー 0（警告はコメント内の require 誤検知 2、executeOnce 設計どおり 2）。
+- ローカル n8n 2.40.5 に登録（本体 `EMlrzFHwUpu7xvZx`、Error Workflow `S9vwW2D7jBCIvCQn`、`settings.errorWorkflow` 設定済み）。pinned data による 15 経路のスモーク実行すべて期待どおり（`tests/SMOKE.md`、実行 57〜86）。
+- 敵対的レビュー 3 名の指摘 10 件（複数ファイル取込の欠落、Sheets 変換 CSV の文字コード、Slack のリンク既定、冪等性の二重防御 等）を修正し再検証。
 
 ## P1 の証跡（2026-09-23）
 - `templates/01-bank-reconciliation/DESIGN.md`（約 1,100 行）: Mermaid ノード図（本体 30 ノード＋付箋 6、Error Workflow）、データフロー、Config キー 40 項目、判断理由、全 Code ノードの疑似コード、R01〜R13 との対応、P2/P3 で実測する事項。
@@ -36,4 +43,4 @@
 - `BLOCKERS.md` を参照。
 
 ## 履歴
-- 2026-09-23: プロジェクト開始。仕様書を配置。P0 完了（Slack は代替）。01 P1 完了。リポジトリを tools に移設。01 P2 着手。
+- 2026-09-23: プロジェクト開始。仕様書を配置。P0 完了（Slack は代替）。01 P1 完了。リポジトリを tools に移設。01 P2 完了。01 P3 着手。

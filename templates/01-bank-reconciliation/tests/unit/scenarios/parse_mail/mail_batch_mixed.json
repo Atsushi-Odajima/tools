@@ -1,0 +1,189 @@
+{
+  "_comment": "Four mails in one run (X, Y, R17a, R17b): one output item per input, in order, pairedItem 0..3.",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "id": "18f3aabb00000001",
+        "threadId": "18f3aabb00000001",
+        "labelIds": [
+          "INBOX",
+          "UNREAD"
+        ],
+        "date": "2026-09-17T09:12:00+09:00",
+        "from": {
+          "value": [
+            {
+              "address": "notice@example.jp",
+              "name": "サンプル銀行"
+            }
+          ],
+          "text": "サンプル銀行 <notice@example.jp>"
+        },
+        "to": {
+          "value": [
+            {
+              "address": "owner@example.com",
+              "name": ""
+            }
+          ],
+          "text": "owner@example.com"
+        },
+        "subject": "【サンプル銀行】ご入金のお知らせ",
+        "text": "サンプル 太郎 様\r\n\r\nサンプル銀行インターネットバンキングをご利用いただきありがとうございます。\r\nお客さまの口座に下記のお振込がありましたのでお知らせします。\r\n\r\nお振込人：ｶ)ﾀﾞﾐｰﾃﾞﾝｷ\r\n金額：１０４，５００円\r\n日付：２０２６年９月１７日\r\nお受取口座：サンプル支店 普通 1234567\r\n\r\n※本メールは送信専用です。ご返信いただいてもお答えできません。\r\nサンプル銀行（架空）\r\n",
+        "html": ""
+      }
+    },
+    {
+      "json": {
+        "id": "18f3aabb00000002",
+        "threadId": "18f3aabb00000002",
+        "labelIds": [
+          "INBOX",
+          "UNREAD"
+        ],
+        "date": "2026-09-19T08:30:00+09:00",
+        "from": {
+          "value": [
+            {
+              "address": "alerts@example.com",
+              "name": "Sample Bank Online"
+            }
+          ],
+          "text": "Sample Bank Online <alerts@example.com>"
+        },
+        "to": {
+          "value": [
+            {
+              "address": "owner@example.com",
+              "name": ""
+            }
+          ],
+          "text": "owner@example.com"
+        },
+        "subject": "Deposit Notification - Sample Bank",
+        "text": "Sample Bank Online - Deposit Notification / 入金通知\r\n\r\nThe following deposit has been credited to your account.\r\n\r\n--------------------------------------------------------------\r\nItem               Value\r\n--------------------------------------------------------------\r\nTransaction Date   2026-09-18\r\nAmount             JPY 19,800\r\nRemitter           ササキ ハナコ\r\nAccount            Sample Branch / Ordinary 7654321\r\n--------------------------------------------------------------\r\n\r\nThis is an automated message from Sample Bank (fictional). Do not reply.\r\n",
+        "html": ""
+      }
+    },
+    {
+      "json": {
+        "id": "18f3aabb00000009",
+        "date": "2026-09-20T10:00:00+09:00",
+        "from": {
+          "text": "someone@example.org"
+        },
+        "subject": "会議のご案内",
+        "text": "来週の会議についてご連絡します。"
+      }
+    },
+    {
+      "json": {
+        "id": "18f3aabb00000010",
+        "date": "2026-09-20T10:05:00+09:00",
+        "from": {
+          "text": "サンプル銀行 <notice@example.jp>"
+        },
+        "subject": "【サンプル銀行】ご入金のお知らせ",
+        "text": "本日の入金はありません。"
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "auto",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expect": {
+    "items": [
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "gmail",
+          "txn_date": "2026-09-17",
+          "payer_name_raw": "カ)ダミーデンキ",
+          "amount": 104500,
+          "memo": "【サンプル銀行】ご入金のお知らせ (gmail:18f3aabb00000001)",
+          "_message_id": "18f3aabb00000001",
+          "_parser": "bankX"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "gmail",
+          "txn_date": "2026-09-18",
+          "payer_name_raw": "ササキ ハナコ",
+          "amount": 19800,
+          "memo": "Deposit Notification - Sample Bank (gmail:18f3aabb00000002)",
+          "_message_id": "18f3aabb00000002",
+          "_parser": "bankY"
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "no_parser_matched",
+          "message_id": "18f3aabb00000009",
+          "subject": "会議のご案内",
+          "from": "someone@example.org"
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "parser_no_capture",
+          "parser": "bankX",
+          "message_id": "18f3aabb00000010",
+          "subject": "【サンプル銀行】ご入金のお知らせ",
+          "from": "サンプル銀行 <notice@example.jp>"
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      }
+    ]
+  }
+}

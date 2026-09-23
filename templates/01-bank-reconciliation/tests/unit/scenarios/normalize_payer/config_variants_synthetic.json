@@ -1,0 +1,214 @@
+{
+ "_comment": "SYNTHETIC: LEGAL_ENTITY_TOKENS written by a buyer in full-width / hiragana / with spaces / duplicates / empty, STRIP_LEADING_DIGITS=false, payer_name_alias separated by 、 and spaces, and an invoice row with empty invoice_id (skipped).",
+ "input": [
+  {
+   "json": {}
+  }
+ ],
+ "nodes": {
+  "Config": [
+   {
+    "json": {
+     "id": "fixture-bank-A",
+     "name": "bank_A_sjis.csv",
+     "mimeType": "text/csv",
+     "SOURCE": "Watch Drive Folder",
+     "TZ": "Asia/Tokyo",
+     "LANG": "ja",
+     "SHEET_ID": "REPLACE_ME_SHEET_ID",
+     "SHEET_INVOICES": "invoices",
+     "SHEET_TRANSACTIONS": "transactions",
+     "DRIVE_FOLDER_ID": "REPLACE_ME_DRIVE_FOLDER_ID",
+     "GMAIL_QUERY": "subject:(入金 OR Deposit) newer_than:1d",
+     "RUN_AT": "09:00",
+     "TRIGGERS_ENABLED": {
+      "drive": true,
+      "gmail": true,
+      "schedule": true
+     },
+     "CSV_MAPPING": {
+      "date_col": "日付",
+      "payer_col": "摘要",
+      "deposit_col": "入金額",
+      "withdraw_col": "出金額",
+      "memo_col": "",
+      "skip_rows": 0,
+      "date_format": "auto",
+      "encoding": "shift_jis"
+     },
+     "MAIL_PARSERS": [
+      {
+       "name": "bankX",
+       "from_match": "@example.jp",
+       "subject_match": "入金",
+       "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+       "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+       "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+      },
+      {
+       "name": "bankY",
+       "from_match": "@example.com",
+       "subject_match": "Deposit",
+       "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+       "payer_regex": "Remitter\\s+([^\\n]+)",
+       "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+      }
+     ],
+     "LEGAL_ENTITY_TOKENS": [
+      "カ）",
+      "（ユ",
+      "ふりこみ",
+      "株式 会社",
+      "",
+      "カ）"
+     ],
+     "STRIP_LEADING_DIGITS": false,
+     "FEE_SET": [
+      110,
+      165,
+      220,
+      275,
+      330,
+      440,
+      550,
+      660,
+      770,
+      880
+     ],
+     "NAME_MIN_CONTAINS": 3,
+     "NOTIFY_CHANNELS": [
+      "slack"
+     ],
+     "SLACK_CHANNEL": "REPLACE_ME_SLACK_CHANNEL_ID",
+     "NOTIFY_EMAIL_TO": "replace-me@example.com",
+     "LINE_TO_USER_ID": "REPLACE_ME_LINE_USER_ID",
+     "CHATWORK_ROOM_ID": "REPLACE_ME_CHATWORK_ROOM_ID",
+     "NOTIFY_MAX_LINES": 40
+    },
+    "pairedItem": {
+     "item": 0
+    }
+   }
+  ],
+  "Read Invoices": [
+   {
+    "json": {
+     "invoice_id": "INV-X-001",
+     "customer_name": "株式会社サンプル",
+     "payer_name_alias": "カ）サンプル、 サンプル ,サンプル（ユ",
+     "amount": 500,
+     "currency": "JPY",
+     "status": "unpaid",
+     "paid_amount": 0,
+     "fee_deducted": 0,
+     "remind_stage": 0
+    }
+   },
+   {
+    "json": {
+     "invoice_id": "",
+     "customer_name": "ヘッダーだけの空行",
+     "payer_name_alias": "",
+     "amount": "",
+     "status": ""
+    }
+   }
+  ],
+  "Collect Transactions": [
+   {
+    "json": {
+     "source": "drive",
+     "txns": [
+      {
+       "_kind": "txn",
+       "source": "bank_csv",
+       "txn_date": "2026-09-10",
+       "payer_name_raw": "振込 ｶ)ｻﾝﾌﾟﾙｼﾖｳｼﾞ",
+       "amount": 500,
+       "memo": "",
+       "_file": "synthetic.csv",
+       "_row": 2
+      },
+      {
+       "_kind": "txn",
+       "source": "bank_csv",
+       "txn_date": "2026-09-11",
+       "payer_name_raw": "0123 カ)ダミーカコウ",
+       "amount": 501,
+       "memo": "",
+       "_file": "synthetic.csv",
+       "_row": 3
+      },
+      {
+       "_kind": "txn",
+       "source": "bank_csv",
+       "txn_date": "2026-09-12",
+       "payer_name_raw": "ふりこみ　すずき　いちろう",
+       "amount": 502,
+       "memo": "",
+       "_file": "synthetic.csv",
+       "_row": 4
+      },
+      {
+       "_kind": "txn",
+       "source": "bank_csv",
+       "txn_date": "2026-09-13",
+       "payer_name_raw": "ﾐﾎﾝ(ﾕ",
+       "amount": 503,
+       "memo": "",
+       "_file": "synthetic.csv",
+       "_row": 5
+      },
+      {
+       "_kind": "txn",
+       "source": "bank_csv",
+       "txn_date": "2026-09-14",
+       "payer_name_raw": "株式会社サンプル",
+       "amount": 504,
+       "memo": "",
+       "_file": "synthetic.csv",
+       "_row": 6
+      }
+     ],
+     "warnings": [],
+     "ignored_withdraw": 0,
+     "file_name": "synthetic.csv"
+    },
+    "pairedItem": {
+     "item": 0
+    }
+   }
+  ]
+ },
+ "now": "2026-09-23T09:00:00+09:00",
+ "expect": {
+  "length": 1,
+  "paths": {
+   "[0].json.source": "drive",
+   "[0].json.file_name": "synthetic.csv",
+   "[0].json.ignored_withdraw": 0,
+   "[0].json.warnings": [],
+   "[0].json.txns.length": 5,
+   "[0].json.invoices.length": 1,
+   "[0].json.existing.length": 0,
+   "[0].pairedItem": {
+    "item": 0
+   },
+   "[0].json.txns[0].payer_name_norm": "振込カサンプルシヨウジ",
+   "[0].json.txns[0].txn_id": "2026-09-10|500|振込カサンプルシヨウジ|",
+   "[0].json.txns[1].payer_name_norm": "0123ダミーカコウ",
+   "[0].json.txns[1].txn_id": "2026-09-11|501|0123ダミーカコウ|",
+   "[0].json.txns[2].payer_name_norm": "スズキイチロウ",
+   "[0].json.txns[2].txn_id": "2026-09-12|502|スズキイチロウ|",
+   "[0].json.txns[3].payer_name_norm": "ミホン",
+   "[0].json.txns[3].txn_id": "2026-09-13|503|ミホン|",
+   "[0].json.txns[4].payer_name_norm": "サンプル",
+   "[0].json.txns[4].txn_id": "2026-09-14|504|サンプル|",
+   "[0].json.invoices[0].invoice_id": "INV-X-001",
+   "[0].json.invoices[0]._names": [
+    "サンプル"
+   ]
+  },
+  "absent": []
+ }
+}

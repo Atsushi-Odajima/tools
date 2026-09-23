@@ -1,0 +1,74 @@
+{
+  "_comment": "R07: the header of bank_A_sjis.csv plus only its 4 withdrawal rows (Shift_JIS). No pre-txn is produced; the only output item is file_stats with ignored_withdraw 4 and rows_total 4.",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "id": "fixture-bank_A_withdrawals_only.csv",
+        "name": "bank_A_withdrawals_only.csv",
+        "mimeType": "text/csv"
+      },
+      "binary": {
+        "data": {
+          "data": "k/qVdCyTRZd2LJP8i+CKeiyPb4vginosjmONgg0KMjAyNi8wOS8wMSy2sMTeILvdzN/ZtrDE3iwsIjEyLDgwMCIsIjEsMjIwLDIwMCINCjIwMjYvMDkvMDUsw97dt9jWs7fdILvdzN/Zw97d2Na4LCwiOCw0NTAiLCIyLDYzOCw4OTciDQoyMDI2LzA5LzEwLEFUTSDLt8DevCwsIjMwLDAwMCIsIjIsNzUyLDg5NyINCjIwMjYvMDkvMTYsw72z2NazLCw0NDAsIjIsOTM5LDQ1NyINCg==",
+          "mimeType": "text/csv",
+          "fileName": "bank_A_withdrawals_only.csv",
+          "fileSize": "214 B"
+        }
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "auto",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expect": {
+    "items": [
+      {
+        "json": {
+          "_kind": "file_stats",
+          "file_name": "bank_A_withdrawals_only.csv",
+          "ignored_withdraw": 4,
+          "rows_total": 4
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  }
+}

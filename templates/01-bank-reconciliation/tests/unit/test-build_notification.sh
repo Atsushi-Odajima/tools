@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Unit tests for the "Build Notification" Code node (code/build_notification.js), run outside n8n via run-code-node.mjs.
+# Every scenarios/build_notification/*.json is executed and compared with its "expect" block (assert-paths.mjs); the shared-helper
+# blocks (toInt / num / str, fill / fmtYen) are also checked for byte-identity across the Code node files (DESIGN.md §6.1).
+# Prints PASS/FAIL per scenario, a summary line, and exits non-zero if anything failed.
+#
+#   usage: [NODE_BIN=/path/to/node] [LUXON_PATH=/path/to/node_modules/luxon] tests/unit/test-build_notification.sh [workflow.json]
+#     NODE_BIN      Node >= 20 with full ICU (toLocaleString)
+#     LUXON_PATH    n8n's luxon copy (default: the module name "luxon")
+#     UNIT_TMP_DIR  where per-scenario stdout/stderr land (default: mktemp -d)
+#     workflow.json (optional) — test the jsCode embedded in the workflow instead of code/build_notification.js
+#
+# Scenarios are generated from shared/messages.*.json and fixtures/bank_A_sjis.csv by tests/unit/scenarios/build-notify-scenarios.py.
+set -u
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TPL="$(cd "$HERE/../.." && pwd)"
+MODULE="build_notification"
+NODE_NAME="Build Notification"
+NODE_BIN="${NODE_BIN:-node}"
+LUXON_PATH="${LUXON_PATH:-luxon}"
+TMP="${UNIT_TMP_DIR:-$(mktemp -d)}"
+SRC="${1:-$TPL/code/$MODULE.js}"
+mkdir -p "$TMP"
+pass=0; fail=0
+if "$NODE_BIN" "$HERE/check-shared-helpers.mjs" "$TPL"/code/*.js; then pass=$((pass+1)); else fail=$((fail+1)); fi
+shopt -s nullglob
+for sc in "$HERE/scenarios/$MODULE"/*.json; do
+  base="$(basename "$sc" .json)"
+  "$NODE_BIN" "$HERE/run-code-node.mjs" "$SRC" "$NODE_NAME" "$sc" --luxon "$LUXON_PATH" >"$TMP/$base.out.json" 2>"$TMP/$base.err.txt"
+  code=$?
+  if "$NODE_BIN" "$HERE/assert-paths.mjs" "$sc" "$TMP/$base.out.json" "$TMP/$base.err.txt" "$code"; then pass=$((pass+1)); else fail=$((fail+1)); fi
+done
+echo "$MODULE: $pass passed, $fail failed"
+[ "$pass" -gt 1 ] && [ "$fail" -eq 0 ]

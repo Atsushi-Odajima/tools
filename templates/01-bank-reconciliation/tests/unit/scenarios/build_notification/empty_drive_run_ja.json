@@ -1,0 +1,230 @@
+{
+  "_comment": "Drive run with n=0 (e.g. a CSV holding only withdrawals): D12 → always notify; title = no_transactions, no section, one header block.",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "_kind": "summary",
+        "date": "2026-09-23",
+        "source": "drive",
+        "file_name": "bank_A_sjis.csv",
+        "n": 0,
+        "a": 0,
+        "b": 0,
+        "c": 0,
+        "rematched": 0,
+        "skipped_existing": 0,
+        "skipped_duplicate_in_batch": 0,
+        "ignored_withdraw": 4,
+        "auto": [],
+        "needs_review": [],
+        "ambiguous": [],
+        "unmatched": [],
+        "warnings": []
+      },
+      "pairedItem": {
+        "item": 0
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "id": "fixture-bank-A",
+          "name": "bank_A_sjis.csv",
+          "mimeType": "text/csv",
+          "SOURCE": "Watch Drive Folder",
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "SHEET_ID": "REPLACE_ME_SHEET_ID",
+          "SHEET_INVOICES": "invoices",
+          "SHEET_TRANSACTIONS": "transactions",
+          "DRIVE_FOLDER_ID": "REPLACE_ME_DRIVE_FOLDER_ID",
+          "GMAIL_QUERY": "subject:(入金 OR Deposit) newer_than:1d",
+          "RUN_AT": "09:00",
+          "TRIGGERS_ENABLED": {
+            "drive": true,
+            "gmail": true,
+            "schedule": true
+          },
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "auto",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ],
+          "LEGAL_ENTITY_TOKENS": [
+            "カ)",
+            "(カ",
+            "ユ)",
+            "(ユ",
+            "ド)",
+            "(ド",
+            "シヤ)",
+            "(シヤ",
+            "ザイ)",
+            "(ザイ",
+            "ガク)",
+            "(ガク",
+            "イ)",
+            "(イ",
+            "ホ)",
+            "(ホ",
+            "株式会社",
+            "有限会社",
+            "合同会社",
+            "合名会社",
+            "合資会社",
+            "一般社団法人",
+            "一般財団法人",
+            "医療法人",
+            "学校法人",
+            "社会福祉法人",
+            "カブシキガイシヤ",
+            "カブシキカイシヤ",
+            "ユウゲンガイシヤ",
+            "ゴウドウガイシヤ",
+            "イツパンシヤダンホウジン",
+            "イリヨウホウジン",
+            "振込",
+            "フリコミ",
+            "ゴフリコミ"
+          ],
+          "STRIP_LEADING_DIGITS": true,
+          "FEE_SET": [
+            110,
+            165,
+            220,
+            275,
+            330,
+            440,
+            550,
+            660,
+            770,
+            880
+          ],
+          "NAME_MIN_CONTAINS": 3,
+          "NOTIFY_CHANNELS": [
+            "slack"
+          ],
+          "SLACK_CHANNEL": "REPLACE_ME_SLACK_CHANNEL_ID",
+          "NOTIFY_EMAIL_TO": "replace-me@example.com",
+          "LINE_TO_USER_ID": "REPLACE_ME_LINE_USER_ID",
+          "CHATWORK_ROOM_ID": "REPLACE_ME_CHATWORK_ROOM_ID",
+          "NOTIFY_MAX_LINES": 40,
+          "MESSAGES": {
+            "ja": {
+              "recon_summary": {
+                "title": "【入金消込 {date}】処理 {n}件｜自動消込 {a}｜要確認 {b}｜未消込 {c}",
+                "line_item": "・{txn_date} {payer_raw} ¥{amount} → {invoice_id}",
+                "line_item_candidates": "・{txn_date} {payer_raw} ¥{amount} → 候補: {candidates}",
+                "needs_review_heading": "■ 要確認（金額のみ一致・手数料差引・合算で自動消込した分）",
+                "unmatched_heading": "■ 未消込（該当請求なし）",
+                "ambiguous_heading": "■ 候補複数（自動確定せず。候補から選んでください）",
+                "auto_heading": "■ 自動消込",
+                "warnings_heading": "■ 警告",
+                "no_transactions": "【入金消込 {date}】新規の入金はありませんでした",
+                "skipped_note": "（処理済みのため skip：{n} 件）",
+                "more_items": "…他 {n} 件",
+                "reasons": {
+                  "amount_only": "（金額のみ一致・要確認）",
+                  "fee_deducted": "（手数料 ¥{fee} 差引）",
+                  "combined": "（合算）",
+                  "partial": "（一部入金・残 ¥{remaining}）",
+                  "overpaid": "（超過入金）"
+                }
+              },
+              "error_notice": {
+                "title": "【n8n エラー】{workflow_name}",
+                "body": "ワークフロー：{workflow_name}\n失敗したノード：{last_node}\nエラー：{message}\n実行ログ：{execution_url}\n\n実行ログで原因を確認し、修正後に再実行してください。シート書込みやメール送信が途中まで進んでいる可能性があるため、再実行前に台帳シートを確認してください。"
+              }
+            },
+            "en": {
+              "recon_summary": {
+                "title": "[Reconciliation {date}] Processed {n} | Auto-matched {a} | Needs review {b} | Unmatched {c}",
+                "line_item": "• {txn_date} {payer_raw} ¥{amount} → {invoice_id}",
+                "line_item_candidates": "• {txn_date} {payer_raw} ¥{amount} → candidates: {candidates}",
+                "needs_review_heading": "■ Needs review (auto-matched by amount only, fee deducted, or combined)",
+                "unmatched_heading": "■ Unmatched (no matching invoice)",
+                "ambiguous_heading": "■ Ambiguous (multiple candidates, not auto-matched; pick one)",
+                "auto_heading": "■ Auto-matched",
+                "warnings_heading": "■ Warnings",
+                "no_transactions": "[Reconciliation {date}] No new transactions",
+                "skipped_note": "(skipped as already processed: {n})",
+                "more_items": "… and {n} more",
+                "reasons": {
+                  "amount_only": "(amount only, needs review)",
+                  "fee_deducted": "(fee ¥{fee} deducted)",
+                  "combined": "(combined)",
+                  "partial": "(partial, remaining ¥{remaining})",
+                  "overpaid": "(overpayment)"
+                }
+              },
+              "error_notice": {
+                "title": "[n8n error] {workflow_name}",
+                "body": "Workflow: {workflow_name}\nFailed node: {last_node}\nError: {message}\nExecution log: {execution_url}\n\nCheck the execution log for the cause, fix it, and re-run. Sheet writes or emails may have partially completed, so check the ledger sheet before re-running."
+              }
+            }
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "expect": {
+    "length": 1,
+    "paths": {
+      "[0].json.title": "【入金消込 2026-09-23】新規の入金はありませんでした",
+      "[0].json.body_text": "【入金消込 2026-09-23】新規の入金はありませんでした",
+      "[0].json.chatwork_text": "【入金消込 2026-09-23】新規の入金はありませんでした",
+      "[0].json.line_text": "【入金消込 2026-09-23】新規の入金はありませんでした",
+      "[0].json.slack_blocks[0]": {
+        "type": "header",
+        "text": {
+          "type": "plain_text",
+          "text": "【入金消込 2026-09-23】新規の入金はありませんでした"
+        }
+      },
+      "[0].json.slack_blocks.length": 1,
+      "[0].json.slack_blocks[*].type": [
+        "header"
+      ],
+      "[0].json.slack_blocks[*].text.type": [
+        "plain_text"
+      ],
+      "[0].pairedItem": {
+        "item": 0
+      }
+    },
+    "max_length": {
+      "[0].json.slack_blocks[0].text.text": 150,
+      "[0].json.slack_blocks[*].text.text": 3000,
+      "[0].json.line_text": 4900
+    }
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "_comment": "date_format \"yyyyMMdd\" (explicit, wrong for A): strict parsing rejects 2026/09/01 etc., so every deposit row becomes a bad_date warning (rows 2,4,5,6,7,9,10,12,13,14,15) and rows_total stays 15.",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "id": "fixture-bank_A_sjis.csv",
+        "name": "bank_A_sjis.csv",
+        "mimeType": "text/csv"
+      },
+      "binary": {
+        "data": {
+          "data": "k/qVdCyTRZd2LJP8i+CKeiyPb4vginosjmONgg0KMjAyNi8wOS8wMSyQVY2eILYpu93M39m81rO83iwiMzMsMDAwIiwsIjEsMjMzLDAwMCINCjIwMjYvMDkvMDEstrDE3iC73czf2bawxN4sLCIxMiw4MDAiLCIxLDIyMCwyMDAiDQoyMDI2LzA5LzAyLJBVjZ4gw73EurO33tazKNUsIjU0LDc4MCIsLCIxLDI3NCw5ODAiDQoyMDI2LzA5LzAzLIN0g4qDUoN+gUCDhIN9g1+BQINeg42DRSwiOSw4MDAiLCwiMSwyODQsNzgwIg0KMjAyNi8wOS8wNCyQVY2eILvEsyC5srosIjEyOCwwMDAiLCwiMSw0MTIsNzgwIg0KMjAyNi8wOS8wNSyQVY2eILYpw73EzN7Cu90sIjEsMjM0LDU2NyIsLCIyLDY0NywzNDciDQoyMDI2LzA5LzA1LMPe3bfY1rO33SC73czf2cPe3djWuCwsIjgsNDUwIiwiMiw2MzgsODk3Ig0KMjAyNi8wOS8wOCyQVY2eILvdzN/ZvL3D0Si2LCIxMDAsMDAwIiwsIjIsNzM4LDg5NyINCjIwMjYvMDkvMDkskFWNniC1tcreIM+7tSwiNDQsMDAwIiwsIjIsNzgyLDg5NyINCjIwMjYvMDkvMTAsQVRNIMu3wN68LCwiMzAsMDAwIiwiMiw3NTIsODk3Ig0KMjAyNi8wOS8xMSyQVY2eILYp0M7dvNaztrIsIjY2LDAwMCIsLCIyLDgxOCw4OTciDQoyMDI2LzA5LzEyLJBVjZ4gw73Eud2+wii2LCI4OCwwMDAiLCwiMiw5MDYsODk3Ig0KMjAyNi8wOS8xNCyQVY2eILYpu93M39nMsL3exLO31rMsIjI3LDUwMCIsLCIyLDkzNCwzOTciDQoyMDI2LzA5LzE1LJBVjZ4gxbbR1yC83tuzLCI1LDUwMCIsLCIyLDkzOSw4OTciDQoyMDI2LzA5LzE2LMO9s9jWsywsIjQ0MCIsIjIsOTM5LDQ1NyINCg==",
+          "mimeType": "text/csv",
+          "fileName": "bank_A_sjis.csv",
+          "fileSize": "781 B"
+        }
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "yyyyMMdd",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expect": {
+    "items": [
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 2,
+          "value": "2026/09/01"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 4,
+          "value": "2026/09/02"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 5,
+          "value": "2026/09/03"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 6,
+          "value": "2026/09/04"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 7,
+          "value": "2026/09/05"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 9,
+          "value": "2026/09/08"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 10,
+          "value": "2026/09/09"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 12,
+          "value": "2026/09/11"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 13,
+          "value": "2026/09/12"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 14,
+          "value": "2026/09/14"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 15,
+          "value": "2026/09/15"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "file_stats",
+          "file_name": "bank_A_sjis.csv",
+          "ignored_withdraw": 4,
+          "rows_total": 15
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  }
+}

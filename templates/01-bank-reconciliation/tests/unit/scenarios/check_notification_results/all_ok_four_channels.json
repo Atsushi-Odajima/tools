@@ -1,0 +1,61 @@
+{
+  "_comment": "NOTIFY_CHANNELS = all four, every Notify succeeded (real-looking Slack / Gmail / LINE / Chatwork responses, no json.error).",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "ok": true,
+        "channel": "C0REPLACEME",
+        "ts": "1758585600.000100",
+        "message": {
+          "type": "message",
+          "text": "【入金消込 2026-09-23】処理 11件｜自動消込 4｜要確認 3｜未消込 4"
+        }
+      },
+      "pairedItem": {
+        "item": 0
+      }
+    },
+    {
+      "json": {
+        "id": "18f3aabb0000ffff",
+        "threadId": "18f3aabb0000ffff",
+        "labelIds": [
+          "SENT"
+        ]
+      },
+      "pairedItem": {
+        "item": 0
+      }
+    },
+    {
+      "json": {},
+      "pairedItem": {
+        "item": 0
+      }
+    },
+    {
+      "json": {
+        "message_id": "1234567890123456789"
+      },
+      "pairedItem": {
+        "item": 0
+      }
+    }
+  ],
+  "nodes": {},
+  "expect": {
+    "length": 1,
+    "paths": {
+      "[0].json": {
+        "channels_attempted": 4,
+        "channels_ok": 4,
+        "channels_failed": 0,
+        "errors": []
+      },
+      "[0].pairedItem": {
+        "item": 0
+      }
+    }
+  }
+}

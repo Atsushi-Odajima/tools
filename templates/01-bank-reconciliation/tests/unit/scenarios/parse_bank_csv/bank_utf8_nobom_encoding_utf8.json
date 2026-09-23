@@ -1,0 +1,149 @@
+{
+  "_comment": "Same BOM-less bytes with explicit encoding utf-8 → same result.",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "id": "fixture-bank_B_utf8_nobom.csv",
+        "name": "bank_B_utf8_nobom.csv",
+        "mimeType": "text/csv"
+      },
+      "binary": {
+        "data": {
+          "data": "5Y+W5byV5pelLOWGheWuuSzjgYrpoJDlhaUs44GK5byV5Ye6DQoyMDI2MDkxNywwMTIzIOOCqynjg4Djg5/jg7zjgqvjgrPjgqYsNDE4MDAsDQoyMDI2MDkxNyzjg4fjg7Pjg6/jg6rjg6jjgqbjgq3jg7Mg44K144Oz44OX44Or44OE44Km44K344OzLCwzMzAwDQoyMDI2MDkxOCzjgbXjgorjgZPjgb/jgIDjgZnjgZrjgY3jgIDjgYTjgaHjgo3jgYYsMTU0MDAsDQoyMDI2MDkxOSzjg6Yp44Of44Ob44Oz44OX44Op44Oz44OL44Oz44KwLDU3MjAwLA0KMjAyNjA5MTksQVRN44OS44Kt44OA44K3LCwyMDAwMA0KMjAyNjA5MjEsMDA0NSDjgr/jgqvjg4/jgrcg44Of44KtLDEyMTAwLA0KMjAyNjA5MjIs44OV44Oq44Kz44OfIOODr+OCv+ODiuODmSDjgrHjg7MsNzcwMCwNCjIwMjYwOTIyLOODleODquOCq+OCqCDjgrXjg7Pjg5fjg6vjgrvjgqTjg6HjgqQsLDE1ODAwDQo=",
+          "mimeType": "text/csv",
+          "fileName": "bank_B_utf8_nobom.csv",
+          "fileSize": "434 B"
+        }
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "CSV_MAPPING": {
+            "date_col": "取引日",
+            "payer_col": "内容",
+            "deposit_col": "お預入",
+            "withdraw_col": "お引出",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "yyyyMMdd",
+            "encoding": "utf-8"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expect": {
+    "items": [
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-17",
+          "payer_name_raw": "0123 カ)ダミーカコウ",
+          "amount": 41800,
+          "memo": "",
+          "_file": "bank_B_utf8_nobom.csv",
+          "_row": 2
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-18",
+          "payer_name_raw": "ふりこみ　すずき　いちろう",
+          "amount": 15400,
+          "memo": "",
+          "_file": "bank_B_utf8_nobom.csv",
+          "_row": 4
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-19",
+          "payer_name_raw": "ユ)ミホンプランニング",
+          "amount": 57200,
+          "memo": "",
+          "_file": "bank_B_utf8_nobom.csv",
+          "_row": 5
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-21",
+          "payer_name_raw": "0045 タカハシ ミキ",
+          "amount": 12100,
+          "memo": "",
+          "_file": "bank_B_utf8_nobom.csv",
+          "_row": 7
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-22",
+          "payer_name_raw": "フリコミ ワタナベ ケン",
+          "amount": 7700,
+          "memo": "",
+          "_file": "bank_B_utf8_nobom.csv",
+          "_row": 8
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "file_stats",
+          "file_name": "bank_B_utf8_nobom.csv",
+          "ignored_withdraw": 3,
+          "rows_total": 8
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  }
+}

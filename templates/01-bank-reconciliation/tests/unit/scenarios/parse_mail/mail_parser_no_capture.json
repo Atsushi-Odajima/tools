@@ -1,0 +1,72 @@
+{
+  "_comment": "R17(b): from/subject match bankX but the body has no amount or remitter line → warning parser_no_capture with parser=bankX.",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "id": "18f3aabb00000010",
+        "date": "2026-09-20T10:05:00+09:00",
+        "from": {
+          "text": "サンプル銀行 <notice@example.jp>"
+        },
+        "subject": "【サンプル銀行】ご入金のお知らせ",
+        "text": "本日の入金はありません。"
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "auto",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expect": {
+    "items": [
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "parser_no_capture",
+          "parser": "bankX",
+          "message_id": "18f3aabb00000010",
+          "subject": "【サンプル銀行】ご入金のお知らせ",
+          "from": "サンプル銀行 <notice@example.jp>"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  }
+}

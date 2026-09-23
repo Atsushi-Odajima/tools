@@ -1,0 +1,95 @@
+{
+  "_comment": "R10: mail_bankY.eml (table layout, no colons). Parser bankY. Expect 19800 / \"ササキ ハナコ\" / txn_date 2026-09-18 taken from the body, NOT the 2026-09-19 Date header.",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "id": "18f3aabb00000002",
+        "threadId": "18f3aabb00000002",
+        "labelIds": [
+          "INBOX",
+          "UNREAD"
+        ],
+        "date": "2026-09-19T08:30:00+09:00",
+        "from": {
+          "value": [
+            {
+              "address": "alerts@example.com",
+              "name": "Sample Bank Online"
+            }
+          ],
+          "text": "Sample Bank Online <alerts@example.com>"
+        },
+        "to": {
+          "value": [
+            {
+              "address": "owner@example.com",
+              "name": ""
+            }
+          ],
+          "text": "owner@example.com"
+        },
+        "subject": "Deposit Notification - Sample Bank",
+        "text": "Sample Bank Online - Deposit Notification / 入金通知\r\n\r\nThe following deposit has been credited to your account.\r\n\r\n--------------------------------------------------------------\r\nItem               Value\r\n--------------------------------------------------------------\r\nTransaction Date   2026-09-18\r\nAmount             JPY 19,800\r\nRemitter           ササキ ハナコ\r\nAccount            Sample Branch / Ordinary 7654321\r\n--------------------------------------------------------------\r\n\r\nThis is an automated message from Sample Bank (fictional). Do not reply.\r\n",
+        "html": ""
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "auto",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expect": {
+    "items": [
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "gmail",
+          "txn_date": "2026-09-18",
+          "payer_name_raw": "ササキ ハナコ",
+          "amount": 19800,
+          "memo": "Deposit Notification - Sample Bank (gmail:18f3aabb00000002)",
+          "_message_id": "18f3aabb00000002",
+          "_parser": "bankY"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  }
+}

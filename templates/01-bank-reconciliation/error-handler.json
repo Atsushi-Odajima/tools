@@ -1,0 +1,444 @@
+{
+  "name": "[Odaji] 01 Error Handler v1.0.0",
+  "nodes": [
+    {
+      "id": "512f6764-9f55-5052-aade-e3da458e1c07",
+      "name": "Sticky Note E1 Input",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        180
+      ],
+      "parameters": {
+        "content": "## JA\n### 入力 — Error Trigger\n本体 `[Odaji] 01 Bank Deposit Reconciliation v1.0.0` の Settings → Error workflow にこのワークフローを指定する。Error Trigger は本体が**自動実行で失敗したとき**だけ発火する（手動実行では発火しない）。このワークフロー自身の Error workflow 設定は空のままにする（無限ループ防止）。\n\n## EN\n### Input — Error Trigger\nSelect this workflow in Settings → Error workflow of `[Odaji] 01 Bank Deposit Reconciliation v1.0.0`. The Error Trigger fires only when the main workflow **fails in an automatic run** (never for manual runs). Leave this workflow's own Error workflow setting empty (no loops).\n",
+        "height": 480,
+        "width": 320,
+        "color": 5
+      }
+    },
+    {
+      "id": "d9481ce5-1dce-5460-88f7-a9d8a851d536",
+      "name": "Sticky Note E2 Config",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        280,
+        180
+      ],
+      "parameters": {
+        "content": "## JA\n### Config — 通知に必要なキーだけ（本体の Config は参照できないため同じ値をここにも入れる）\n\n| キー | 既定値 | 意味 |\n|---|---|---|\n| `LANG` | `\"ja\"` | 通知文面の言語 `ja` / `en` |\n| `NOTIFY_CHANNELS` | `[\"slack\"]` | `slack` / `email` / `line` / `chatwork` の組合せ（配列）。空なら通知しない |\n| `SLACK_CHANNEL` | `\"REPLACE_ME_SLACK_CHANNEL_ID\"` | 投稿先チャンネル ID（`C0…`）または `#name` |\n| `NOTIFY_EMAIL_TO` | `\"replace-me@example.com\"` | 通知メールの宛先 |\n| `LINE_TO_USER_ID` | `\"REPLACE_ME_LINE_USER_ID\"` | LINE push の宛先 userId |\n| `CHATWORK_ROOM_ID` | `\"REPLACE_ME_CHATWORK_ROOM_ID\"` | Chatwork のルーム ID |\n| `LINE_API_URL` | `\"https://api.line.me/v2/bot/message/push\"` | LINE Messaging API push の URL。**API をプロキシ経由にする場合以外は変更しない** |\n| `CHATWORK_API_BASE_URL` | `\"https://api.chatwork.com/v2\"` | Chatwork API のベース URL（`/rooms/{room_id}/messages` を後ろに付ける）。**API をプロキシ経由にする場合以外は変更しない** |\n| `MESSAGES` | （`shared/messages.*.json` の `error_notice`） | エラー通知の文面（`ja` / `en`） |\n\n## EN\n### Config — only the notification keys (the main Config is not reachable, so mirror the values here)\n\n| Key | Default | Meaning |\n|---|---|---|\n| `LANG` | `\"ja\"` | Notification language: `ja` / `en` |\n| `NOTIFY_CHANNELS` | `[\"slack\"]` | Any combination of `slack` / `email` / `line` / `chatwork` (array). Empty = no notification |\n| `SLACK_CHANNEL` | `\"REPLACE_ME_SLACK_CHANNEL_ID\"` | Slack channel ID (`C0…`) or `#name` |\n| `NOTIFY_EMAIL_TO` | `\"replace-me@example.com\"` | Notification email recipient |\n| `LINE_TO_USER_ID` | `\"REPLACE_ME_LINE_USER_ID\"` | LINE recipient userId |\n| `CHATWORK_ROOM_ID` | `\"REPLACE_ME_CHATWORK_ROOM_ID\"` | Chatwork room ID |\n| `LINE_API_URL` | `\"https://api.line.me/v2/bot/message/push\"` | LINE Messaging API push URL. **Do not change unless you proxy the API** |\n| `CHATWORK_API_BASE_URL` | `\"https://api.chatwork.com/v2\"` | Chatwork API base URL (`/rooms/{room_id}/messages` is appended). **Do not change unless you proxy the API** |\n| `MESSAGES` | (`error_notice` of `shared/messages.*.json`) | Error notice copy (`ja` / `en`) |\n",
+        "height": 1500,
+        "width": 560,
+        "color": 1
+      }
+    },
+    {
+      "id": "ac52087a-c3e5-560d-8dea-1b591a42d8e5",
+      "name": "Sticky Note E3 Output",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        860,
+        -120
+      ],
+      "parameters": {
+        "content": "## JA\n### 出力 — エラー通知\n- `Build Error Message`（Code）：`MESSAGES[LANG].error_notice` でワークフロー名・失敗ノード・エラー・実行ログ URL を組む\n- チャネルは Config `NOTIFY_CHANNELS` で ON／OFF。Credential は本体と同じ名前のものを各ノードで選ぶ（Slack、Gmail OAuth2、Header Auth `LINE Messaging API` / `Chatwork API`）\n- ここの Notify ノードは On Error = Stop（失敗しても次の受け皿は無い）。Merge／Check は置かない\n\n## EN\n### Output — error notification\n- `Build Error Message` (Code): fills `MESSAGES[LANG].error_notice` with the workflow name, failed node, error and execution URL\n- Channels are switched on in Config `NOTIFY_CHANNELS`; select the same credentials as in the main workflow in each node (Slack, Gmail OAuth2, Header Auth `LINE Messaging API` / `Chatwork API`)\n- The Notify nodes here keep On Error = Stop (there is no further fallback); no Merge / Check node\n",
+        "height": 1000,
+        "width": 900,
+        "color": 4
+      }
+    },
+    {
+      "id": "2016f7b6-4bcf-5a8b-9532-4b22071ce18e",
+      "name": "Catch Workflow Error",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "de6f117c-5068-56f7-953f-34c79bf75f90",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        300,
+        300
+      ],
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"LANG\": \"ja\",\n  \"NOTIFY_CHANNELS\": [\n    \"slack\"\n  ],\n  \"SLACK_CHANNEL\": \"REPLACE_ME_SLACK_CHANNEL_ID\",\n  \"NOTIFY_EMAIL_TO\": \"replace-me@example.com\",\n  \"LINE_TO_USER_ID\": \"REPLACE_ME_LINE_USER_ID\",\n  \"CHATWORK_ROOM_ID\": \"REPLACE_ME_CHATWORK_ROOM_ID\",\n  \"LINE_API_URL\": \"https://api.line.me/v2/bot/message/push\",\n  \"CHATWORK_API_BASE_URL\": \"https://api.chatwork.com/v2\",\n  \"MESSAGES\": {\n    \"ja\": {\n      \"error_notice\": {\n        \"title\": \"【n8n エラー】{workflow_name}\",\n        \"body\": \"ワークフロー：{workflow_name}\\n失敗したノード：{last_node}\\nエラー：{message}\\n実行ログ：{execution_url}\\n\\n実行ログで原因を確認し、修正後に再実行してください。シート書込みやメール送信が途中まで進んでいる可能性があるため、再実行前に台帳シートを確認してください。\"\n      }\n    },\n    \"en\": {\n      \"error_notice\": {\n        \"title\": \"[n8n error] {workflow_name}\",\n        \"body\": \"Workflow: {workflow_name}\\nFailed node: {last_node}\\nError: {message}\\nExecution log: {execution_url}\\n\\nCheck the execution log for the cause, fix it, and re-run. Sheet writes or emails may have partially completed, so check the ledger sheet before re-running.\"\n      }\n    }\n  }\n}",
+        "includeOtherFields": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "d68f6410-19e9-53d5-94bf-e6865176b25a",
+      "name": "Build Error Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Build Error Message — n8n Code node (JavaScript, Run Once for All Items) in error-handler.json. DESIGN.md §6.9 / §2.2 / D20.\n// Source of truth: templates/01-bank-reconciliation/code/build_error_message.js; error-handler.json embeds this text verbatim (ASSUMPTIONS A15).\n// Input : $input.first().json = the Error Trigger item. Two shapes (n8n docs, Error Trigger → \"Error data\"):\n//   execution error: { execution: { id?, url?, retryOf?, error: { message, stack }, lastNodeExecuted, mode }, workflow: { id, name } }\n//   trigger error  : { trigger: { error: { name, message, node: { name, … }, cause: { message, stack }, timestamp, context }, mode: 'trigger' },\n//                      workflow: { id, name } }\n//   execution.id / execution.url exist only when the execution was saved (absent for a trigger-node failure).\n// Config: the error handler's own minimal Config (D20): LANG, NOTIFY_CHANNELS, SLACK_CHANNEL, NOTIFY_EMAIL_TO, LINE_TO_USER_ID,\n//         CHATWORK_ROOM_ID, MESSAGES = { ja: { error_notice }, en: { error_notice } } (shared/messages.*.json).\n// Output: exactly ONE item { title, body_text, slack_blocks, line_text, chatwork_text } — the same shape as Build Notification, so the\n//         Check … Enabled / Notify … nodes are configured identically in both workflows (§2.3 E4〜).\n// Shared helpers toInt / num / str (every Code node) and fill / fmtYen (also in Build Notification) are byte-identical to DESIGN.md §6.1.\n\n// ---- shared helpers: toInt / num / str — identical text in every Code node (DESIGN §6.1) ----\n// 数値化：全角→半角、カンマ・¥・円・空白を除去して整数（円）。失敗は toInt() = null / num() = 0\nconst toInt = (v) => {\n  if (v === null || v === undefined) return null;\n  if (typeof v === 'number') return Number.isFinite(v) ? Math.trunc(v) : null;\n  const s = String(v).normalize('NFKC').replace(/[,\\s¥￥円]/g, '');\n  if (!/^-?\\d+(\\.\\d+)?$/.test(s)) return null;\n  return parseInt(s, 10);\n};\nconst num = (v) => toInt(v) ?? 0;\nconst str = (v) => (v === null || v === undefined) ? '' : String(v).trim();\n// ---- end shared helpers ----\n\n// ---- shared: fill / fmtYen — identical text in Build Notification and Build Error Message (DESIGN §6.1) ----\nconst fill = (tpl, vars) => String(tpl).replace(/\\{(\\w+)\\}/g, (m, k) => (k in vars ? String(vars[k]) : m));   // {name} 置換。未知のキーは残す\nconst fmtYen = (n, lang) => Number(n).toLocaleString(lang === 'en' ? 'en-US' : 'ja-JP');                       // 33000 → \"33,000\"\n// ---- end shared fill / fmtYen ----\n\n// ---- ノード本体 / node body (DESIGN.md §6.9) ----\nconst e = $input.first().json;                 // Error Trigger の出力\nconst cfg = $('Config').first().json;          // Error Workflow 自身の Config（D20）\nconst lang = cfg.LANG === 'en' ? 'en' : 'ja';\nconst m = cfg.MESSAGES && cfg.MESSAGES[lang] && cfg.MESSAGES[lang].error_notice;    // shared/messages.*.json の error_notice\nif (!m) throw new Error(`Config.MESSAGES.${lang}.error_notice is missing`);          // Config の誤りは隠さず失敗させる（§2.5）\nconst vars = {\n  workflow_name: str(e.workflow?.name),\n  last_node: str(e.execution?.lastNodeExecuted) || str(e.trigger?.error?.node?.name) || '(trigger)',\n  message: str(e.execution?.error?.message) || str(e.trigger?.error?.message) || 'unknown error',\n  execution_url: str(e.execution?.url) || '(not saved)',               // 実行が保存されていない（トリガー失敗等）ときは URL が無い\n};\nconst title = fill(m.title, vars);\nconst body_text = fill(m.body, vars);\nreturn [{ json: { title, body_text,\n  slack_blocks: [{ type: 'header', text: { type: 'plain_text', text: title.slice(0, 150) } },       // header text ≤ 150 文字\n                 { type: 'section', text: { type: 'mrkdwn', text: body_text.slice(0, 2900) } }],    // section text ≤ 3,000 文字\n  line_text: body_text.slice(0, 4900), chatwork_text: body_text }, pairedItem: { item: 0 } }];\n"
+      }
+    },
+    {
+      "id": "1f0d2d1c-9cd7-52f8-8d5f-b9ba8bc7e62f",
+      "name": "Check Slack Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1160,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2b910703-6590-5b8f-bee3-ca99ff46b85e",
+              "leftValue": "={{ $('Config').first().json.NOTIFY_CHANNELS }}",
+              "rightValue": "slack",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "fd0af349-265f-5e14-9b79-0308feccb714",
+      "name": "Check Email Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1160,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d02b77bf-8a25-51ad-99dd-d4f4a31c7f2e",
+              "leftValue": "={{ $('Config').first().json.NOTIFY_CHANNELS }}",
+              "rightValue": "email",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "79b28f17-4686-5005-927f-fde93bf01dcb",
+      "name": "Check LINE Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1160,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "602f3812-4557-5424-94f5-40fc4e82a1f0",
+              "leftValue": "={{ $('Config').first().json.NOTIFY_CHANNELS }}",
+              "rightValue": "line",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "7a778a5d-f53a-5c03-95a4-a0f6332e9077",
+      "name": "Check Chatwork Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1160,
+        600
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "53df966a-00e6-50bb-9a08-258c2d4a6d3c",
+              "leftValue": "={{ $('Config').first().json.NOTIFY_CHANNELS }}",
+              "rightValue": "chatwork",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "14666b99-0077-5f56-a04e-db4a64211682",
+      "name": "Notify Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        1420,
+        0
+      ],
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Config').first().json.SLACK_CHANNEL }}"
+        },
+        "messageType": "block",
+        "blocksUi": "={{ JSON.stringify({ blocks: $json.slack_blocks }) }}",
+        "text": "={{ $json.title }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "c78b9620-e521-542c-a7fc-c01e89c5ddad",
+      "name": "Notify Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1420,
+        200
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.NOTIFY_EMAIL_TO }}",
+        "subject": "={{ $json.title }}",
+        "emailType": "text",
+        "message": "={{ $json.body_text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "6a6ef9c7-09e2-550f-9093-ca6097e71d68",
+      "name": "Notify LINE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1420,
+        400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.LINE_API_URL }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $('Config').first().json.LINE_TO_USER_ID, messages: [{ type: 'text', text: $json.line_text }] }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "e09557ef-8180-5a95-af91-c18cee21471c",
+      "name": "Notify Chatwork",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1420,
+        600
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.CHATWORK_API_BASE_URL }}/rooms/{{ $('Config').first().json.CHATWORK_ROOM_ID }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "body",
+              "value": "={{ $json.chatwork_text }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    }
+  ],
+  "connections": {
+    "Catch Workflow Error": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Build Error Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Error Message": {
+      "main": [
+        [
+          {
+            "node": "Check Slack Enabled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Email Enabled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check LINE Enabled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Chatwork Enabled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Slack Enabled": {
+      "main": [
+        [
+          {
+            "node": "Notify Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Email Enabled": {
+      "main": [
+        [
+          {
+            "node": "Notify Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check LINE Enabled": {
+      "main": [
+        [
+          {
+            "node": "Notify LINE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Chatwork Enabled": {
+      "main": [
+        [
+          {
+            "node": "Notify Chatwork",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Tokyo",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
+  }
+}

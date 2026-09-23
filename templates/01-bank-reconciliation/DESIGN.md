@@ -173,7 +173,7 @@ flowchart TD
 | 22 | Check Email Enabled | `n8n-nodes-base.if` | 同上 `email` | | 黄 |
 | 23 | Check LINE Enabled | `n8n-nodes-base.if` | 同上 `line` | | 黄 |
 | 24 | Check Chatwork Enabled | `n8n-nodes-base.if` | 同上 `chatwork` | | 黄 |
-| 25 | Notify Slack | `n8n-nodes-base.slack` | Block Kit で投稿 | Resource: Message、Operation: Send、Send Message To: Channel、Channel: `{{ …SLACK_CHANNEL }}`、Message Type: Blocks、Blocks: `{{ JSON.stringify($json.slack_blocks) }}`、Notification text: `{{ $json.title }}`、Settings: Retry On Fail 3回・待機 2000ms、On Error: Continue (using error output) | 緑 |
+| 25 | Notify Slack | `n8n-nodes-base.slack` | Block Kit で投稿 | Resource: Message、Operation: Send、Send Message To: Channel、Channel: `{{ …SLACK_CHANNEL }}`、Message Type: Blocks、Blocks: `{{ JSON.stringify($json.slack_blocks) }}`、Notification text: `{{ $json.title }}`、Options → Include Link to Workflow: **OFF**（既定 ON では買い手の n8n URL とワークフロー ID を含む section が末尾に付く。`Notify Email` の attribution OFF と揃える）、Settings: Retry On Fail 3回・待機 2000ms、On Error: Continue (using error output) | 緑 |
 | 26 | Notify Email | `n8n-nodes-base.gmail` | メール通知 | Resource: Message、Operation: Send、To: `{{ …NOTIFY_EMAIL_TO }}`、Subject: `{{ $json.title }}`、Email Type: Text、Message: `{{ $json.body_text }}`、Options → Append n8n attribution: OFF、Retry 3回、On Error: Continue (using error output) | 緑 |
 | 27 | Notify LINE | `n8n-nodes-base.httpRequest` | LINE Messaging API push | POST `https://api.line.me/v2/bot/message/push`、Authentication: Generic → Header Auth（Credential 名 `LINE Messaging API`）、Body: JSON `{ "to": LINE_TO_USER_ID, "messages": [{ "type": "text", "text": {{ $json.line_text }} }] }`（`line_text` は §6.8 で 4,900 文字に切った本文。`body_text` は使わない）、Retry 3回・2000ms、Timeout 10000ms、On Error: Continue (using error output) | 緑 |
 | 28 | Notify Chatwork | `n8n-nodes-base.httpRequest` | Chatwork API | POST `https://api.chatwork.com/v2/rooms/{{ …CHATWORK_ROOM_ID }}/messages`、Header Auth（Credential 名 `Chatwork API`、ヘッダ名 `X-ChatWorkToken`）、Body: Form URL-encoded `body={{ $json.chatwork_text }}`、Retry 3回、On Error: Continue (using error output) | 緑 |
@@ -243,12 +243,12 @@ Config 通過後（トリガーの全フィールド + Config キー + `SOURCE`�
 
 ### 3.2 Drive 経路：Download File → binary → 行 → txn
 
-Download File 出力（`json` はファイルのメタ情報、`binary.data` に本体）：
+Download File 出力（`json` はトリガーのファイル情報がそのまま通る（`download.operation.js` の `json: item.json`）、`binary.data` に本体）。**同じポーリングで複数ファイルが作られた場合はファイルごとに 1 アイテム**（Drive Trigger は前回ポーリング以降の全ファイルを 1 実行にまとめて出す。D31）：
 ```json
 { "json": { "id": "1AbC…", "name": "bank_A_2026-09.csv", "mimeType": "text/csv" },
   "binary": { "data": { "mimeType": "text/csv", "fileName": "bank_A_2026-09.csv", "fileSize": "1.2 kB", "data": "<base64 or file reference>" } } }
 ```
-Parse Bank CSV（Code）は `await this.helpers.getBinaryDataBuffer(0, 'data')` → `TextDecoder('shift_jis' | 'utf-8')`（BOM があれば UTF-8）→ 自前 CSV パース → 見出しキーの行オブジェクト（fixture A の例）：
+Parse Bank CSV（Code）は**入力アイテムごとに** `await this.helpers.getBinaryDataBuffer(i, 'data')` → `TextDecoder('shift_jis' | 'utf-8')`（BOM があれば UTF-8。`json.mimeType` が `application/vnd.google-apps.spreadsheet` なら Drive のエクスポートは常に UTF-8（BOM 無し）なので `CSV_MAPPING.encoding` に関わらず UTF-8、D22）→ 自前 CSV パース → 見出しキーの行オブジェクト（fixture A の例）：
 ```json
 { "日付": "2026/09/01", "摘要": "振込 ｶ)ｻﾝﾌﾟﾙｼﾖｳｼﾞ", "入金額": "33,000", "出金額": "", "残高": "1,233,000" }
 ```
@@ -259,7 +259,7 @@ Parse Bank CSV 出力（1取引1アイテムの **pre-txn**。出金行・空行
   "payer_name_raw": "振込 ｶ)ｻﾝﾌﾟﾙｼﾖｳｼﾞ", "amount": 33000, "memo": "",
   "_file": "bank_A_2026-09.csv", "_row": 3 }
 ```
-`_file` / `_row` は通知・デバッグ用で、シートには書かない（`Upsert Transactions` の「extra fields: Ignore」で落ちる）。
+`_file` / `_row` は通知・デバッグ用で、シートには書かない（`Upsert Transactions` の「extra fields: Ignore」で落ちる）。各出力アイテムの `pairedItem.item` は元ファイルのアイテム番号。`file_stats` はファイルごとに 1 件出る。
 
 ### 3.3 Gmail 経路：message → txn
 
@@ -276,7 +276,7 @@ Parse Mail は1メール → 0 or 1 取引。パーサに一致しない・抽�
 { "source": "drive", "txns": [ { "_kind": "txn", "source": "bank_csv", "txn_date": "…", "payer_name_raw": "…", "amount": 33000, "memo": "", … } ],
   "warnings": [ { "type": "no_parser_matched", … } ], "ignored_withdraw": 4, "file_name": "bank_A_2026-09.csv" }
 ```
-Schedule 経路では `{ "source": "schedule", "txns": [], "warnings": [] }`。
+Schedule 経路では `{ "source": "schedule", "txns": [], "warnings": [] }`。Drive 経路で複数ファイルが届いたときは `file_stats` を集約し、`ignored_withdraw` は合計、`file_name` は `", "` 区切りの連結（D31）。
 
 ### 3.5 Read Invoices / Read Transactions
 
@@ -559,17 +559,24 @@ function parseBankCsv(rows, m, ctx) {
   return { txns, warnings, ignored_withdraw: ignored };
 }
 
-// ---- ノード本体 ----
+// ---- ノード本体（D31：全入力アイテムを処理。D22：スプレッドシート由来は UTF-8）----
 const cfg = $('Config').first().json;
-const ctx = { tz: cfg.TZ, fileName: $input.first().json.name || $input.first().binary?.data?.fileName || '' };
-const buf = await this.helpers.getBinaryDataBuffer(0, 'data');        // itemIndex, binary property（A12 で動作確認済み）
-const text = decodeCsvBuffer(buf, cfg.CSV_MAPPING.encoding);
-const { txns, warnings, ignored_withdraw } = parseBankCsv(parseCsvText(text), cfg.CSV_MAPPING, ctx);
-return [
-  ...txns.map((t) => ({ json: t, pairedItem: { item: 0 } })),
-  ...warnings.map((w) => ({ json: { _kind: 'warning', ...w }, pairedItem: { item: 0 } })),
-  { json: { _kind: 'file_stats', file_name: ctx.fileName, ignored_withdraw, rows_total: txns.length + warnings.length + ignored_withdraw }, pairedItem: { item: 0 } },
-];
+const inputs = $input.all();
+const out = [];
+for (let i = 0; i < inputs.length; i++) {
+  const it = inputs[i];
+  const ctx = { tz: cfg.TZ, fileName: it.json.name || it.binary?.data?.fileName || '' };
+  const isSheetExport = str(it.json.mimeType) === 'application/vnd.google-apps.spreadsheet';   // Drive の export は常に UTF-8（BOM 無し）
+  const buf = await this.helpers.getBinaryDataBuffer(i, 'data');        // itemIndex, binary property（A12 で動作確認済み）
+  const text = decodeCsvBuffer(buf, isSheetExport ? 'utf-8' : cfg.CSV_MAPPING.encoding);
+  const { txns, warnings, ignored_withdraw } = parseBankCsv(parseCsvText(text), cfg.CSV_MAPPING, ctx);
+  out.push(
+    ...txns.map((t) => ({ json: t, pairedItem: { item: i } })),
+    ...warnings.map((w) => ({ json: { _kind: 'warning', ...w }, pairedItem: { item: i } })),
+    { json: { _kind: 'file_stats', file_name: ctx.fileName, ignored_withdraw, rows_total: txns.length + warnings.length + ignored_withdraw }, pairedItem: { item: i } },
+  );
+}
+return out;
 ```
 
 ### 6.3 `Parse Mail`：`parseMail`
@@ -626,8 +633,10 @@ const cfg = $('Config').first().json;
 const source = ({ 'Watch Drive Folder': 'drive', 'Watch Gmail Inbox': 'gmail', 'Run Daily Rematch': 'schedule' })[cfg.SOURCE] || 'unknown';
 const txns = items.filter((j) => j._kind === 'txn');
 const warnings = items.filter((j) => j._kind === 'warning');
-const stats = items.find((j) => j._kind === 'file_stats') || {};
-return [{ json: { source, txns, warnings, ignored_withdraw: num(stats.ignored_withdraw), file_name: stats.file_name || '' }, pairedItem: { item: 0 } }];
+const stats = items.filter((j) => j._kind === 'file_stats');                        // D31：ファイルごとに 1 件 → 集約
+const ignored_withdraw = stats.reduce((sum, f) => sum + num(f.ignored_withdraw), 0);
+const file_name = stats.map((f) => str(f.file_name)).filter(Boolean).join(', ');
+return [{ json: { source, txns, warnings, ignored_withdraw, file_name }, pairedItem: { item: 0 } }];
 ```
 
 ### 6.5 `normalizeAmount` / `normalizeDate`
@@ -768,6 +777,9 @@ function matchInvoices(newTxns, invoices, existingRows, cfg, ctx) {
     .filter((i) => i.remaining > 0);
 
   const existingById = new Map(existingRows.map((r) => [str(r.txn_id), r]));
+  // D32：請求側の matched_txn_ids に既に記録された txn_id → 入金は適用済み（前回 Update Invoices 成功・Upsert Transactions 失敗）
+  const appliedTo = new Map();                  // txn_id → [invoice_id, …]
+  for (const inv of invoices) for (const id of splitCsvList(inv.matched_txn_ids)) appliedTo.set(id, [...(appliedTo.get(id) || []), str(inv.invoice_id)]);
   const consumed = new Set();                    // この実行で消費した invoice_id（全額・一部を問わず）
   const invoiceUpdates = new Map();              // invoice_id → 更新行（集約）
   const txnRows = [];
@@ -777,6 +789,10 @@ function matchInvoices(newTxns, invoices, existingRows, cfg, ctx) {
   for (const t of newTxns) {
     if (existingById.has(t.txn_id)) { summary.skipped_existing++; continue; }          // R09：既存は skip
     if (seen.has(t.txn_id)) { summary.skipped_duplicate_in_batch++; continue; }        // D13：同一実行内の重複
+    if (appliedTo.has(t.txn_id)) {                                                       // D32：請求に適用済み → 台帳行の修復のみ（請求は触らない）
+      txnRows.push({ ...txnRowBase(t, nowStr), matched_invoice_ids: appliedTo.get(t.txn_id).join(','), status: 'matched', suggested_invoice_ids: '' });
+      summary.skipped_existing++; seen.add(t.txn_id); continue;
+    }
     seen.add(t.txn_id); queue.push({ txn: t, isNew: true, prev: null });
   }
   if (ctx.source === 'schedule') {                                                       // D10：再突合は Schedule のみ
@@ -1056,7 +1072,8 @@ NOTIFY_CHANNELS が `[]` のときは Notify ノードが 1 つも実行され�
 - **振込名義はカナ**。`payer_name_alias` を埋めないと自動消込率が大きく落ちる。漢字の `customer_name` だけでは一致しない。
 - **同姓同名**は起きる。金額一致を必須にしているのはそのため。金額のみ一致（規則 2）は通知の要確認で目視する。
 - **銀行 CSV は月をまたぐと形式が変わる**ことがある（見出し行の有無、説明行の追加）。`CSV_MAPPING.skip_rows` と列見出しを見直す。
-- **Google Drive の「アップロードを変換」**が ON だと CSV が Google スプレッドシートに変換され、Shift_JIS の内容が壊れることがある。監視フォルダに置く前に OFF にする（Download File は変換済みでも CSV としてエクスポートするが、文字化けは直らない）。
+- **Google Drive の「アップロードを変換」**が ON だと CSV が Google スプレッドシートに変換され、Shift_JIS の内容が壊れることがある。監視フォルダに置く前に OFF にする（Download File は変換済みでも UTF-8 の CSV としてエクスポートし、`Parse Bank CSV` は `CSV_MAPPING.encoding` に関わらず UTF-8 として読む（D22）。ただし変換時に既に壊れた文字は直らない）。
+- **同じ分に複数の CSV を置いても全部処理される**（Drive Trigger が 1 実行にまとめて出し、`Parse Bank CSV` が全ファイルを解析する。通知の `file_name` はカンマ区切り、D31）。
 - **設定は Config だけでは足りない 3 か所**：`Watch Drive Folder`（フォルダ）、`Watch Gmail Inbox`（検索式）、`Run Daily Rematch`（時刻）。
 - **`TRIGGERS_ENABLED` で OFF にしてもトリガーのポーリングは止まらない**。OFF の系統は `Route by Source` で捨てられるだけで、Drive／Gmail API の呼出しは続く。呼出しも止めるにはそのトリガーノードを無効化（Deactivate）する。
 - **通貨は JPY のみ**。`invoices.currency` が JPY 以外の行は突合されず、通知の「警告」に `non_jpy_invoice` として出る（毎朝の再突合では通知の理由にならない）。
@@ -1072,6 +1089,7 @@ NOTIFY_CHANNELS が `[]` のときは Notify ノードが 1 つも実行され�
 - 再突合は Schedule 経路だけ。CSV／メール実行では過去の未消込を触らない（通知が混ざるのを避ける）。
 - 通知は設定した全チャネルを試し、**全チャネルが失敗したときだけ** `Check Notification Results` が実行を失敗させて Error Workflow へ回す（D17、仕様 §4.3）。一部失敗は `Check Notification Results` の出力（`channels_failed`）と実行ログで分かる。シートは書込み済みのため再実行は安全（全件 skip）。
 - n8n では error 出力が配線されたノードの失敗は「処理済み」扱いになり、Error Workflow は起動しない。全滅時に Error Workflow を起動させるのは `Check Notification Results` の `throw` である。
+- `Update Invoices` が成功して `Upsert Transactions` が失敗した場合（再実行を Error Workflow が案内する）、再実行時に `transactions` に `txn_id` が無くても、請求の `matched_txn_ids` に記録済みの `txn_id` は再適用せず台帳行だけを書き直す（D32）。`matched_txn_ids` を人が消した請求には冪等性が効かない。
 
 ### 8.3 P2（実装）で実測・確認する事項
 1. Shift_JIS の復号は Code ノードで確定済み（A6）。P2 では `TextDecoder('shift_jis')` と `getBinaryDataBuffer` がタスクランナー上の Code ノードで動くこと（A12 の再現）と、両 fixture の復号結果（R08）だけを確認する。`Extract From File` は `workflow.json` に置かない。
@@ -1119,7 +1137,7 @@ NOTIFY_CHANNELS が `[]` のときは Notify ノードが 1 つも実行され�
 - **D19 法人格トークンのアンカー**：`X)` 形は先頭のみ（先頭の数字列は許容）、`(X` 形は末尾のみ、それ以外はどこでも除去。既定に読み仮名の正式名称と `振込`／`フリコミ` を追加。理由：`カ)` を無条件に除去すると `タナカ)…` 等を壊す。 / Anchoring rule for entity tokens.
 - **D20 Error Workflow の Config**：本体の Config を参照できないため、通知に必要なキーだけの Config を持つ（値の重複を SETUP に明記）。Error Workflow 自身の Error workflow 設定は空。 / The error handler carries its own minimal Config.
 - **D21 非 CSV ガード**：`Check File Is CSV`（IF）→ false は `Skip Non-CSV File`（NoOp）。理由：監視フォルダに他のファイルが置かれても実行を失敗させない。 / Non-CSV uploads end in a NoOp, not an error.
-- **D22 Download File の変換オプション**：Google Sheets → CSV を設定し、Drive が自動変換した場合も読めるようにする。SETUP で「アップロードを変換」を OFF にするよう案内。 / Sheets-to-CSV export on download; SETUP tells buyers to disable upload conversion.
+- **D22 Download File の変換オプション**：Google Sheets → CSV を設定し、Drive が自動変換した場合も読めるようにする。Drive の `files.export`（text/csv）は常に UTF-8（BOM 無し）なので、`Parse Bank CSV` は `json.mimeType`（Download File はトリガーの json をそのまま通す）が `application/vnd.google-apps.spreadsheet` のアイテムを `CSV_MAPPING.encoding` に関わらず UTF-8 で復号する（P2 レビュー反映。既定の `shift_jis` のままでは見出しが文字化けして `CSV column not found` で失敗していた）。SETUP で「アップロードを変換」を OFF にするよう案内。 / Sheets-to-CSV export on download; the export is always UTF-8, so items whose source mimeType is a Google Sheet are decoded as UTF-8 regardless of `CSV_MAPPING.encoding`; SETUP tells buyers to disable upload conversion.
 - **D23 シートの型**：Get Row(s) は `Values (unformatted)`。数値は `num()` で強制変換し、空セル `""` を 0 として扱う。 / Numeric coercion in Code.
 - **D24 台帳サイズ**：`transactions` は全件読み。1 万行超で年次アーカイブを案内。 / Whole-sheet reads; archive yearly beyond ~10k rows.
 - **D25 版の確認**：`typeVersion` とパラメータ内部名は P2 で n8n-mcp により確認。本書の UI 名は公式ドキュメント（2026-09-23）による。 / typeVersions are confirmed with n8n-mcp in P2.
@@ -1127,6 +1145,9 @@ NOTIFY_CHANNELS が `[]` のときは Notify ノードが 1 つも実行され�
 - **D27 `Normalize Payer` ノード**：名義正規化・`memo_norm`・`txn_id` の生成は `Normalize Payer`（Read Transactions の直後）だけで行い、Parse Bank CSV / Parse Mail は `txn_id` 無しの pre-txn を出す。請求の `_names` と既存行の `payer_name_norm` 補完も同じノードで行い、Match Invoices には 1 アイテム `{ txns, invoices, existing, … }` を渡す。理由：仕様が `Normalize Payer` Code ノードを名指ししていること、`txn_id` の定義を 1 か所にして経路間で食い違わせないこと（§4.6 の 1 ノード＝1責務）。 / A single `Normalize Payer` Code node owns name normalization and `txn_id`; the parsers emit pre-transactions.
 - **D28 非 JPY の請求**：`Match Invoices` は `invoices.currency` が空または `JPY` の行だけを `open` に入れ、それ以外は `summary.warnings` に `non_jpy_invoice` を積んで通知の「警告」に出す（`shared/sheets-schema.md` の約束）。Schedule 実行の「変化なしなら通知しない」判定ではこの warning を数えない。 / Non-JPY invoices are excluded with a warning; the warning does not by itself trigger a schedule-run notification.
 - **D29 `GMAIL_QUERY` の既定値**：`subject:(入金 OR Deposit) newer_than:1d`。Gmail の `subject:` は本文を見ないため、同梱 fixture Y（件名 `Deposit Notification - Sample Bank`）は `subject:(入金)` では絶対にポーリングされない。仕様の `subject:(入金) newer_than:1d` は「例」であり、既定値は同梱 fixture 2 通の両方に一致する値にする。 / Default Gmail query matches both bundled fixtures; the spec's value is an example only.
+- **D31 複数ファイルの同時取込（P2 レビュー反映）**：Google Drive Trigger（poll）は前回ポーリング以降に作られた**全ファイルを 1 実行のアイテム**として出し、`lastTimeChecked` を進めるので再発火しない。`Check File Is CSV` / `Download File` はアイテムごとに動くため、`Parse Bank CSV` は `$input.all()` を全件処理し（`getBinaryDataBuffer(i, 'data')`）、出力の `pairedItem.item` を元アイテム番号にする。`file_stats` はファイルごとに 1 件、`Collect Transactions` が `ignored_withdraw` を合計・`file_name` を `", "` 連結で集約する。以前の単一アイテム版は 2 件目以降の CSV を黙って捨てていた。 / The Drive trigger emits every new file of one poll as items of one execution; `Parse Bank CSV` now parses all input items (paired to their source item) and `Collect Transactions` aggregates one `file_stats` per file.
+- **D32 請求側 `matched_txn_ids` による冪等性（P2 レビュー反映）**：`Update Invoices` → `Upsert Transactions` の順で書くため、後者が失敗すると再実行時に台帳へ `txn_id` が無く、消込済みの請求は `open` から外れているので同じ入金が同一名義の別請求に再適用されうる。`Match Invoices` は請求の `matched_txn_ids` から `txn_id → invoice_id[]` を索引し、該当する新規 txn は請求を触らず `matched` の台帳行だけを再生成して `skipped_existing` に数える。 / A `txn_id` already recorded in any invoice's `matched_txn_ids` is never applied again; only its ledger row is (re)written and it is counted as skipped.
+- **D33 Slack の「Include Link to Workflow」は OFF（P2 レビュー反映）**：Slack ノード v2.7 の既定（`otherOptions.includeLinkToWorkflow = true`）は買い手の n8n URL とワークフロー ID を含む section を全通知に付ける。`Notify Email` の attribution OFF と揃えて本体・Error Workflow の両方で OFF にする。 / Slack's default workflow-link block is switched off in both workflows, matching the disabled Gmail attribution.
 - **D30 datetime と `memo_norm` の定義は `shared/sheets-schema.md` に合わせる**：`imported_at` は ISO 8601 + JST オフセット（`yyyy-MM-ddTHH:mm:ss+09:00`、Luxon `toFormat("yyyy-MM-dd'T'HH:mm:ssZZ")`）。`memo_norm` は NFKC → 空白除去 → `|`→`/` → 小文字化（記号は残す）で、`sheets-schema.md` 側の記述をこの定義に更新した。fixture `transactions.seed.csv` も ISO 形式に修正。 / `imported_at` is ISO 8601 with offset and `memo_norm` keeps punctuation; the shared schema was aligned to this document.
 
 ---
@@ -1137,7 +1158,7 @@ NOTIFY_CHANNELS が `[]` のときは Notify ノードが 1 つも実行され�
 
 **Architecture.** Three triggers (`Watch Drive Folder`, `Watch Gmail Inbox`, `Run Daily Rematch`) feed one Set node `Config` (JSON output, includes all input fields, adds `SOURCE = {{ $prevNode.name }}`). A Switch `Route by Source` branches on `SOURCE` AND `TRIGGERS_ENABLED.<drive|gmail|schedule>`; disabled or unknown sources fall through the Extra Output into `Skip Disabled Trigger` (NoOp). Drive → `Check File Is CSV` (IF, false → NoOp) → `Download File` → `Parse Bank CSV` (Code: `TextDecoder('shift_jis')`, BOM strip, `skip_rows`, own CSV parser — `Extract From File` is not shipped, per A6); Gmail → `Parse Mail`; Schedule → nothing new. Both parsers emit pre-transactions (`_kind: "txn"`, no `txn_id`). All branches converge on `Collect Transactions` (Code, always emits one item `{source, txns[], warnings[]}`), then `Read Invoices` and `Read Transactions` (Google Sheets Get Rows, Execute Once + Always Output Data), then `Normalize Payer` (Code: the only place that computes `payer_name_norm`, `memo_norm` and `txn_id`; also attaches `_names` to invoices and backfills `payer_name_norm` on existing rows; emits one item `{txns, invoices, existing, …}`), then `Match Invoices` (Code, run once; reads `$input.first().json` and `$('Config').first()`). It emits items tagged `_kind` ∈ {`invoice_update`, `txn_row`, `summary`}; `Route Match Results` (Switch) sends them to `Update Invoices` (Append or Update on `invoice_id`, Cell Format = Let n8n format), `Upsert Transactions` (Append or Update on `txn_id`, same option) and `Build Notification` (Code). Four IF nodes (`Check Slack/Email/LINE/Chatwork Enabled`, array-contains on `NOTIFY_CHANNELS`) guard `Notify Slack` (Slack node, Block Kit), `Notify Email` (Gmail send), `Notify LINE` (`line_text`) and `Notify Chatwork` (`chatwork_text`) (HTTP Request with Header Auth credentials), each with On Error = Continue (using error output). Their success and error outputs (8 in total) go into `Merge Notification Results` (Append, 8 inputs) → `Check Notification Results` (Code), which throws — and thereby reaches the Error Workflow — only when every attempted channel failed. `error-handler.json` is Error Trigger → own minimal `Config` → `Build Error Message` → the same notify branches (On Error = Stop there). Sticky notes: input = blue, decision = yellow, output = green, caution = red. Node type ids are listed in §2.3; `typeVersion`s and parameter names are confirmed with n8n-mcp in P2.
 
-**Data flow.** Trigger payload passes through Config; Drive download yields `binary.data`; rows become pre-transactions `{_kind: "txn", source, txn_date, payer_name_raw, amount, memo}`; `Normalize Payer` adds `payer_name_norm` and `txn_id = date|amount|payer_norm|memo_norm`; matching (JPY invoices only; other currencies are excluded with a `non_jpy_invoice` warning) produces invoice updates, transaction rows (`matched` / `unmatched` / `ambiguous`, `suggested_invoice_ids` top 3, `imported_at` as ISO 8601 `yyyy-MM-ddTHH:mm:ss+09:00`) and one summary. Shift_JIS is decoded in the Code node (`new TextDecoder('shift_jis')`, BOM stripped, own CSV parser, `skip_rows`) because Extract From File offers no `shift_jis` encoding (ASSUMPTIONS A6); P2 only re-confirms `TextDecoder` inside the task runner and the two CSV fixtures.
+**Data flow.** Trigger payload passes through Config; Drive download yields `binary.data`; rows become pre-transactions `{_kind: "txn", source, txn_date, payer_name_raw, amount, memo}`; `Normalize Payer` adds `payer_name_norm` and `txn_id = date|amount|payer_norm|memo_norm`; matching (JPY invoices only; other currencies are excluded with a `non_jpy_invoice` warning) produces invoice updates, transaction rows (`matched` / `unmatched` / `ambiguous`, `suggested_invoice_ids` top 3, `imported_at` as ISO 8601 `yyyy-MM-ddTHH:mm:ss+09:00`) and one summary. Shift_JIS is decoded in the Code node (`new TextDecoder('shift_jis')`, BOM stripped, own CSV parser, `skip_rows`) because Extract From File offers no `shift_jis` encoding (ASSUMPTIONS A6); P2 only re-confirms `TextDecoder` inside the task runner and the two CSV fixtures. Every file the Drive trigger emits in one poll is parsed (one `file_stats` per file, aggregated in `Collect Transactions`; D31); a Google-Sheet export is decoded as UTF-8 regardless of `CSV_MAPPING.encoding` (D22); a `txn_id` already recorded in an invoice's `matched_txn_ids` is never applied twice (D32); Slack's workflow-link block is off (D33).
 
 **Config.** Every tunable lives in `Config` with `REPLACE_ME_*` placeholders: `TZ`, `LANG`, `SHEET_ID`, `SHEET_INVOICES`, `SHEET_TRANSACTIONS`, `DRIVE_FOLDER_ID` / `GMAIL_QUERY` (default `subject:(入金 OR Deposit) newer_than:1d`, matching both bundled fixture subjects) / `RUN_AT` (documented mirrors — the trigger nodes hold the live values because triggers run before Config), `TRIGGERS_ENABLED{drive, gmail, schedule}` (per-trigger on/off; a disabled trigger still polls unless its node is deactivated), `CSV_MAPPING{date_col, payer_col, deposit_col, withdraw_col, memo_col, skip_rows, date_format, encoding}`, `MAIL_PARSERS[{name, from_match, subject_match, amount_regex, payer_regex, date_regex}]` (source of truth: `fixtures/mail_parsers.example.json`), `LEGAL_ENTITY_TOKENS`, `STRIP_LEADING_DIGITS`, `FEE_SET`, `NAME_MIN_CONTAINS` (3), `NOTIFY_CHANNELS`, `SLACK_CHANNEL`, `NOTIFY_EMAIL_TO`, `LINE_TO_USER_ID`, `CHATWORK_ROOM_ID`, `NOTIFY_MAX_LINES` (40), `MESSAGES` (ja/en copies of `recon_summary` — including `auto_heading`, `more_items`, `skipped_note`, `warnings_heading`, `reasons.*` — and `error_notice`). Tokens for LINE and Chatwork are Header Auth credentials, never Config.
 

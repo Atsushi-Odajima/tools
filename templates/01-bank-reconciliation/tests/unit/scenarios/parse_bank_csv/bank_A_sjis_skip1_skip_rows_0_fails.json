@@ -1,0 +1,62 @@
+{
+  "_comment": "R15 negative: bank_A_sjis_skip1.csv with skip_rows=0 must fail loudly (the title line becomes the header) instead of silently yielding zero rows.",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "id": "fixture-bank_A_sjis_skip1.csv",
+        "name": "bank_A_sjis_skip1.csv",
+        "mimeType": "text/csv"
+      },
+      "binary": {
+        "data": {
+          "data": "g1SDk4N2g4uL4o1zIJP8j2+L4Ja+jdcgMjAyNi8wOS8wMYFgMjAyNi8wOS8xNiCVgZLKIDEyMzQ1NjcNCpP6lXQsk0WXdiyT/Ivginosj2+L4Ip6LI5jjYINCjIwMjYvMDkvMDEskFWNniC2KbvdzN/ZvNazvN4sIjMzLDAwMCIsLCIxLDIzMywwMDAiDQoyMDI2LzA5LzAxLLawxN4gu93M39m2sMTeLCwiMTIsODAwIiwiMSwyMjAsMjAwIg0KMjAyNi8wOS8wMiyQVY2eIMO9xLqzt97WsyjVLCI1NCw3ODAiLCwiMSwyNzQsOTgwIg0KMjAyNi8wOS8wMyyDdIOKg1KDfoFAg4SDfYNfgUCDXoONg0UsIjksODAwIiwsIjEsMjg0LDc4MCINCjIwMjYvMDkvMDQskFWNniC7xLMgubK6LCIxMjgsMDAwIiwsIjEsNDEyLDc4MCINCjIwMjYvMDkvMDUskFWNniC2KcO9xMzewrvdLCIxLDIzNCw1NjciLCwiMiw2NDcsMzQ3Ig0KMjAyNi8wOS8wNSzD3t232Nazt90gu93M39nD3t3Y1rgsLCI4LDQ1MCIsIjIsNjM4LDg5NyINCjIwMjYvMDkvMDgskFWNniC73czf2by9w9EotiwiMTAwLDAwMCIsLCIyLDczOCw4OTciDQoyMDI2LzA5LzA5LJBVjZ4gtbXK3iDPu7UsIjQ0LDAwMCIsLCIyLDc4Miw4OTciDQoyMDI2LzA5LzEwLEFUTSDLt8DevCwsIjMwLDAwMCIsIjIsNzUyLDg5NyINCjIwMjYvMDkvMTEskFWNniC2KdDO3bzWs7ayLCI2NiwwMDAiLCwiMiw4MTgsODk3Ig0KMjAyNi8wOS8xMiyQVY2eIMO9xLndvsIotiwiODgsMDAwIiwsIjIsOTA2LDg5NyINCjIwMjYvMDkvMTQskFWNniC2KbvdzN/ZzLC93sSzt9azLCIyNyw1MDAiLCwiMiw5MzQsMzk3Ig0KMjAyNi8wOS8xNSyQVY2eIMW20dcgvN7bsywiNSw1MDAiLCwiMiw5MzksODk3Ig0KMjAyNi8wOS8xNizDvbPY1rMsLCI0NDAiLCIyLDkzOSw0NTciDQo=",
+          "mimeType": "text/csv",
+          "fileName": "bank_A_sjis_skip1.csv",
+          "fileSize": "842 B"
+        }
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "auto",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expect": {
+    "error_includes": "CSV column not found: \"日付\""
+  }
+}

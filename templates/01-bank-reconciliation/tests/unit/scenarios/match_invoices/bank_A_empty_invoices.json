@@ -1,0 +1,488 @@
+{
+ "_comment": "R14-b: Read Invoices and Read Transactions both [{}]. All 11 txns unmatched, no candidates, no invoice_update, c = 11.",
+ "input": [
+  {
+   "json": {
+    "source": "drive",
+    "file_name": "bank_A_sjis.csv",
+    "ignored_withdraw": 4,
+    "warnings": [],
+    "txns": [
+     {
+      "txn_id": "2026-09-01|33000|サンプルシヨウジ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-01",
+      "payer_name_raw": "振込 ｶ)ｻﾝﾌﾟﾙｼﾖｳｼﾞ",
+      "amount": 33000,
+      "memo": "",
+      "_file": "bank_A_sjis.csv",
+      "_row": 2,
+      "payer_name_norm": "サンプルシヨウジ"
+     },
+     {
+      "txn_id": "2026-09-02|54780|テストコウギヨウ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-02",
+      "payer_name_raw": "振込 ﾃｽﾄｺｳｷﾞﾖｳ(ﾕ",
+      "amount": 54780,
+      "memo": "",
+      "_file": "bank_A_sjis.csv",
+      "_row": 4,
+      "payer_name_norm": "テストコウギヨウ"
+     },
+     {
+      "txn_id": "2026-09-03|9800|ヤマダタロウ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-03",
+      "payer_name_raw": "フリコミ　ヤマダ　タロウ",
+      "amount": 9800,
+      "memo": "",
+      "_file": "bank_A_sjis.csv",
+      "_row": 5,
+      "payer_name_norm": "ヤマダタロウ"
+     },
+     {
+      "txn_id": "2026-09-04|128000|サトウケイコ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-04",
+      "payer_name_raw": "振込 ｻﾄｳ ｹｲｺ",
+      "amount": 128000,
+      "memo": "",
+      "_file": "bank_A_sjis.csv",
+      "_row": 6,
+      "payer_name_norm": "サトウケイコ"
+     },
+     {
+      "txn_id": "2026-09-05|1234567|テストブツサン|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-05",
+      "payer_name_raw": "振込 ｶ)ﾃｽﾄﾌﾞﾂｻﾝ",
+      "amount": 1234567,
+      "memo": "",
+      "_file": "bank_A_sjis.csv",
+      "_row": 7,
+      "payer_name_norm": "テストブツサン"
+     },
+     {
+      "txn_id": "2026-09-08|100000|サンプルシステム|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-08",
+      "payer_name_raw": "振込 ｻﾝﾌﾟﾙｼｽﾃﾑ(ｶ",
+      "amount": 100000,
+      "memo": "",
+      "_file": "bank_A_sjis.csv",
+      "_row": 9,
+      "payer_name_norm": "サンプルシステム"
+     },
+     {
+      "txn_id": "2026-09-09|44000|オオバマサオ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-09",
+      "payer_name_raw": "振込 ｵｵﾊﾞ ﾏｻｵ",
+      "amount": 44000,
+      "memo": "",
+      "_file": "bank_A_sjis.csv",
+      "_row": 10,
+      "payer_name_norm": "オオバマサオ"
+     },
+     {
+      "txn_id": "2026-09-11|66000|ミホンシヨウカイ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-11",
+      "payer_name_raw": "振込 ｶ)ﾐﾎﾝｼﾖｳｶｲ",
+      "amount": 66000,
+      "memo": "",
+      "_file": "bank_A_sjis.csv",
+      "_row": 12,
+      "payer_name_norm": "ミホンシヨウカイ"
+     },
+     {
+      "txn_id": "2026-09-12|88000|テストケンセツ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-12",
+      "payer_name_raw": "振込 ﾃｽﾄｹﾝｾﾂ(ｶ",
+      "amount": 88000,
+      "memo": "",
+      "_file": "bank_A_sjis.csv",
+      "_row": 13,
+      "payer_name_norm": "テストケンセツ"
+     },
+     {
+      "txn_id": "2026-09-14|27500|サンプルフーズトウキヨウ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-14",
+      "payer_name_raw": "振込 ｶ)ｻﾝﾌﾟﾙﾌｰｽﾞﾄｳｷﾖｳ",
+      "amount": 27500,
+      "memo": "",
+      "_file": "bank_A_sjis.csv",
+      "_row": 14,
+      "payer_name_norm": "サンプルフーズトウキヨウ"
+     },
+     {
+      "txn_id": "2026-09-15|5500|ナカムラジロウ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-15",
+      "payer_name_raw": "振込 ﾅｶﾑﾗ ｼﾞﾛｳ",
+      "amount": 5500,
+      "memo": "",
+      "_file": "bank_A_sjis.csv",
+      "_row": 15,
+      "payer_name_norm": "ナカムラジロウ"
+     }
+    ],
+    "invoices": [],
+    "existing": []
+   },
+   "pairedItem": {
+    "item": 0
+   }
+  }
+ ],
+ "nodes": {
+  "Config": [
+   {
+    "json": {
+     "id": "fixture-bank-A",
+     "name": "bank_A_sjis.csv",
+     "mimeType": "text/csv",
+     "SOURCE": "Watch Drive Folder",
+     "TZ": "Asia/Tokyo",
+     "LANG": "ja",
+     "SHEET_ID": "REPLACE_ME_SHEET_ID",
+     "SHEET_INVOICES": "invoices",
+     "SHEET_TRANSACTIONS": "transactions",
+     "DRIVE_FOLDER_ID": "REPLACE_ME_DRIVE_FOLDER_ID",
+     "GMAIL_QUERY": "subject:(入金 OR Deposit) newer_than:1d",
+     "RUN_AT": "09:00",
+     "TRIGGERS_ENABLED": {
+      "drive": true,
+      "gmail": true,
+      "schedule": true
+     },
+     "CSV_MAPPING": {
+      "date_col": "日付",
+      "payer_col": "摘要",
+      "deposit_col": "入金額",
+      "withdraw_col": "出金額",
+      "memo_col": "",
+      "skip_rows": 0,
+      "date_format": "auto",
+      "encoding": "shift_jis"
+     },
+     "MAIL_PARSERS": [
+      {
+       "name": "bankX",
+       "from_match": "@example.jp",
+       "subject_match": "入金",
+       "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+       "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+       "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+      },
+      {
+       "name": "bankY",
+       "from_match": "@example.com",
+       "subject_match": "Deposit",
+       "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+       "payer_regex": "Remitter\\s+([^\\n]+)",
+       "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+      }
+     ],
+     "LEGAL_ENTITY_TOKENS": [
+      "カ)",
+      "(カ",
+      "ユ)",
+      "(ユ",
+      "ド)",
+      "(ド",
+      "シヤ)",
+      "(シヤ",
+      "ザイ)",
+      "(ザイ",
+      "ガク)",
+      "(ガク",
+      "イ)",
+      "(イ",
+      "ホ)",
+      "(ホ",
+      "株式会社",
+      "有限会社",
+      "合同会社",
+      "合名会社",
+      "合資会社",
+      "一般社団法人",
+      "一般財団法人",
+      "医療法人",
+      "学校法人",
+      "社会福祉法人",
+      "カブシキガイシヤ",
+      "カブシキカイシヤ",
+      "ユウゲンガイシヤ",
+      "ゴウドウガイシヤ",
+      "イツパンシヤダンホウジン",
+      "イリヨウホウジン",
+      "振込",
+      "フリコミ",
+      "ゴフリコミ"
+     ],
+     "STRIP_LEADING_DIGITS": true,
+     "FEE_SET": [
+      110,
+      165,
+      220,
+      275,
+      330,
+      440,
+      550,
+      660,
+      770,
+      880
+     ],
+     "NAME_MIN_CONTAINS": 3,
+     "NOTIFY_CHANNELS": [
+      "slack"
+     ],
+     "SLACK_CHANNEL": "REPLACE_ME_SLACK_CHANNEL_ID",
+     "NOTIFY_EMAIL_TO": "replace-me@example.com",
+     "LINE_TO_USER_ID": "REPLACE_ME_LINE_USER_ID",
+     "CHATWORK_ROOM_ID": "REPLACE_ME_CHATWORK_ROOM_ID",
+     "NOTIFY_MAX_LINES": 40
+    },
+    "pairedItem": {
+     "item": 0
+    }
+   }
+  ]
+ },
+ "now": "2026-09-23T09:00:00+09:00",
+ "expect": {
+  "length": 12,
+  "count": {
+   "invoice_update": 0,
+   "txn_row": 11,
+   "summary": 1
+  },
+  "rows": [
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-01|33000|サンプルシヨウジ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-01",
+     "payer_name_raw": "振込 ｶ)ｻﾝﾌﾟﾙｼﾖｳｼﾞ",
+     "payer_name_norm": "サンプルシヨウジ",
+     "amount": 33000,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-02|54780|テストコウギヨウ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-02",
+     "payer_name_raw": "振込 ﾃｽﾄｺｳｷﾞﾖｳ(ﾕ",
+     "payer_name_norm": "テストコウギヨウ",
+     "amount": 54780,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-03|9800|ヤマダタロウ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-03",
+     "payer_name_raw": "フリコミ　ヤマダ　タロウ",
+     "payer_name_norm": "ヤマダタロウ",
+     "amount": 9800,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-04|128000|サトウケイコ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-04",
+     "payer_name_raw": "振込 ｻﾄｳ ｹｲｺ",
+     "payer_name_norm": "サトウケイコ",
+     "amount": 128000,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-05|1234567|テストブツサン|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-05",
+     "payer_name_raw": "振込 ｶ)ﾃｽﾄﾌﾞﾂｻﾝ",
+     "payer_name_norm": "テストブツサン",
+     "amount": 1234567,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-08|100000|サンプルシステム|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-08",
+     "payer_name_raw": "振込 ｻﾝﾌﾟﾙｼｽﾃﾑ(ｶ",
+     "payer_name_norm": "サンプルシステム",
+     "amount": 100000,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-09|44000|オオバマサオ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-09",
+     "payer_name_raw": "振込 ｵｵﾊﾞ ﾏｻｵ",
+     "payer_name_norm": "オオバマサオ",
+     "amount": 44000,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-11|66000|ミホンシヨウカイ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-11",
+     "payer_name_raw": "振込 ｶ)ﾐﾎﾝｼﾖｳｶｲ",
+     "payer_name_norm": "ミホンシヨウカイ",
+     "amount": 66000,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-12|88000|テストケンセツ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-12",
+     "payer_name_raw": "振込 ﾃｽﾄｹﾝｾﾂ(ｶ",
+     "payer_name_norm": "テストケンセツ",
+     "amount": 88000,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-14|27500|サンプルフーズトウキヨウ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-14",
+     "payer_name_raw": "振込 ｶ)ｻﾝﾌﾟﾙﾌｰｽﾞﾄｳｷﾖｳ",
+     "payer_name_norm": "サンプルフーズトウキヨウ",
+     "amount": 27500,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-15|5500|ナカムラジロウ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-15",
+     "payer_name_raw": "振込 ﾅｶﾑﾗ ｼﾞﾛｳ",
+     "payer_name_norm": "ナカムラジロウ",
+     "amount": 5500,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "unmatched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "summary"
+    },
+    "equals": {
+     "n": 11,
+     "a": 0,
+     "b": 0,
+     "c": 11,
+     "rematched": 0,
+     "skipped_existing": 0,
+     "skipped_duplicate_in_batch": 0,
+     "ignored_withdraw": 4,
+     "warnings": [],
+     "auto": [],
+     "needs_review": [],
+     "ambiguous": []
+    }
+   }
+  ],
+  "paths": {
+   "[11].json.unmatched.length": 11,
+   "[11].json.unmatched[0].candidates": []
+  }
+ }
+}

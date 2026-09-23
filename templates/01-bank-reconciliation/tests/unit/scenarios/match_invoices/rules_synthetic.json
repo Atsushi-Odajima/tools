@@ -1,0 +1,505 @@
+{
+ "_comment": "Synthetic (not in fixtures): 3d overpaid → ambiguous(overpaid, 1 candidate); rule 1 against a partial invoice uses remaining and adds to paid_amount; D13 duplicate txn_id in one batch; 3b with two subsets summing to the amount → multiple_combinations; rule 2 after the same-amount invoice was consumed.",
+ "input": [
+  {
+   "json": {
+    "source": "drive",
+    "file_name": "syn.csv",
+    "ignored_withdraw": 0,
+    "warnings": [],
+    "txns": [
+     {
+      "txn_id": "2026-09-20|12000|アルフア|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-20",
+      "payer_name_raw": "アルフア",
+      "amount": 12000,
+      "memo": "",
+      "_file": "syn.csv",
+      "_row": 0,
+      "payer_name_norm": "アルフア"
+     },
+     {
+      "txn_id": "2026-09-20|20000|ベータ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-20",
+      "payer_name_raw": "ベータ",
+      "amount": 20000,
+      "memo": "",
+      "_file": "syn.csv",
+      "_row": 0,
+      "payer_name_norm": "ベータ"
+     },
+     {
+      "txn_id": "2026-09-20|20000|ベータ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-20",
+      "payer_name_raw": "ベータ",
+      "amount": 20000,
+      "memo": "",
+      "_file": "syn.csv",
+      "_row": 0,
+      "payer_name_norm": "ベータ"
+     },
+     {
+      "txn_id": "2026-09-21|20000|ガンマ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-21",
+      "payer_name_raw": "ガンマ",
+      "amount": 20000,
+      "memo": "",
+      "_file": "syn.csv",
+      "_row": 0,
+      "payer_name_norm": "ガンマ"
+     },
+     {
+      "txn_id": "2026-09-22|5000|デルタ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-22",
+      "payer_name_raw": "デルタ",
+      "amount": 5000,
+      "memo": "",
+      "_file": "syn.csv",
+      "_row": 0,
+      "payer_name_norm": "デルタ"
+     },
+     {
+      "txn_id": "2026-09-22|20000|ゼータ|",
+      "source": "bank_csv",
+      "txn_date": "2026-09-22",
+      "payer_name_raw": "ゼータ",
+      "amount": 20000,
+      "memo": "",
+      "_file": "syn.csv",
+      "_row": 0,
+      "payer_name_norm": "ゼータ"
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_id": "SYN-001",
+      "customer_name": "アルファ株式会社",
+      "payer_name_alias": "アルフア",
+      "amount": 10000,
+      "currency": "JPY",
+      "due_date": "2026-09-30",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "アルファ",
+       "アルフア"
+      ]
+     },
+     {
+      "invoice_id": "SYN-002",
+      "customer_name": "ベータ商店",
+      "payer_name_alias": "ベータ",
+      "amount": 30000,
+      "currency": "JPY",
+      "due_date": "2026-09-30",
+      "status": "partial",
+      "paid_amount": 10000,
+      "_names": [
+       "ベータ商店",
+       "ベータ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-003",
+      "customer_name": "ガンマ企画",
+      "payer_name_alias": "ガンマ",
+      "amount": 20000,
+      "currency": "JPY",
+      "due_date": "2026-09-30",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "ガンマ企画",
+       "ガンマ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-004",
+      "customer_name": "デルタ",
+      "payer_name_alias": "デルタ",
+      "amount": 1000,
+      "currency": "JPY",
+      "due_date": "2026-09-10",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "デルタ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-005",
+      "customer_name": "デルタ",
+      "payer_name_alias": "デルタ",
+      "amount": 2000,
+      "currency": "JPY",
+      "due_date": "2026-09-20",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "デルタ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-006",
+      "customer_name": "デルタ",
+      "payer_name_alias": "デルタ",
+      "amount": 3000,
+      "currency": "JPY",
+      "due_date": "2026-09-30",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "デルタ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-007",
+      "customer_name": "デルタ",
+      "payer_name_alias": "デルタ",
+      "amount": 4000,
+      "currency": "JPY",
+      "due_date": "2026-10-05",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "デルタ"
+      ]
+     },
+     {
+      "invoice_id": "SYN-008",
+      "customer_name": "イプシロン",
+      "payer_name_alias": "イプシロン",
+      "amount": 20000,
+      "currency": "JPY",
+      "due_date": "2026-10-05",
+      "status": "unpaid",
+      "paid_amount": 0,
+      "_names": [
+       "イプシロン"
+      ]
+     }
+    ],
+    "existing": []
+   },
+   "pairedItem": {
+    "item": 0
+   }
+  }
+ ],
+ "nodes": {
+  "Config": [
+   {
+    "json": {
+     "id": "fixture-bank-A",
+     "name": "bank_A_sjis.csv",
+     "mimeType": "text/csv",
+     "SOURCE": "Watch Drive Folder",
+     "TZ": "Asia/Tokyo",
+     "LANG": "ja",
+     "SHEET_ID": "REPLACE_ME_SHEET_ID",
+     "SHEET_INVOICES": "invoices",
+     "SHEET_TRANSACTIONS": "transactions",
+     "DRIVE_FOLDER_ID": "REPLACE_ME_DRIVE_FOLDER_ID",
+     "GMAIL_QUERY": "subject:(入金 OR Deposit) newer_than:1d",
+     "RUN_AT": "09:00",
+     "TRIGGERS_ENABLED": {
+      "drive": true,
+      "gmail": true,
+      "schedule": true
+     },
+     "CSV_MAPPING": {
+      "date_col": "日付",
+      "payer_col": "摘要",
+      "deposit_col": "入金額",
+      "withdraw_col": "出金額",
+      "memo_col": "",
+      "skip_rows": 0,
+      "date_format": "auto",
+      "encoding": "shift_jis"
+     },
+     "MAIL_PARSERS": [
+      {
+       "name": "bankX",
+       "from_match": "@example.jp",
+       "subject_match": "入金",
+       "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+       "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+       "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+      },
+      {
+       "name": "bankY",
+       "from_match": "@example.com",
+       "subject_match": "Deposit",
+       "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+       "payer_regex": "Remitter\\s+([^\\n]+)",
+       "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+      }
+     ],
+     "LEGAL_ENTITY_TOKENS": [
+      "カ)",
+      "(カ",
+      "ユ)",
+      "(ユ",
+      "ド)",
+      "(ド",
+      "シヤ)",
+      "(シヤ",
+      "ザイ)",
+      "(ザイ",
+      "ガク)",
+      "(ガク",
+      "イ)",
+      "(イ",
+      "ホ)",
+      "(ホ",
+      "株式会社",
+      "有限会社",
+      "合同会社",
+      "合名会社",
+      "合資会社",
+      "一般社団法人",
+      "一般財団法人",
+      "医療法人",
+      "学校法人",
+      "社会福祉法人",
+      "カブシキガイシヤ",
+      "カブシキカイシヤ",
+      "ユウゲンガイシヤ",
+      "ゴウドウガイシヤ",
+      "イツパンシヤダンホウジン",
+      "イリヨウホウジン",
+      "振込",
+      "フリコミ",
+      "ゴフリコミ"
+     ],
+     "STRIP_LEADING_DIGITS": true,
+     "FEE_SET": [
+      110,
+      165,
+      220,
+      275,
+      330,
+      440,
+      550,
+      660,
+      770,
+      880
+     ],
+     "NAME_MIN_CONTAINS": 3,
+     "NOTIFY_CHANNELS": [
+      "slack"
+     ],
+     "SLACK_CHANNEL": "REPLACE_ME_SLACK_CHANNEL_ID",
+     "NOTIFY_EMAIL_TO": "replace-me@example.com",
+     "LINE_TO_USER_ID": "REPLACE_ME_LINE_USER_ID",
+     "CHATWORK_ROOM_ID": "REPLACE_ME_CHATWORK_ROOM_ID",
+     "NOTIFY_MAX_LINES": 40
+    },
+    "pairedItem": {
+     "item": 0
+    }
+   }
+  ]
+ },
+ "now": "2026-09-23T09:00:00+09:00",
+ "expect": {
+  "length": 9,
+  "count": {
+   "invoice_update": 3,
+   "txn_row": 5,
+   "summary": 1
+  },
+  "rows": [
+   {
+    "match": {
+     "_kind": "invoice_update",
+     "invoice_id": "SYN-002"
+    },
+    "equals": {
+     "status": "paid",
+     "paid_amount": 30000,
+     "paid_date": "2026-09-20",
+     "matched_txn_ids": "2026-09-20|20000|ベータ|",
+     "match_confidence": "auto",
+     "fee_deducted": 0
+    }
+   },
+   {
+    "match": {
+     "_kind": "invoice_update",
+     "invoice_id": "SYN-003"
+    },
+    "equals": {
+     "status": "paid",
+     "paid_amount": 20000,
+     "paid_date": "2026-09-21",
+     "matched_txn_ids": "2026-09-21|20000|ガンマ|",
+     "match_confidence": "auto",
+     "fee_deducted": 0
+    }
+   },
+   {
+    "match": {
+     "_kind": "invoice_update",
+     "invoice_id": "SYN-008"
+    },
+    "equals": {
+     "status": "paid",
+     "paid_amount": 20000,
+     "paid_date": "2026-09-22",
+     "matched_txn_ids": "2026-09-22|20000|ゼータ|",
+     "match_confidence": "amount_only",
+     "fee_deducted": 0
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-20|12000|アルフア|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-20",
+     "payer_name_raw": "アルフア",
+     "payer_name_norm": "アルフア",
+     "amount": 12000,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "ambiguous",
+     "suggested_invoice_ids": "SYN-001",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-20|20000|ベータ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-20",
+     "payer_name_raw": "ベータ",
+     "payer_name_norm": "ベータ",
+     "amount": 20000,
+     "memo": "",
+     "matched_invoice_ids": "SYN-002",
+     "status": "matched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-21|20000|ガンマ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-21",
+     "payer_name_raw": "ガンマ",
+     "payer_name_norm": "ガンマ",
+     "amount": 20000,
+     "memo": "",
+     "matched_invoice_ids": "SYN-003",
+     "status": "matched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-22|5000|デルタ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-22",
+     "payer_name_raw": "デルタ",
+     "payer_name_norm": "デルタ",
+     "amount": 5000,
+     "memo": "",
+     "matched_invoice_ids": "",
+     "status": "ambiguous",
+     "suggested_invoice_ids": "SYN-007,SYN-006,SYN-005",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "txn_row",
+     "txn_id": "2026-09-22|20000|ゼータ|"
+    },
+    "equals": {
+     "source": "bank_csv",
+     "txn_date": "2026-09-22",
+     "payer_name_raw": "ゼータ",
+     "payer_name_norm": "ゼータ",
+     "amount": 20000,
+     "memo": "",
+     "matched_invoice_ids": "SYN-008",
+     "status": "matched",
+     "suggested_invoice_ids": "",
+     "imported_at": "2026-09-23T09:00:00+09:00"
+    }
+   },
+   {
+    "match": {
+     "_kind": "summary"
+    },
+    "equals": {
+     "n": 5,
+     "a": 2,
+     "b": 1,
+     "c": 2,
+     "rematched": 0,
+     "skipped_existing": 0,
+     "skipped_duplicate_in_batch": 1,
+     "ignored_withdraw": 0,
+     "warnings": []
+    }
+   }
+  ],
+  "no_rows": [
+   {
+    "_kind": "invoice_update",
+    "invoice_id": "SYN-001"
+   },
+   {
+    "_kind": "invoice_update",
+    "invoice_id": "SYN-004"
+   },
+   {
+    "_kind": "invoice_update",
+    "invoice_id": "SYN-005"
+   },
+   {
+    "_kind": "invoice_update",
+    "invoice_id": "SYN-006"
+   },
+   {
+    "_kind": "invoice_update",
+    "invoice_id": "SYN-007"
+   }
+  ],
+  "paths": {
+   "[8].json.ambiguous[0].reason": "overpaid",
+   "[8].json.ambiguous[0].candidates": [
+    {
+     "invoice_id": "SYN-001",
+     "remaining": 10000
+    }
+   ],
+   "[8].json.ambiguous[1].reason": "multiple_combinations",
+   "[8].json.ambiguous[1].candidates.length": 3,
+   "[8].json.needs_review[0].reason": "amount_only",
+   "[8].json.needs_review[0].invoice_ids": [
+    "SYN-008"
+   ]
+  }
+ }
+}

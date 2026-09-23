@@ -1,0 +1,190 @@
+{
+  "_comment": "Synthetic edge cases in the A layout (Shift_JIS) with memo_col=残高: bad calendar date → bad_date warning (row 2), deposit 0 and negative deposit ignored, quoted comma / doubled quotes / short row / yyyy-MM-dd / yyyyMMdd / non-padded / full-width Japanese date all parse. Output order: txns, warnings, file_stats.",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "id": "fixture-bank_edge_cases.csv",
+        "name": "bank_edge_cases.csv",
+        "mimeType": "text/csv"
+      },
+      "binary": {
+        "data": {
+          "data": "k/qVdCyTRZd2LJP8i+CKeiyPb4vginosjmONgg0KMjAyNi8wMi8zMCyQVY2eIMrer8Tew96wxCwiMSwwMDAiLCwiMSwwMDAiDQoyMDI2LzA5LzIwLJBVjZ4gvt7bLDAsLCIxLDAwMCINCjIwMjYvMDkvMjEsIpBVjZ4gtim23c8sstgiLIJQgk+BQ4JPgk+CTywsIjExLDAwMCINCjIwMjYvMDkvMjIsIpBVjZ4gIiLGvN6tsyIiILLd1rMiLCIyLDAwMCIsLCIxMywwMDAiDQoyMDI2LTA5LTIzLJBVjZ4gyrLM3SwzMDAwLCwiMTYsMDAwIg0KMjAyNjA5MjQskFWNniDRuLfe2Cw0MDAwLCwiMjAsMDAwIg0KMjAyNi8wOS8yNiyQVY2eINC83rayLDUwMDANCjIwMjYvOS8yOCyQVY2eIMvEucAsNjAwMCwsIjMwLDUwMCINCoJRgk+CUYJVlE6CWIyOglGCWJP6LJBVjZ4gvt7dtrgsIjcsMDAwIiwsIjM3LDUwMCINCjIwMjYvMDkvMzAskFWNniDPssW9LC01MDAsLCIzNywwMDAiDQo=",
+          "mimeType": "text/csv",
+          "fileName": "bank_edge_cases.csv",
+          "fileSize": "434 B"
+        }
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "残高",
+            "skip_rows": 0,
+            "date_format": "auto",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expect": {
+    "items": [
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-21",
+          "payer_name_raw": "振込 ｶ)ｶﾝﾏ,ｲﾘ",
+          "amount": 10000,
+          "memo": "11,000",
+          "_file": "bank_edge_cases.csv",
+          "_row": 4
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-22",
+          "payer_name_raw": "振込 \"ﾆｼﾞｭｳ\" ｲﾝﾖｳ",
+          "amount": 2000,
+          "memo": "13,000",
+          "_file": "bank_edge_cases.csv",
+          "_row": 5
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-23",
+          "payer_name_raw": "振込 ﾊｲﾌﾝ",
+          "amount": 3000,
+          "memo": "16,000",
+          "_file": "bank_edge_cases.csv",
+          "_row": 6
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-24",
+          "payer_name_raw": "振込 ﾑｸｷﾞﾘ",
+          "amount": 4000,
+          "memo": "20,000",
+          "_file": "bank_edge_cases.csv",
+          "_row": 7
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-26",
+          "payer_name_raw": "振込 ﾐｼﾞｶｲ",
+          "amount": 5000,
+          "memo": "",
+          "_file": "bank_edge_cases.csv",
+          "_row": 8
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-28",
+          "payer_name_raw": "振込 ﾋﾄｹﾀ",
+          "amount": 6000,
+          "memo": "30,500",
+          "_file": "bank_edge_cases.csv",
+          "_row": 9
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "txn",
+          "source": "bank_csv",
+          "txn_date": "2026-09-29",
+          "payer_name_raw": "振込 ｾﾞﾝｶｸ",
+          "amount": 7000,
+          "memo": "37,500",
+          "_file": "bank_edge_cases.csv",
+          "_row": 10
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "warning",
+          "type": "bad_date",
+          "row": 2,
+          "value": "2026/02/30"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "_kind": "file_stats",
+          "file_name": "bank_edge_cases.csv",
+          "ignored_withdraw": 2,
+          "rows_total": 10
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,534 @@
+{
+ "Watch Drive Folder": [
+  {
+   "json": {
+    "id": "file_test_001",
+    "name": "bank_A_sjis.csv",
+    "mimeType": "text/csv"
+   }
+  }
+ ],
+ "Download File": [
+  {
+   "json": {
+    "name": "bank_A_sjis.csv",
+    "mimeType": "text/csv"
+   },
+   "binary": {
+    "data": {
+     "data": "k/qVdCyTRZd2LJP8i+CKeiyPb4vginosjmONgg0KMjAyNi8wOS8wMSyQVY2eILYpu93M39m81rO83iwiMzMsMDAwIiwsIjEsMjMzLDAwMCINCjIwMjYvMDkvMDEstrDE3iC73czf2bawxN4sLCIxMiw4MDAiLCIxLDIyMCwyMDAiDQoyMDI2LzA5LzAyLJBVjZ4gw73EurO33tazKNUsIjU0LDc4MCIsLCIxLDI3NCw5ODAiDQoyMDI2LzA5LzAzLIN0g4qDUoN+gUCDhIN9g1+BQINeg42DRSwiOSw4MDAiLCwiMSwyODQsNzgwIg0KMjAyNi8wOS8wNCyQVY2eILvEsyC5srosIjEyOCwwMDAiLCwiMSw0MTIsNzgwIg0KMjAyNi8wOS8wNSyQVY2eILYpw73EzN7Cu90sIjEsMjM0LDU2NyIsLCIyLDY0NywzNDciDQoyMDI2LzA5LzA1LMPe3bfY1rO33SC73czf2cPe3djWuCwsIjgsNDUwIiwiMiw2MzgsODk3Ig0KMjAyNi8wOS8wOCyQVY2eILvdzN/ZvL3D0Si2LCIxMDAsMDAwIiwsIjIsNzM4LDg5NyINCjIwMjYvMDkvMDkskFWNniC1tcreIM+7tSwiNDQsMDAwIiwsIjIsNzgyLDg5NyINCjIwMjYvMDkvMTAsQVRNIMu3wN68LCwiMzAsMDAwIiwiMiw3NTIsODk3Ig0KMjAyNi8wOS8xMSyQVY2eILYp0M7dvNaztrIsIjY2LDAwMCIsLCIyLDgxOCw4OTciDQoyMDI2LzA5LzEyLJBVjZ4gw73Eud2+wii2LCI4OCwwMDAiLCwiMiw5MDYsODk3Ig0KMjAyNi8wOS8xNCyQVY2eILYpu93M39nMsL3exLO31rMsIjI3LDUwMCIsLCIyLDkzNCwzOTciDQoyMDI2LzA5LzE1LJBVjZ4gxbbR1yC83tuzLCI1LDUwMCIsLCIyLDkzOSw4OTciDQoyMDI2LzA5LzE2LMO9s9jWsywsIjQ0MCIsIjIsOTM5LDQ1NyINCg==",
+     "mimeType": "text/csv",
+     "fileName": "bank_A_sjis.csv"
+    }
+   }
+  }
+ ],
+ "Read Invoices": [
+  {
+   "json": {
+    "invoice_id": "INV-2026-001",
+    "customer_id": "C-001",
+    "customer_name": "株式会社サンプル商事",
+    "payer_name_alias": "カ)サンプルシヨウジ,サンプルシヨウジ",
+    "customer_email": "keiri@example.jp",
+    "amount": 33000,
+    "currency": "JPY",
+    "issue_date": "2026-08-20",
+    "due_date": "2026-09-30",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R01 名義・金額一致 / name+amount match (bank_A row 1)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-002",
+    "customer_id": "C-002",
+    "customer_name": "テスト工業有限会社",
+    "payer_name_alias": "テストコウギヨウ,テストコウギョウ",
+    "customer_email": "ap@example.com",
+    "amount": 55000,
+    "currency": "JPY",
+    "issue_date": "2026-08-25",
+    "due_date": "2026-09-30",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R03 手数料220差引 / fee 220 deducted (bank_A row 3)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-003",
+    "customer_id": "C-003",
+    "customer_name": "山田 太郎",
+    "payer_name_alias": "ヤマダタロウ",
+    "customer_email": "taro.yamada@example.com",
+    "amount": 9800,
+    "currency": "JPY",
+    "issue_date": "2026-09-01",
+    "due_date": "2026-09-30",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R01 全角名義 / full-width remitter (bank_A row 4)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-004",
+    "customer_id": "C-004",
+    "customer_name": "合同会社ミホンデザイン",
+    "payer_name_alias": "ミホンデザイン",
+    "customer_email": "info@example.jp",
+    "amount": 128000,
+    "currency": "JPY",
+    "issue_date": "2026-08-31",
+    "due_date": "2026-09-30",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R02 金額のみ一致 / amount only (bank_A row 5, remitter differs)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-005",
+    "customer_id": "C-005",
+    "customer_name": "株式会社テスト物産",
+    "payer_name_alias": "カ)テストブツサン,テストブツサン",
+    "customer_email": "accounting@example.com",
+    "amount": 700000,
+    "currency": "JPY",
+    "issue_date": "2026-08-10",
+    "due_date": "2026-09-10",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R04 合算1/2 / combined 1 of 2 (bank_A row 6)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-006",
+    "customer_id": "C-005",
+    "customer_name": "株式会社テスト物産",
+    "payer_name_alias": "カ)テストブツサン,テストブツサン",
+    "customer_email": "accounting@example.com",
+    "amount": 534567,
+    "currency": "JPY",
+    "issue_date": "2026-08-31",
+    "due_date": "2026-09-30",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R04 合算2/2 / combined 2 of 2 (bank_A row 6)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-007",
+    "customer_id": "C-006",
+    "customer_name": "サンプルシステム株式会社",
+    "payer_name_alias": "サンプルシステム",
+    "customer_email": "billing@example.jp",
+    "amount": 250000,
+    "currency": "JPY",
+    "issue_date": "2026-08-31",
+    "due_date": "2026-09-30",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R05 一部入金 / partial (bank_A row 8)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-008",
+    "customer_id": "C-007",
+    "customer_name": "有限会社見本印刷",
+    "payer_name_alias": "",
+    "customer_email": "print@example.jp",
+    "amount": 44000,
+    "currency": "JPY",
+    "issue_date": "2026-08-31",
+    "due_date": "2026-09-30",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R06 同額ペアA・alias なし / ambiguous pair A, no alias"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-009",
+    "customer_id": "C-008",
+    "customer_name": "モデル企画株式会社",
+    "payer_name_alias": "",
+    "customer_email": "plan@example.com",
+    "amount": 44000,
+    "currency": "JPY",
+    "issue_date": "2026-09-05",
+    "due_date": "2026-10-05",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R06 同額ペアB・alias なし / ambiguous pair B, no alias"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-010",
+    "customer_id": "C-009",
+    "customer_name": "株式会社見本商会",
+    "payer_name_alias": "カ)ミホンシヨウカイ,ミホンシヨウカイ",
+    "customer_email": "shokai@example.jp",
+    "amount": 66000,
+    "currency": "JPY",
+    "issue_date": "2026-08-01",
+    "due_date": "2026-09-01",
+    "status": "paid",
+    "paid_amount": 66000,
+    "paid_date": "2026-08-28",
+    "matched_txn_ids": "2026-08-28|66000|ミホンシヨウカイ|",
+    "match_confidence": "auto",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "入金済（対象外）/ already paid, must be ignored (bank_A row 11 must NOT match)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-011",
+    "customer_id": "C-010",
+    "customer_name": "テスト建設株式会社",
+    "payer_name_alias": "テストケンセツ",
+    "customer_email": "kensetsu@example.com",
+    "amount": 88000,
+    "currency": "JPY",
+    "issue_date": "2026-08-15",
+    "due_date": "2026-09-15",
+    "status": "cancelled",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "取消（対象外）/ cancelled, must be ignored (bank_A row 12 must NOT match)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-012",
+    "customer_id": "C-011",
+    "customer_name": "株式会社サンプルフーズ",
+    "payer_name_alias": "サンプルフーズ",
+    "customer_email": "foods@example.jp",
+    "amount": 27500,
+    "currency": "JPY",
+    "issue_date": "2026-09-01",
+    "due_date": "2026-09-30",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R01 包含一致 / containment match (bank_A row 13)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-013",
+    "customer_id": "C-012",
+    "customer_name": "株式会社ダミー加工",
+    "payer_name_alias": "ダミーカコウ",
+    "customer_email": "kako@example.com",
+    "amount": 41800,
+    "currency": "JPY",
+    "issue_date": "2026-09-01",
+    "due_date": "2026-09-30",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R13 先頭番号付き名義 / leading remitter number (bank_B row 1)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-014",
+    "customer_id": "C-013",
+    "customer_name": "鈴木 一郎",
+    "payer_name_alias": "スズキイチロウ",
+    "customer_email": "ichiro.suzuki@example.com",
+    "amount": 15400,
+    "currency": "JPY",
+    "issue_date": "2026-09-01",
+    "due_date": "2026-09-30",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R13 ひらがな名義 / hiragana remitter (bank_B row 3)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-015",
+    "customer_id": "C-014",
+    "customer_name": "有限会社見本プランニング",
+    "payer_name_alias": "ミホンプランニング",
+    "customer_email": "planning@example.jp",
+    "amount": 57200,
+    "currency": "JPY",
+    "issue_date": "2026-09-05",
+    "due_date": "2026-10-05",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R13 (bank_B row 4)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-016",
+    "customer_id": "C-015",
+    "customer_name": "高橋 美紀",
+    "payer_name_alias": "タカハシミキ",
+    "customer_email": "miki.takahashi@example.jp",
+    "amount": 12100,
+    "currency": "JPY",
+    "issue_date": "2026-09-10",
+    "due_date": "2026-10-10",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R13 先頭番号付き個人名義 / leading number, individual (bank_B row 6)"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-017",
+    "customer_id": "C-001",
+    "customer_name": "株式会社サンプル商事",
+    "payer_name_alias": "カ)サンプルシヨウジ,サンプルシヨウジ",
+    "customer_email": "keiri@example.jp",
+    "amount": 49500,
+    "currency": "JPY",
+    "issue_date": "2026-09-15",
+    "due_date": "2026-10-15",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "同一顧客の2件目・未入金のまま / 2nd open invoice of C-001, stays unpaid"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-018",
+    "customer_id": "C-016",
+    "customer_name": "ダミー電機株式会社",
+    "payer_name_alias": "カ)ダミーデンキ,ダミーデンキ",
+    "customer_email": "denki@example.com",
+    "amount": 104500,
+    "currency": "JPY",
+    "issue_date": "2026-09-10",
+    "due_date": "2026-10-10",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R10 メール通知X / mail_bankX.eml"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-019",
+    "customer_id": "C-017",
+    "customer_name": "佐々木 花子",
+    "payer_name_alias": "ササキハナコ",
+    "customer_email": "hanako.sasaki@example.com",
+    "amount": 19800,
+    "currency": "JPY",
+    "issue_date": "2026-09-12",
+    "due_date": "2026-10-12",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "R10 メール通知Y / mail_bankY.eml"
+   }
+  },
+  {
+   "json": {
+    "invoice_id": "INV-2026-020",
+    "customer_id": "C-018",
+    "customer_name": "株式会社サンプル運輸",
+    "payer_name_alias": "サンプルウンユ",
+    "customer_email": "unyu@example.jp",
+    "amount": 38500,
+    "currency": "JPY",
+    "issue_date": "2026-09-20",
+    "due_date": "2026-10-20",
+    "status": "unpaid",
+    "paid_amount": 0,
+    "paid_date": "",
+    "matched_txn_ids": "",
+    "match_confidence": "",
+    "fee_deducted": 0,
+    "remind_stage": 0,
+    "last_reminded_at": "",
+    "promised_date": "",
+    "do_not_remind": "FALSE",
+    "notes": "未入金のまま / stays unpaid (no fixture deposit)"
+   }
+  }
+ ],
+ "Read Transactions": [
+  {
+   "json": {}
+  }
+ ],
+ "Update Invoices": [
+  {
+   "json": {
+    "ok": true
+   }
+  }
+ ],
+ "Upsert Transactions": [
+  {
+   "json": {
+    "ok": true
+   }
+  }
+ ],
+ "Notify Slack": [
+  {
+   "json": {
+    "ok": true
+   }
+  }
+ ]
+}

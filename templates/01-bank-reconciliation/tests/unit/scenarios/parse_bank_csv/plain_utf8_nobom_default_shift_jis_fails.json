@@ -1,0 +1,62 @@
+{
+  "_comment": "Control for D22: the same UTF-8 bytes uploaded as a plain CSV (mimeType text/csv) with encoding shift_jis are NOT special-cased and fail loudly on the mojibake header (the buyer must set encoding utf-8 or auto).",
+  "now": "2026-09-23T09:00:00+09:00",
+  "input": [
+    {
+      "json": {
+        "id": "fixture-bank_A_utf8.csv",
+        "name": "bank_A_utf8.csv",
+        "mimeType": "text/csv"
+      },
+      "binary": {
+        "data": {
+          "data": "5pel5LuYLOaRmOimgSzlhaXph5HpoY0s5Ye66YeR6aGNLOaui+mrmA0KMjAyNi8wOS8wMSzmjK/ovrwg7722Ke+9u+++ne++jO++n+++me+9vO++lu+9s++9vO++niwiMzMsMDAwIiwsIjEsMjMzLDAwMCINCjIwMjYvMDkvMDEs7722772w776E776eIO+9u+++ne++jO++n+++me+9tu+9sO++hO++niwsIjEyLDgwMCIsIjEsMjIwLDIwMCINCjIwMjYvMDkvMDIs5oyv6L68IO++g++9ve++hO+9uu+9s++9t+++nu++lu+9syjvvpUsIjU0LDc4MCIsLCIxLDI3NCw5ODAiDQoyMDI2LzA5LzAzLOODleODquOCs+ODn+OAgOODpOODnuODgOOAgOOCv+ODreOCpiwiOSw4MDAiLCwiMSwyODQsNzgwIg0KMjAyNi8wOS8wNCzmjK/ovrwg7727776E772zIO+9ue+9su+9uiwiMTI4LDAwMCIsLCIxLDQxMiw3ODAiDQoyMDI2LzA5LzA1LOaMr+i+vCDvvbYp776D7729776E776M776e776C7727776dLCIxLDIzNCw1NjciLCwiMiw2NDcsMzQ3Ig0KMjAyNi8wOS8wNSzvvoPvvp7vvp3vvbfvvpjvvpbvvbPvvbfvvp0g7727776d776M776f776Z776D776e776d776Y776W7724LCwiOCw0NTAiLCIyLDYzOCw4OTciDQoyMDI2LzA5LzA4LOaMr+i+vCDvvbvvvp3vvozvvp/vvpnvvbzvvb3vvoPvvpEo7722LCIxMDAsMDAwIiwsIjIsNzM4LDg5NyINCjIwMjYvMDkvMDks5oyv6L68IO+9te+9te++iu++niDvvo/vvbvvvbUsIjQ0LDAwMCIsLCIyLDc4Miw4OTciDQoyMDI2LzA5LzEwLEFUTSDvvovvvbfvvoDvvp7vvbwsLCIzMCwwMDAiLCIyLDc1Miw4OTciDQoyMDI2LzA5LzExLOaMr+i+vCDvvbYp776Q776O776d7728776W772z7722772yLCI2NiwwMDAiLCwiMiw4MTgsODk3Ig0KMjAyNi8wOS8xMizmjK/ovrwg776D7729776E7725776d772+776CKO+9tiwiODgsMDAwIiwsIjIsOTA2LDg5NyINCjIwMjYvMDkvMTQs5oyv6L68IO+9tinvvbvvvp3vvozvvp/vvpnvvozvvbDvvb3vvp7vvoTvvbPvvbfvvpbvvbMsIjI3LDUwMCIsLCIyLDkzNCwzOTciDQoyMDI2LzA5LzE1LOaMr+i+vCDvvoXvvbbvvpHvvpcg7728776e776b772zLCI1LDUwMCIsLCIyLDkzOSw4OTciDQoyMDI2LzA5LzE2LO++g++9ve+9s+++mO++lu+9sywsIjQ0MCIsIjIsOTM5LDQ1NyINCg==",
+          "mimeType": "text/csv",
+          "fileName": "bank_A_utf8.csv",
+          "fileSize": "1099 B"
+        }
+      }
+    }
+  ],
+  "nodes": {
+    "Config": [
+      {
+        "json": {
+          "TZ": "Asia/Tokyo",
+          "LANG": "ja",
+          "CSV_MAPPING": {
+            "date_col": "日付",
+            "payer_col": "摘要",
+            "deposit_col": "入金額",
+            "withdraw_col": "出金額",
+            "memo_col": "",
+            "skip_rows": 0,
+            "date_format": "auto",
+            "encoding": "shift_jis"
+          },
+          "MAIL_PARSERS": [
+            {
+              "name": "bankX",
+              "from_match": "@example.jp",
+              "subject_match": "入金",
+              "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+              "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+              "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+            },
+            {
+              "name": "bankY",
+              "from_match": "@example.com",
+              "subject_match": "Deposit",
+              "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+              "payer_regex": "Remitter\\s+([^\\n]+)",
+              "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expect": {
+    "error_includes": "CSV column not found: \"日付\""
+  }
+}
