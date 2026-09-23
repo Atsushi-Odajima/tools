@@ -35,7 +35,7 @@ EN summary: Audit follow-up run on the **current working-tree** `workflow.json` 
 - **複製**：`7iZwuEN7GUeToE8H`　**実行 ID**：**200**（success、最終ノード `Check Notification Results`）　**pin**：`tests/pins/drive.pin.json`（差し替えは上表）
 - **入力**：`Watch Drive Folder` / `Download File` = `bank_A_sjis.csv`（Shift_JIS バイナリ）、`Read Invoices` = seed 20 行、`Read Transactions` = `[{}]`、`Config` = 既定＋`NOTIFY_CHANNELS ["line","chatwork"]`
 - **観測**：`Parse Bank CSV` 12 件（txn 11 ＋ file_stats）；`Match Invoices` summary `{n 11, a 4, b 3, c 4, rematched 0, skipped_existing 0, skipped_duplicate_in_batch 0, ignored_withdraw 4}`；`Route Match Results` [8, 11, 1]；`Update Invoices`（index 12, startTime 1790155026604）→ `Upsert Transactions`（13, …613）→ `Build Notification`（14, …621）の順；`Build Notification` の `body_text` が **CASES §3 のコードブロックと完全一致**（日付 `2026-09-23`）、`line_text == chatwork_text == body_text`、キー `title / body_text / slack_blocks / line_text / chatwork_text`；IF [0,1] / [0,1] / [1,0] / [1,0]；`Notify LINE` [1,0]、`Notify Chatwork` [1,0]；`Check Notification Results` `{channels_attempted 2, channels_ok 2, channels_failed 0, errors []}`
-- **シンク**：p0-sink **201**（`to: Ufix`、`messages[0].text` == `line_text`、`Authorization: Bearer dummy`、`application/json`）、Chatwork sink **202**（`params.roomId = fix`、`application/x-www-form-urlencoded`、`body` == `chatwork_text`）
+- **シンク**：p0-sink **201**（`to: Ufix`、`messages[0].text` == `line_text`、`Authorization: Bearer <dummy-token>`、`application/json`）、Chatwork sink **202**（`params.roomId = fix`、`application/x-www-form-urlencoded`、`body` == `chatwork_text`）
 - **期待（CASES R01〜R08、§3）**：上記のとおり
 - **判定**：**PASS**（pinned; live write pending H1）
 

@@ -12,13 +12,31 @@
 | テンプレ | P0 | P1 | P2 | P3 | P4 | P5 | P6 |
 |---|---|---|---|---|---|---|---|
 | 共通 | 完了（2026-09-23） | - | - | - | - | - | - |
-| 01 入金消込 | - | 完了（2026-09-23） | 完了（2026-09-23） | 完了（2026-09-23） | 完了（2026-09-23） | 進行中 | 任意 |
+| 01 入金消込 | - | 完了（2026-09-23） | 完了（2026-09-23） | 完了（2026-09-23） | 完了（2026-09-23） | 完了（2026-09-23、tag `01-v1.0.0`） | 未着手（任意） |
 | 03 未入金リマインド | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 | 04 返金・CB | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 | 02 Webhook会計 | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 
 ## 次の一手
-- 01 P5: リスティング（Gumroad EN / BOOTH JA / note JA）、価格根拠、DoD 全項目の確認、新規 n8n への再導入確認、`git tag 01-v1.0.0`。
+- テンプレ03（未入金リマインド）P1 → P5、続いて 04、02（仕様 §0 の推奨順）。
+- ユーザー側 [HUMAN]（BLOCKERS H1/H2）が済んだら、01 のライブ検証（Google 実読み書き、Slack/Gmail 実送信、本番実行からの Error Workflow 起動）を `tests/RESULTS.md` §6 の手順で行う。
+
+## P5 と DoD（2026-09-23）
+- `listing/gumroad.en.md` / `booth.ja.md` / `note.ja.md`、価格根拠は `ASSUMPTIONS.md` の「価格・販売方針（テンプレ01）」。正確性・販売コンプライアンスのレビュー 26 件を反映（部分入金の区分、候補複数・未消込の台帳書込み、日英ドキュメント範囲の過大表現、未発売製品名の削除、購入導線の置き場 等）。
+- `tests/REDEPLOY.md`: 新規 n8n（別データディレクトリ）に同梱 JSON を取り込み、赤ノード無し・Config のみで設定・Error Workflow 設定・Credential 未設定時の Publish 拒否を確認。
+
+| DoD（CLAUDE.md §7） | 状態 | 証跡 |
+|---|---|---|
+| 新規の n8n に import して赤ノード無し | ✅ | `tests/REDEPLOY.md`（38/15 ノード、未知の型 0） |
+| 秘密・個人 ID ゼロ（grep 記録） | ✅ | `build/build_workflow.py` のアサート、`tests/RESULTS.md`、リポジトリ全体 grep 0 件（仕様書の規則文を除く） |
+| Config だけで設定完了 | ✅ | `SETUP.*.md` §5–§6、第三者導入レビュー（P4） |
+| `tests/CASES.md` 全 PASS、`RESULTS.md` に証拠 | ✅ | R01〜R23: 22 PASS / R12 N/A / FAIL 0 |
+| 冪等 | ✅ | `RESULTS.md` §3（R09 / R09-b / R19-b） |
+| Error Workflow 同梱・設定手順 | ✅ | `error-handler.json`、`SETUP.*.md` §4.4（Publish 必須を明記） |
+| 付箋・README・SETUP・listing の日英 | ✅ | 付箋 8＋4 枚すべて JA/EN、README/SETUP 各 2 言語、listing EN 1・JA 2 |
+| 対応 n8n バージョン明記 | ✅ | README/SETUP に 2.40.5（Cloud 未検証） |
+| fixtures は架空データ | ✅ | P1 実在性レビュー（`fixtures/README.md`） |
+| ライブ検証 | ⏳ | Google/Slack の実 Credential が無いため未実施（BLOCKERS H1/H2）。手順は `RESULTS.md` §6 |
 
 ## P4 の証跡（2026-09-23）
 - `README.ja.md` / `README.en.md`、`SETUP.ja.md` / `SETUP.en.md`（0〜10 章＋参考 26 件、公式ページを取得して引用）、`docs/`（Playwright で撮影したキャンバス画像 6 枚、付箋の重なり 0・切れ 0 を実測）。
@@ -56,4 +74,4 @@
 - `BLOCKERS.md` を参照。
 
 ## 履歴
-- 2026-09-23: プロジェクト開始。仕様書を配置。P0 完了（Slack は代替）。01 P1 完了。リポジトリを tools に移設。01 P2 完了。01 P3 完了（22 PASS / FAIL 0、製品修正 D34）。01 P4 完了。01 P5 着手。
+- 2026-09-23: プロジェクト開始。仕様書を配置。P0 完了（Slack は代替）。01 P1 完了。リポジトリを tools に移設。01 P2 完了。01 P3 完了（22 PASS / FAIL 0、製品修正 D34）。01 P4 完了。01 P5 完了・DoD 確認・`01-v1.0.0` タグ。テンプレ03 着手。
