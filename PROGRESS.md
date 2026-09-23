@@ -12,13 +12,18 @@
 | テンプレ | P0 | P1 | P2 | P3 | P4 | P5 | P6 |
 |---|---|---|---|---|---|---|---|
 | 共通 | 完了（2026-09-23） | - | - | - | - | - | - |
-| 01 入金消込 | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
+| 01 入金消込 | - | 完了（2026-09-23） | 進行中 | 未着手 | 未着手 | 未着手 | 任意 |
 | 03 未入金リマインド | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 | 04 返金・CB | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 | 02 Webhook会計 | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 
 ## 次の一手
-- 01 P1: DESIGN.md / CASES.md / fixtures（進行中）→ P2 実装。
+- 01 P2: `code/*.js`（8 ノード）→ 単体・結合テスト → `build/build_workflow.py` で `workflow.json` / `error-handler.json` 生成 → n8n-mcp 検証 → ローカル n8n 登録 → pinned data で 6 経路のスモーク実行 → 敵対的レビュー → 修正（Workflow で実行中）。
+
+## P1 の証跡（2026-09-23）
+- `templates/01-bank-reconciliation/DESIGN.md`（約 1,100 行）: Mermaid ノード図（本体 30 ノード＋付箋 6、Error Workflow）、データフロー、Config キー 40 項目、判断理由、全 Code ノードの疑似コード、R01〜R13 との対応、P2/P3 で実測する事項。
+- fixtures 10 件（Shift_JIS 実バイトの CSV、UTF-8 BOM の CSV、架空メール 2 通、請求 20 件・取引の seed、MAIL_PARSERS / CSV_MAPPING の例）と `tests/CASES.md`。
+- 敵対的レビュー 3 名（整合性・仕様準拠・実在性）の指摘 20 件を反映（DESIGN.md 422 行差分、fixtures/README・CASES・shared の同期）。
 
 ## P0 の証跡（2026-09-23）
 - n8n 2.40.5 を Node 24.21.0 で起動（`infra/run-n8n-local.sh`、SQLite、`Asia/Tokyo`）。`/healthz` 200。
@@ -31,4 +36,4 @@
 - `BLOCKERS.md` を参照。
 
 ## 履歴
-- 2026-09-23: プロジェクト開始。仕様書を配置。P0 完了（Slack は代替）。01 P1 着手。
+- 2026-09-23: プロジェクト開始。仕様書を配置。P0 完了（Slack は代替）。01 P1 完了。リポジトリを tools に移設。01 P2 着手。
