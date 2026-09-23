@@ -1,0 +1,23 @@
+{
+  "_comment": "Config.CSV_MAPPING の例。bank_A_sjis.csv は既定値そのまま、bank_B_utf8bom.csv は B の値に差し替える。/ Example Config.CSV_MAPPING: bank_A uses the defaults, bank_B needs the B values.",
+  "bank_A_sjis.csv": {
+    "date_col": "日付",
+    "payer_col": "摘要",
+    "deposit_col": "入金額",
+    "withdraw_col": "出金額",
+    "memo_col": "",
+    "skip_rows": 0,
+    "date_format": "auto",
+    "encoding": "shift_jis"
+  },
+  "bank_B_utf8bom.csv": {
+    "date_col": "取引日",
+    "payer_col": "内容",
+    "deposit_col": "お預入",
+    "withdraw_col": "お引出",
+    "memo_col": "",
+    "skip_rows": 0,
+    "date_format": "yyyyMMdd",
+    "encoding": "utf-8"
+  }
+}

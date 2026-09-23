@@ -11,7 +11,18 @@
     "needs_review_heading": "■ Needs review (auto-matched by amount only, fee deducted, or combined)",
     "unmatched_heading": "■ Unmatched (no matching invoice)",
     "ambiguous_heading": "■ Ambiguous (multiple candidates, not auto-matched; pick one)",
-    "no_transactions": "[Reconciliation {date}] No new transactions"
+    "auto_heading": "■ Auto-matched",
+    "warnings_heading": "■ Warnings",
+    "no_transactions": "[Reconciliation {date}] No new transactions",
+    "skipped_note": "(skipped as already processed: {n})",
+    "more_items": "… and {n} more",
+    "reasons": {
+      "amount_only": "(amount only, needs review)",
+      "fee_deducted": "(fee ¥{fee} deducted)",
+      "combined": "(combined)",
+      "partial": "(partial, remaining ¥{remaining})",
+      "overpaid": "(overpayment)"
+    }
   },
   "reminder": {
     "stage0": {

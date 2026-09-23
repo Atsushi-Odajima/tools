@@ -1,0 +1,2 @@
+txn_id,source,txn_date,payer_name_raw,payer_name_norm,amount,memo,matched_invoice_ids,status,suggested_invoice_ids,imported_at
+2026-08-28|66000|ミホンシヨウカイ|,bank_csv,2026-08-28,振込 ｶ)ﾐﾎﾝｼﾖｳｶｲ,ミホンシヨウカイ,66000,,INV-2026-010,matched,,2026-08-29T09:05:12+09:00

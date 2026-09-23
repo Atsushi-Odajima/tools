@@ -1,4 +1,4 @@
 invoice_id,customer_id,customer_name,payer_name_alias,customer_email,amount,currency,issue_date,due_date,status,paid_amount,paid_date,matched_txn_ids,match_confidence,fee_deducted,remind_stage,last_reminded_at,promised_date,do_not_remind,notes
 INV-2026-0001,C-0001,株式会社サンプル商事,"カ）サンプルシヨウジ,サンプルシヨウジ",billing@example.jp,33000,JPY,2026-08-05,2026-09-05,paid,32780,2026-09-10,2026-09-10|32780|サンプルシヨウジ|振込,fee_deducted,220,1,2026-09-06T10:00:08+09:00,,FALSE,振込手数料は先方負担（220円差引）
-INV-2026-0002,C-0002,テスト工業有限会社,ユ）テストコウギヨウ,accounts@example.com,55000,JPY,2026-08-08,2026-09-08,partial,20000,2026-09-16,2026-09-16|20000|テストコウギヨウ|振込,auto,0,2,2026-09-15T10:00:05+09:00,2026-09-30,FALSE,残額35000円は9/30入金予定と回答あり
+INV-2026-0002,C-0002,テスト工業有限会社,ユ）テストコウギヨウ,accounts@example.com,55000,JPY,2026-08-08,2026-09-08,partial,20000,2026-09-16,2026-09-16|20000|テストコウギヨウ|【サンプル銀行】ご入金のお知らせ(gmail:18f3b1d5c8f7e402),auto,0,2,2026-09-15T10:00:05+09:00,2026-09-30,FALSE,残額35000円は9/30入金予定と回答あり
 INV-2026-0003,C-0003,見本 花子,ミホン ハナコ,hanako@example.com,9800,JPY,2026-09-01,2026-09-30,unpaid,0,,,,0,0,,,FALSE,

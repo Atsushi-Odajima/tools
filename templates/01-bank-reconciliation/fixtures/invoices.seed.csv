@@ -1,0 +1,21 @@
+invoice_id,customer_id,customer_name,payer_name_alias,customer_email,amount,currency,issue_date,due_date,status,paid_amount,paid_date,matched_txn_ids,match_confidence,fee_deducted,remind_stage,last_reminded_at,promised_date,do_not_remind,notes
+INV-2026-001,C-001,株式会社サンプル商事,"カ)サンプルシヨウジ,サンプルシヨウジ",keiri@example.jp,33000,JPY,2026-08-20,2026-09-30,unpaid,0,,,,0,0,,,FALSE,R01 名義・金額一致 / name+amount match (bank_A row 1)
+INV-2026-002,C-002,テスト工業有限会社,"テストコウギヨウ,テストコウギョウ",ap@example.com,55000,JPY,2026-08-25,2026-09-30,unpaid,0,,,,0,0,,,FALSE,R03 手数料220差引 / fee 220 deducted (bank_A row 3)
+INV-2026-003,C-003,山田 太郎,ヤマダタロウ,taro.yamada@example.com,9800,JPY,2026-09-01,2026-09-30,unpaid,0,,,,0,0,,,FALSE,R01 全角名義 / full-width remitter (bank_A row 4)
+INV-2026-004,C-004,合同会社ミホンデザイン,ミホンデザイン,info@example.jp,128000,JPY,2026-08-31,2026-09-30,unpaid,0,,,,0,0,,,FALSE,"R02 金額のみ一致 / amount only (bank_A row 5, remitter differs)"
+INV-2026-005,C-005,株式会社テスト物産,"カ)テストブツサン,テストブツサン",accounting@example.com,700000,JPY,2026-08-10,2026-09-10,unpaid,0,,,,0,0,,,FALSE,R04 合算1/2 / combined 1 of 2 (bank_A row 6)
+INV-2026-006,C-005,株式会社テスト物産,"カ)テストブツサン,テストブツサン",accounting@example.com,534567,JPY,2026-08-31,2026-09-30,unpaid,0,,,,0,0,,,FALSE,R04 合算2/2 / combined 2 of 2 (bank_A row 6)
+INV-2026-007,C-006,サンプルシステム株式会社,サンプルシステム,billing@example.jp,250000,JPY,2026-08-31,2026-09-30,unpaid,0,,,,0,0,,,FALSE,R05 一部入金 / partial (bank_A row 8)
+INV-2026-008,C-007,有限会社見本印刷,,print@example.jp,44000,JPY,2026-08-31,2026-09-30,unpaid,0,,,,0,0,,,FALSE,"R06 同額ペアA・alias なし / ambiguous pair A, no alias"
+INV-2026-009,C-008,モデル企画株式会社,,plan@example.com,44000,JPY,2026-09-05,2026-10-05,unpaid,0,,,,0,0,,,FALSE,"R06 同額ペアB・alias なし / ambiguous pair B, no alias"
+INV-2026-010,C-009,株式会社見本商会,"カ)ミホンシヨウカイ,ミホンシヨウカイ",shokai@example.jp,66000,JPY,2026-08-01,2026-09-01,paid,66000,2026-08-28,2026-08-28|66000|ミホンシヨウカイ|,auto,0,0,,,FALSE,"入金済（対象外）/ already paid, must be ignored (bank_A row 11 must NOT match)"
+INV-2026-011,C-010,テスト建設株式会社,テストケンセツ,kensetsu@example.com,88000,JPY,2026-08-15,2026-09-15,cancelled,0,,,,0,0,,,FALSE,"取消（対象外）/ cancelled, must be ignored (bank_A row 12 must NOT match)"
+INV-2026-012,C-011,株式会社サンプルフーズ,サンプルフーズ,foods@example.jp,27500,JPY,2026-09-01,2026-09-30,unpaid,0,,,,0,0,,,FALSE,R01 包含一致 / containment match (bank_A row 13)
+INV-2026-013,C-012,株式会社ダミー加工,ダミーカコウ,kako@example.com,41800,JPY,2026-09-01,2026-09-30,unpaid,0,,,,0,0,,,FALSE,R13 先頭番号付き名義 / leading remitter number (bank_B row 1)
+INV-2026-014,C-013,鈴木 一郎,スズキイチロウ,ichiro.suzuki@example.com,15400,JPY,2026-09-01,2026-09-30,unpaid,0,,,,0,0,,,FALSE,R13 ひらがな名義 / hiragana remitter (bank_B row 3)
+INV-2026-015,C-014,有限会社見本プランニング,ミホンプランニング,planning@example.jp,57200,JPY,2026-09-05,2026-10-05,unpaid,0,,,,0,0,,,FALSE,R13 (bank_B row 4)
+INV-2026-016,C-015,高橋 美紀,タカハシミキ,miki.takahashi@example.jp,12100,JPY,2026-09-10,2026-10-10,unpaid,0,,,,0,0,,,FALSE,"R13 先頭番号付き個人名義 / leading number, individual (bank_B row 6)"
+INV-2026-017,C-001,株式会社サンプル商事,"カ)サンプルシヨウジ,サンプルシヨウジ",keiri@example.jp,49500,JPY,2026-09-15,2026-10-15,unpaid,0,,,,0,0,,,FALSE,"同一顧客の2件目・未入金のまま / 2nd open invoice of C-001, stays unpaid"
+INV-2026-018,C-016,ダミー電機株式会社,"カ)ダミーデンキ,ダミーデンキ",denki@example.com,104500,JPY,2026-09-10,2026-10-10,unpaid,0,,,,0,0,,,FALSE,R10 メール通知X / mail_bankX.eml
+INV-2026-019,C-017,佐々木 花子,ササキハナコ,hanako.sasaki@example.com,19800,JPY,2026-09-12,2026-10-12,unpaid,0,,,,0,0,,,FALSE,R10 メール通知Y / mail_bankY.eml
+INV-2026-020,C-018,株式会社サンプル運輸,サンプルウンユ,unyu@example.jp,38500,JPY,2026-09-20,2026-10-20,unpaid,0,,,,0,0,,,FALSE,未入金のまま / stays unpaid (no fixture deposit)

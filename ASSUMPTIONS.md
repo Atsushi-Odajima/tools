@@ -38,7 +38,7 @@
 ## 仕様判断
 | # | 判断 | 理由 | 日付 |
 |---|---|---|---|
-| A1 | （更新）成果物は専用リポジトリ https://github.com/Atsushi-Odajima/tools の直下に置く（2026-09-23 ユーザー指示）。当初は `4S-search/n8n-payment-templates/` 配下で作業した | 専用リポジトリの指定があったため。`4S-search` 側の複製は移設後に削除する | 2026-09-23 |
+| A1 | （更新）成果物は専用リポジトリ https://github.com/Atsushi-Odajima/tools の直下に置く（2026-09-23 ユーザー指示）。当初は `4S-search/n8n-payment-templates/` 配下で作業した | 専用リポジトリの指定があったため。`4S-search` 側の複製は移設後に削除した | 2026-09-23 |
 | A2 | 作業環境では Docker の代わりに npm 版 n8n 2.40.5 を Node 24 で起動する | Docker デーモン無し。n8n 2.40.5 は Node >= 24 必須（npm engines）。バージョンは Docker イメージ `latest` と同じ系列 | 2026-09-23 |
 | A3 | `WEBHOOK_URL` は compose では `N8N_WEBHOOK_URL` を使う | 2.35.0 で `WEBHOOK_URL` は非推奨の別名になった（endpoints ドキュメント） | 2026-09-23 |
 | A4 | 開発用 n8n は `N8N_RUNNERS_MODE=internal`（既定） | 単一プロセスで完結させるため。README では本番は external 推奨と注記 | 2026-09-23 |
@@ -61,3 +61,5 @@
 | Google Sheets v4.7 upsert | `operation: appendOrUpdate`、`columns` は resourceMapper（`mappingMode: autoMapInputData` ＋ `matchingColumns: ["invoice_id"]`）、`documentId` / `sheetName` は resourceLocator（`mode: id` / `mode: name` で式指定可）、`authentication: oAuth2` | n8n-mcp `get_node nodes-base.googleSheets detail=full` | 2026-09-23 |
 | A14 | Sticky Note の `color` 番号: 1=黄（判定）、3=赤（注意）、4=緑（出力）、5=青（入力）。2=橙、6=紫、7=灰は未使用 | n8n 2.40.5 エディタの CSS 変数 `--sticky--color--background--variant-N`（1: yellow, 2: gold, 3: red, 4: green, 5: blue, 6: purple, 7: neutral）で確認 | 2026-09-23 |
 | A15 | Code ノードの原本を `templates/0X-*/code/*.js` に置き、`workflow.json` の `jsCode` に同一文字列を埋め込む。`tests/unit/run-code-node.mjs` で n8n 外でも同じコードを fixtures に対して実行できる | §4.6「ロジックは DESIGN.md に疑似コードで併記」に加え、実コードの単体実行を可能にして P3 の検証を速く・再現可能にするため。販売物は `workflow.json` 単体で完結する（`code/` は同梱するが必須ではない） | 2026-09-23 |
+| A16 | テンプレ01 の名義正規化（`normalizePayer`）はトークン除去を 2 段階で行う：先に「どこでも除去」するトークン（`振込`／`フリコミ`／`株式会社` 等）を消し、その後に前株 `X)`（先頭のみ、先頭の数字列は許容）・後株 `(X`（末尾のみ）を当てる（`DESIGN.md` §6.6、CASES T03） | 長さ降順の 1 回走査だと `振込 ｶ)ｻﾝﾌﾟﾙｼﾖｳｼﾞ` は `カ)` が先頭に来る前に試されて残り `カサンプルシヨウジ` になる（fixture A-1/A-6/A-11/A-13 で Node により確認）。`txn_id` が変わるため冪等性に影響する。fixture の期待値は 2 段階版で計算 | 2026-09-23 |
+| A17 | テンプレ01 の `MAIL_PARSERS` 既定値の正本は `fixtures/mail_parsers.example.json`。bankY は表形式（コロン無し）に合わせ `Amount\s+…`／`Remitter\s+…`／`Transaction Date\s+…`、bankX の `date_regex` は `(?:日付|お取引日|取引日)[：:]` のラベル付き（CASES T05） | `DESIGN.md` §4 の暫定値（`Amount[：:]` 形式）は fixture Y で `parser_no_capture` になることを Node で確認。P2 は Config の既定値をこの JSON から埋め込む。bankX のラベル要求は口座番号等の誤キャプチャ防止 | 2026-09-23 |

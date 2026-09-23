@@ -97,8 +97,8 @@ ${yyyy-MM-dd}|${amount}|${payer_norm}|${memo_norm}
 - `yyyy-MM-dd`：入金日（JST）
 - `amount`：整数円（カンマ・記号なし）
 - `payer_norm`：`Normalize Payer` の出力（NFKC → ひらがな→カタカナ → 法人格トークン除去 → 空白・記号除去 → 先頭の数字列除去）
-- `memo_norm`：摘要を NFKC 正規化し、空白と記号を除いたもの。摘要が無い場合は空文字（末尾の `|` は残す）
-- 区切りは半角 `|`。名義・摘要に `|` が含まれる場合は正規化で除去される
+- `memo_norm`：摘要を NFKC 正規化 → 空白を除去 → `|` を `/` に置換 → 小文字化したもの（記号は残す。テンプレ01 `DESIGN.md` §6.6 `normalizeMemo`）。摘要が無い場合は空文字（末尾の `|` は残す）。例：`【サンプル銀行】ご入金のお知らせ (gmail:18f3b1d5c8f7e402)` → `【サンプル銀行】ご入金のお知らせ(gmail:18f3b1d5c8f7e402)`
+- 区切りは半角 `|`。名義に含まれる `|` は正規化で除去され、摘要に含まれる `|` は `/` に置換される
 
 ### Config で持つシート設定
 `SHEET_ID`（スプレッドシート ID）、`SHEET_INVOICES`、`SHEET_TRANSACTIONS`、`SHEET_REMINDERS_LOG`、`SHEET_EVENTS_LEDGER`、`SHEET_DISPUTES`（各シート名、既定はこの文書の値）。Google Sheets ノードの Sheet は **By Name** でこれらを参照する。
@@ -138,8 +138,8 @@ e.g. 2026-09-10|32780|サンプルシヨウジ|振込
 - `yyyy-MM-dd`: deposit date (JST)
 - `amount`: integer yen, no commas or symbols
 - `payer_norm`: output of `Normalize Payer` (NFKC → hiragana→katakana → strip legal-entity tokens → strip spaces/punctuation → strip leading digit run)
-- `memo_norm`: the memo after NFKC normalization with whitespace and punctuation removed; empty string when there is no memo (the trailing `|` stays)
-- Separator is a half-width `|`; any `|` inside a name or memo is removed by normalization
+- `memo_norm`: the memo after NFKC normalization → whitespace removed → `|` replaced by `/` → lowercased (punctuation kept; Template 01 `DESIGN.md` §6.6 `normalizeMemo`); empty string when there is no memo (the trailing `|` stays). Example: `【サンプル銀行】ご入金のお知らせ (gmail:18f3b1d5c8f7e402)` → `【サンプル銀行】ご入金のお知らせ(gmail:18f3b1d5c8f7e402)`
+- Separator is a half-width `|`; a `|` inside a name is removed by normalization and a `|` inside a memo is replaced by `/`
 
 ### Sheet settings held in Config
 `SHEET_ID` (spreadsheet ID), `SHEET_INVOICES`, `SHEET_TRANSACTIONS`, `SHEET_REMINDERS_LOG`, `SHEET_EVENTS_LEDGER`, `SHEET_DISPUTES` (sheet names, defaulting to the values in this document). The Google Sheets node selects the sheet **By Name** from these.
@@ -163,7 +163,7 @@ e.g. 2026-09-10|32780|サンプルシヨウジ|振込
 | currency | text | 必須 | 既定 `JPY`。01・03 は JPY のみ対象。JPY 以外の行は処理せず通知で警告する | 買い手 W／01 R／03 R |
 | issue_date | date | 任意 | 請求日 `yyyy-MM-dd` | 買い手 W／03 R |
 | due_date | date | 必須 | 支払期限 `yyyy-MM-dd`。03 のステージ判定基準 | 買い手 W／03 R |
-| status | enum | 必須 | `unpaid`／`partial`／`paid`／`overpaid`／`cancelled`／`escalated`。買い手は新規登録時に `unpaid` を入れる。01 が `partial`／`paid`／`overpaid` に、03 が stage 3 送付後に `escalated` に更新。`cancelled` は買い手が手動で入れると 01・03 の対象外になる | 買い手 W／01 R W／03 R W |
+| status | enum | 必須 | `unpaid`／`partial`／`paid`／`overpaid`／`cancelled`／`escalated`。買い手は新規登録時に `unpaid` を入れる。01 が `partial`／`paid` に更新。`overpaid` は 01 が「候補複数」として通知した超過入金を買い手が確認したうえで手動で設定する（01 は自動確定しない）。03 が stage 3 送付後に `escalated` に更新。`cancelled` は買い手が手動で入れると 01・03 の対象外になる | 買い手 W／01 R W／03 R W |
 | paid_amount | int | 必須（既定 `0`） | 累計入金額（実際に着金した額）。残額 = `amount − paid_amount` | 01 W／03 R |
 | paid_date | date | 任意 | 最終入金日 | 01 W |
 | matched_txn_ids | text（カンマ区切り） | 任意 | 消し込んだ `transactions.txn_id` | 01 W |
@@ -194,7 +194,7 @@ Invoice list. **The buyer registers invoices; 01 updates payment state, 03 updat
 | currency | text | required | Default `JPY`. 01 and 03 handle JPY only; non-JPY rows are skipped with a warning in the notification | buyer W / 01 R / 03 R |
 | issue_date | date | optional | Issue date `yyyy-MM-dd` | buyer W / 03 R |
 | due_date | date | required | Due date `yyyy-MM-dd`; basis of 03's stage logic | buyer W / 03 R |
-| status | enum | required | `unpaid` / `partial` / `paid` / `overpaid` / `cancelled` / `escalated`. The buyer enters `unpaid` on registration. 01 sets `partial` / `paid` / `overpaid`; 03 sets `escalated` after stage 3. `cancelled` is set manually and removes the row from 01 and 03 | buyer W / 01 R W / 03 R W |
+| status | enum | required | `unpaid` / `partial` / `paid` / `overpaid` / `cancelled` / `escalated`. The buyer enters `unpaid` on registration. 01 sets `partial` / `paid`; `overpaid` is set manually after 01 reports the overpayment under "Ambiguous" (01 never auto-confirms it). 03 sets `escalated` after stage 3. `cancelled` is set manually and removes the row from 01 and 03 | buyer W / 01 R W / 03 R W |
 | paid_amount | int | required (default `0`) | Cumulative amount actually received. Remaining = `amount − paid_amount` | 01 W / 03 R |
 | paid_date | date | optional | Latest receipt date | 01 W |
 | matched_txn_ids | text (comma-separated) | optional | `transactions.txn_id` values settled against this invoice | 01 W |
@@ -434,7 +434,7 @@ The following points were not fixed by the spec (`CLAUDE.md`) or the official do
 - **`issue_date / due_date` は 2 列に分割し、この順で並べる** — §5 は 1 行にまとめて書いているが、式参照のため別列が必要。/ **`issue_date / due_date` are two separate columns in that order** — §5 lists them on one line, but expressions need distinct columns.
 - **買い手には全シートを「書式なしテキスト」に設定させ、ワークフローは Cell Format = Let n8n format で書き、読み取り値は必ず自前でパースする** — Google Sheets の自動書式で `yyyy-MM-dd` がロケール表示に変わると n8n の既定「Formatted Text」読み取りが壊れるため（Google Sheets ノード公式ドキュメントの Output Formatting／Cell Format の記述に基づく）。/ **Buyers set every sheet to Plain text; workflows write with Cell Format = Let n8n format and always parse what they read** — Google's automatic formatting turns `yyyy-MM-dd` into locale text and n8n's default "Formatted Text" read would then break (per the Google Sheets node docs on Output Formatting / Cell Format).
 - **Config のシート設定キーは `SHEET_ID`, `SHEET_INVOICES`, `SHEET_TRANSACTIONS`, `SHEET_REMINDERS_LOG`, `SHEET_EVENTS_LEDGER`, `SHEET_DISPUTES`** — §4.1 は「Sheet ID・シート名を Config に」とだけ規定。各テンプレは同じキー名を使う。/ **Config keys for sheet settings are named as above** — §4.1 only says the IDs and names live in Config; every template uses the same key names.
-- **`memo_norm` は摘要を NFKC 正規化し空白・記号を除いたもの。摘要が無ければ空文字で末尾の `|` は残す** — §5 の `txn_id` 形式に `memo_norm` の定義が無い。名義正規化と違い法人格除去・カナ変換はしない（摘要は名義ではない）。最終定義は 01 の `DESIGN.md` に置く。/ **`memo_norm` = memo after NFKC with whitespace/punctuation removed; empty string (trailing `|` kept) when there is no memo** — §5 does not define it; unlike payer normalization it does not strip legal-entity tokens or convert kana. Final definition lives in 01's `DESIGN.md`.
+- **`memo_norm` は摘要を NFKC 正規化 → 空白除去 → `|`→`/` → 小文字化したもの（記号は残す）。摘要が無ければ空文字で末尾の `|` は残す** — §5 の `txn_id` 形式に `memo_norm` の定義が無い。名義正規化と違い法人格除去・カナ変換はしない（摘要は名義ではない）。記号を残すのは、Gmail 経路の摘要 `<件名> (gmail:<id>)` のメッセージ ID を `txn_id` に残して別メールの同額入金を区別するため（01 の `DESIGN.md` D14・D30 と同一定義。2026-09-23 に「記号除去」から改めた）。/ **`memo_norm` = memo after NFKC → whitespace removed → `|` replaced by `/` → lowercased (punctuation kept); empty string (trailing `|` kept) when there is no memo** — §5 does not define it; unlike payer normalization it does not strip legal-entity tokens or convert kana. Punctuation is kept so the Gmail memo `<subject> (gmail:<id>)` keeps the message id inside `txn_id` (same definition as 01's `DESIGN.md` D14/D30; changed from "punctuation removed" on 2026-09-23).
 - **`paid_amount` は実際に着金した額。手数料差引のときは `paid_amount + fee_deducted = amount` で `paid`** — §5 は `paid_amount`「累計入金額」と `fee_deducted` の関係を明示していない。着金額をそのまま持てば通帳と一致し、差額は `fee_deducted` で説明できる。/ **`paid_amount` is the cash actually received; with a fee deduction the row is `paid` when `paid_amount + fee_deducted = amount`** — §5 does not state the relation; keeping the cash figure matches the bank statement and `fee_deducted` explains the gap.
 - **一部入金（突合ルール 3c）の `match_confidence` は `auto`** — enum に一部入金専用の値が無く、名義一致で自動確定する経路のため。/ **Partial payments (matching rule 3c) record `match_confidence=auto`** — the enum has no partial-specific value and the path auto-confirms on a name match.
 - **01・03 は `currency=JPY` の請求のみ処理し、JPY 以外の行は通知で警告して対象外にする** — §4.5「JPY 以外はテンプレ02 の通貨ルール」は 02 向けで、01・03 の扱いが未定義。銀行振込の円建て突合が製品範囲。/ **01 and 03 process only `currency=JPY` invoices and warn about others** — §4.5 defers non-JPY to Template 02; yen bank transfers are the product scope of 01/03.

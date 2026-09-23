@@ -1,0 +1,67 @@
+{
+  "_comment": "Watch Gmail Inbox（Gmail Trigger, Simplify OFF）の pinned data 例。形は DESIGN.md §3.1 の想定で、P2 で実出力を確認したら合わせる。text は .eml の本文をデコードしたもの。/ Example pinned data for the Gmail Trigger (Simplify OFF). Shape follows DESIGN.md §3.1 and must be aligned with the real output verified in P2. text = decoded body of the .eml.",
+  "items": [
+    {
+      "json": {
+        "id": "18f3aabb00000001",
+        "threadId": "18f3aabb00000001",
+        "labelIds": [
+          "INBOX",
+          "UNREAD"
+        ],
+        "date": "2026-09-17T09:12:00+09:00",
+        "from": {
+          "value": [
+            {
+              "address": "notice@example.jp",
+              "name": "サンプル銀行"
+            }
+          ],
+          "text": "サンプル銀行 <notice@example.jp>"
+        },
+        "to": {
+          "value": [
+            {
+              "address": "owner@example.com",
+              "name": ""
+            }
+          ],
+          "text": "owner@example.com"
+        },
+        "subject": "【サンプル銀行】ご入金のお知らせ",
+        "text": "サンプル 太郎 様\n\nサンプル銀行インターネットバンキングをご利用いただきありがとうございます。\nお客さまの口座に下記のお振込がありましたのでお知らせします。\n\nお振込人：ｶ)ﾀﾞﾐｰﾃﾞﾝｷ\n金額：１０４，５００円\n日付：２０２６年９月１７日\nお受取口座：サンプル支店 普通 1234567\n\n※本メールは送信専用です。ご返信いただいてもお答えできません。\nサンプル銀行（架空）\n"
+      }
+    },
+    {
+      "json": {
+        "id": "18f3aabb00000002",
+        "threadId": "18f3aabb00000002",
+        "labelIds": [
+          "INBOX",
+          "UNREAD"
+        ],
+        "date": "2026-09-19T08:30:00+09:00",
+        "from": {
+          "value": [
+            {
+              "address": "alerts@example.com",
+              "name": "Sample Bank Online"
+            }
+          ],
+          "text": "Sample Bank Online <alerts@example.com>"
+        },
+        "to": {
+          "value": [
+            {
+              "address": "owner@example.com",
+              "name": ""
+            }
+          ],
+          "text": "owner@example.com"
+        },
+        "subject": "Deposit Notification - Sample Bank",
+        "text": "Sample Bank Online - Deposit Notification / 入金通知\n\nThe following deposit has been credited to your account.\n\n--------------------------------------------------------------\nItem               Value\n--------------------------------------------------------------\nTransaction Date   2026-09-18\nAmount             JPY 19,800\nRemitter           ササキ ハナコ\nAccount            Sample Branch / Ordinary 7654321\n--------------------------------------------------------------\n\nThis is an automated message from Sample Bank (fictional). Do not reply.\n"
+      }
+    }
+  ]
+}

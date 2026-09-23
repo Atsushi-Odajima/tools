@@ -1,0 +1,23 @@
+From: Sample Bank Online <alerts@example.com>
+To: owner@example.com
+Subject: Deposit Notification - Sample Bank
+Date: Sat, 19 Sep 2026 08:30:00 +0900
+Message-ID: <y-20260919-0002@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+Sample Bank Online - Deposit Notification / 入金通知
+
+The following deposit has been credited to your account.
+
+--------------------------------------------------------------
+Item               Value
+--------------------------------------------------------------
+Transaction Date   2026-09-18
+Amount             JPY 19,800
+Remitter           ササキ ハナコ
+Account            Sample Branch / Ordinary 7654321
+--------------------------------------------------------------
+
+This is an automated message from Sample Bank (fictional). Do not reply.

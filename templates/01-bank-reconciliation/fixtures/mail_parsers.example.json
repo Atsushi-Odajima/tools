@@ -1,0 +1,21 @@
+{
+  "_comment": "Config.MAIL_PARSERS の例。fixtures/mail_bankX.eml と mail_bankY.eml に対応。各 *_regex は本文（NFKC 正規化後）に対する JavaScript 正規表現（u フラグ）でキャプチャグループは 1 つだけ。/ Example Config.MAIL_PARSERS for the two fixture emails. Each *_regex is a JavaScript regex (u flag) applied to the NFKC-normalized body with exactly one capture group.",
+  "MAIL_PARSERS": [
+    {
+      "name": "bankX",
+      "from_match": "@example.jp",
+      "subject_match": "入金",
+      "amount_regex": "(?:入金額|お振込金額|金額)[：:]\\s*([0-9,]+)",
+      "payer_regex": "(?:お振込人|振込人|振込名義|ご依頼人)[：:]\\s*([^\\n]+)",
+      "date_regex": "(?:日付|お取引日|取引日)[：:]\\s*(\\d{4}[/\\-年]\\d{1,2}[/\\-月]\\d{1,2})"
+    },
+    {
+      "name": "bankY",
+      "from_match": "@example.com",
+      "subject_match": "Deposit",
+      "amount_regex": "Amount\\s+(?:JPY|¥)?\\s*([0-9,]+)",
+      "payer_regex": "Remitter\\s+([^\\n]+)",
+      "date_regex": "Transaction Date\\s+(\\d{4}-\\d{2}-\\d{2})"
+    }
+  ]
+}

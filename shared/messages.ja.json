@@ -11,7 +11,18 @@
     "needs_review_heading": "■ 要確認（金額のみ一致・手数料差引・合算で自動消込した分）",
     "unmatched_heading": "■ 未消込（該当請求なし）",
     "ambiguous_heading": "■ 候補複数（自動確定せず。候補から選んでください）",
-    "no_transactions": "【入金消込 {date}】新規の入金はありませんでした"
+    "auto_heading": "■ 自動消込",
+    "warnings_heading": "■ 警告",
+    "no_transactions": "【入金消込 {date}】新規の入金はありませんでした",
+    "skipped_note": "（処理済みのため skip：{n} 件）",
+    "more_items": "…他 {n} 件",
+    "reasons": {
+      "amount_only": "（金額のみ一致・要確認）",
+      "fee_deducted": "（手数料 ¥{fee} 差引）",
+      "combined": "（合算）",
+      "partial": "（一部入金・残 ¥{remaining}）",
+      "overpaid": "（超過入金）"
+    }
   },
   "reminder": {
     "stage0": {
