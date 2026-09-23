@@ -1,0 +1,74 @@
+[
+ {
+  "invoice_id": "INV-2026-001",
+  "status": "paid",
+  "paid_amount": 33000,
+  "paid_date": "2026-09-01",
+  "matched_txn_ids": "2026-09-01|33000|サンプルシヨウジ|",
+  "match_confidence": "auto",
+  "fee_deducted": 0
+ },
+ {
+  "invoice_id": "INV-2026-002",
+  "status": "paid",
+  "paid_amount": 54780,
+  "paid_date": "2026-09-02",
+  "matched_txn_ids": "2026-09-02|54780|テストコウギヨウ|",
+  "match_confidence": "fee_deducted",
+  "fee_deducted": 220
+ },
+ {
+  "invoice_id": "INV-2026-003",
+  "status": "paid",
+  "paid_amount": 9800,
+  "paid_date": "2026-09-03",
+  "matched_txn_ids": "2026-09-03|9800|ヤマダタロウ|",
+  "match_confidence": "auto",
+  "fee_deducted": 0
+ },
+ {
+  "invoice_id": "INV-2026-004",
+  "status": "paid",
+  "paid_amount": 128000,
+  "paid_date": "2026-09-04",
+  "matched_txn_ids": "2026-09-04|128000|サトウケイコ|",
+  "match_confidence": "amount_only",
+  "fee_deducted": 0
+ },
+ {
+  "invoice_id": "INV-2026-005",
+  "status": "paid",
+  "paid_amount": 700000,
+  "paid_date": "2026-09-05",
+  "matched_txn_ids": "2026-09-05|1234567|テストブツサン|",
+  "match_confidence": "combined",
+  "fee_deducted": 0
+ },
+ {
+  "invoice_id": "INV-2026-006",
+  "status": "paid",
+  "paid_amount": 534567,
+  "paid_date": "2026-09-05",
+  "matched_txn_ids": "2026-09-05|1234567|テストブツサン|",
+  "match_confidence": "combined",
+  "fee_deducted": 0
+ },
+ {
+  "invoice_id": "INV-2026-007",
+  "status": "partial",
+  "paid_amount": 100000,
+  "paid_date": "2026-09-08",
+  "matched_txn_ids": "2026-09-08|100000|サンプルシステム|",
+  "match_confidence": "auto",
+  "fee_deducted": 0
+ },
+ {
+  "invoice_id": "INV-2026-012",
+  "status": "paid",
+  "paid_amount": 27500,
+  "paid_date": "2026-09-14",
+  "matched_txn_ids": "2026-09-14|27500|サンプルフーズトウキヨウ|",
+  "match_confidence": "auto",
+  "fee_deducted": 0
+ }
+]

@@ -604,3 +604,28 @@ write(CR, 'zero_items', {
     'now': NOW, 'input': [], 'nodes': {},
     'expect': {'length': 1, 'paths': {'[0].json': {'channels_attempted': 0, 'channels_ok': 0, 'channels_failed': 0, 'errors': []}}, 'absent': ['[0].pairedItem']},
 })
+# Pass-through items (P3 finding F2, DESIGN D34): a DISABLED Notify node emits its input unchanged, so the Build Notification payload
+# reaches Merge / Check without json.error and without a channel response marker. Measured in local n8n 2.40.5 (tests/SMOKE-p3-followup.md).
+PASS_THROUGH = {'json': dict(NOTE), 'pairedItem': {'item': 0}}
+OK_LINE_SENT = {'json': {'sentMessages': [{'id': '461230966842064897', 'quoteToken': 'IStG5h1Tz7b…'}]}, 'pairedItem': {'item': 0}}
+PT_MSG = 'notify node disabled or not executed (payload passed through)'
+write(CR, 'pass_through_one_ok', {
+    '_comment': 'NOTIFY_CHANNELS = ["email","line"] with Notify Email DISABLED: its input passes through unchanged (title/body_text/slack_blocks/line_text/chatwork_text, no error, no response marker) and must count as failed; LINE ok → run succeeds with channels_failed=1 (D34).',
+    'now': NOW, 'input': [PASS_THROUGH, OK_LINE], 'nodes': {},
+    'expect': {'length': 1, 'paths': {'[0].json': {'channels_attempted': 2, 'channels_ok': 1, 'channels_failed': 1, 'errors': [PT_MSG]}, '[0].pairedItem': {'item': 0}}},
+})
+write(CR, 'pass_through_only_throws', {
+    '_comment': 'NOTIFY_CHANNELS = ["email"] with Notify Email DISABLED: the only item is the passed-through payload → every attempted channel failed → throw (Error Workflow), not a silent "success".',
+    'now': NOW, 'input': [PASS_THROUGH], 'nodes': {},
+    'expect': {'error_includes': 'All notification channels failed (1): ' + PT_MSG},
+})
+write(CR, 'pass_through_and_error_throws', {
+    '_comment': 'One disabled channel (pass-through) + one real HTTP error → both failed → throw with both messages in Merge order.',
+    'now': NOW, 'input': [PASS_THROUGH, ERR_LINE], 'nodes': {},
+    'expect': {'error_includes': 'All notification channels failed (2): ' + PT_MSG + ' / connect ECONNREFUSED 127.0.0.1:9'},
+})
+write(CR, 'line_sent_messages_marker_is_ok', {
+    '_comment': 'LINE push response { sentMessages: [...] } (non-empty 200 body) is a real success marker; a Slack response with title-less keys is untouched; only the pass-through item fails.',
+    'now': NOW, 'input': [OK_LINE_SENT, OK_SLACK, PASS_THROUGH], 'nodes': {},
+    'expect': {'length': 1, 'paths': {'[0].json': {'channels_attempted': 3, 'channels_ok': 2, 'channels_failed': 1, 'errors': [PT_MSG]}}},
+})

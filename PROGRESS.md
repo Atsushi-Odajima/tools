@@ -12,13 +12,22 @@
 | テンプレ | P0 | P1 | P2 | P3 | P4 | P5 | P6 |
 |---|---|---|---|---|---|---|---|
 | 共通 | 完了（2026-09-23） | - | - | - | - | - | - |
-| 01 入金消込 | - | 完了（2026-09-23） | 完了（2026-09-23） | 進行中 | 未着手 | 未着手 | 任意 |
+| 01 入金消込 | - | 完了（2026-09-23） | 完了（2026-09-23） | 完了（2026-09-23） | 進行中 | 進行中 | 任意 |
 | 03 未入金リマインド | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 | 04 返金・CB | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 | 02 Webhook会計 | - | 未着手 | 未着手 | 未着手 | 未着手 | 未着手 | 任意 |
 
 ## 次の一手
-- 01 P3: `tests/CASES.md` の R01〜R23 をローカル n8n で実行し `tests/RESULTS.md` に実行 ID・入出力・合否を記録（Google/Slack/Gmail は pinned、ライブ検証は BLOCKERS H1/H2）。
+- 01 P4: キャンバス配置の修正と撮り直し → README/SETUP の英訳 → 第三者が SETUP だけで新規 n8n に導入する検証 → 正確性レビュー。
+- 01 P5: リスティング（Gumroad EN / BOOTH JA / note JA）、価格根拠、DoD 全項目の確認、`git tag 01-v1.0.0`。
+
+## P3 の証跡（2026-09-23）
+- `tests/RESULTS.md`（唯一の証拠ファイル、検証した版のコミット・ファイル sha256・Code ノード jsCode md5 を記録）＋ `tests/results/g1-drive.md` / `g2-gmail-notify.md` / `g3-schedule-error.md`。
+- R01〜R23: 22 ケース PASS、R12 は定義どおり N/A、FAIL 0。冪等性は R09（同一 CSV 2 回）、R09-b（同じメール 2 回＋2 回連続）、R19-b（Schedule 2 回連続）で出力同一・書込みゼロを確認。実行順 Update Invoices → Upsert Transactions → Build Notification を runData の順序と startTime で確認。
+- 3 グループが並列に自分の複製ワークフローで実行し、後片付け（複製・シンク・ダミー Credential 削除）を監査で確認。監査指摘 4 件（検証版の不一致・版の記録・n8n 上の実行の有無・R11 単独チャネル未実行）は再実行と RESULTS 改訂で解消。
+- P3 で見つかった製品上の事実 2 点を反映（D34 / ASSUMPTIONS A35〜A38）: (1) n8n は有効化（Publish）済みの Error Workflow しか呼ばない → SETUP §4 に「Error Handler を Publish」を追加。(2) 有効化時に有効な全ノードの Credential が検証され、未使用の通知ノードは無効化が必要。無効化ノードは入力を素通しするため、`Check Notification Results` を「素通りした通知は失敗として数える」よう修正（単体 11/11、結合 121/121、実行 176/178・196/198 で確認）。
+- ライブ未検証（BLOCKERS H1/H2）: Google Sheets/Drive/Gmail の実読み書き、Slack/Gmail の実送信、本体の本番実行からの Error Workflow 起動。
+- 01 P3 監査対応（2026-09-23）：RESULTS.md 初版確定後に作業ツリーへ入った D34（`Check Notification Results` の素通り検知）を fix グループが作業ツリー版で再実行（R11 全 6 通り・R11-b・R11-c・フルパス・R09 2 回目、全 PASS。`tests/results/fix.md`）。検証した版（コミット・jsCode md5）と保存済み実行 JSON の SHA-256（`tests/results/evidence-sha256.md`）を記録。**製品ファイルの D34 変更を採用するか HEAD に戻すかは未決（オーケストレーター判断）。**
 
 ## P2 の証跡（2026-09-23）
 - `code/*.js` 8 本（Parse Bank CSV / Parse Mail / Collect Transactions / Normalize Payer / Match Invoices / Build Notification / Build Error Message / Check Notification Results）。`tests/unit/run-all.sh` 10 スイート合格（結合 119 アサーション）。`workflow.json` 埋め込み版でも同結果。
@@ -43,4 +52,4 @@
 - `BLOCKERS.md` を参照。
 
 ## 履歴
-- 2026-09-23: プロジェクト開始。仕様書を配置。P0 完了（Slack は代替）。01 P1 完了。リポジトリを tools に移設。01 P2 完了。01 P3 着手。
+- 2026-09-23: プロジェクト開始。仕様書を配置。P0 完了（Slack は代替）。01 P1 完了。リポジトリを tools に移設。01 P2 完了。01 P3 完了（22 PASS / FAIL 0、製品修正 D34）。01 P4/P5 着手。

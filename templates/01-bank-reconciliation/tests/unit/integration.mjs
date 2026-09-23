@@ -516,6 +516,13 @@ eq('C-2', 'partial failure (1 ok, HTTP object error, Slack string error) → run
 const C3 = runNode('check_notification_results.js', 'C all failed', { input: [errString('channel_not_found'), errObject('connect ECONNREFUSED 127.0.0.1:9')], nodes: { Config: cfgA } });
 check('C-3', 'all channels failed → throws "All notification channels failed (2): …" (→ Error Workflow, D17)',
   !!C3.error && C3.error.includes('All notification channels failed (2): channel_not_found / connect ECONNREFUSED 127.0.0.1:9'), C3.error || canon(C3.items));
+const passThrough = () => ({ json: { ...notif } });                                                                // DISABLED Notify node: input passed through unchanged (F2 / D34)
+const C4 = runNode('check_notification_results.js', 'C pass-through + ok', { input: [passThrough(), okItem()], nodes: { Config: cfgA } });
+eq('C-4', 'a disabled Notify node passes the payload through → counted as failed, run succeeds (D34)', C4.items?.[0]?.json,
+  { channels_attempted: 2, channels_ok: 1, channels_failed: 1, errors: ['notify node disabled or not executed (payload passed through)'] });
+const C5 = runNode('check_notification_results.js', 'C pass-through only', { input: [passThrough()], nodes: { Config: cfgA } });
+check('C-5', 'only a passed-through payload → throws "All notification channels failed (1): notify node disabled …" (D34)',
+  !!C5.error && C5.error.includes('All notification channels failed (1): notify node disabled or not executed (payload passed through)'), C5.error || canon(C5.items));
 
 // ==================================================================================================================
 console.log(`integration: ${pass} passed, ${fail} failed (${runNo} node runs, files in ${TMP})`);

@@ -1,0 +1,95 @@
+{
+ "Catch Workflow Error": [
+  {
+   "json": {
+    "trigger": {
+     "error": {
+      "context": {},
+      "name": "WorkflowActivationError",
+      "cause": {
+       "message": "Poll failed: invalid_grant",
+       "stack": "Stacktrace"
+      },
+      "timestamp": 1790150000000,
+      "message": "Poll failed: invalid_grant",
+      "node": {
+       "parameters": {},
+       "id": "trigger-node-id",
+       "name": "Watch Drive Folder",
+       "type": "n8n-nodes-base.googleDriveTrigger",
+       "typeVersion": 1,
+       "position": [
+        0,
+        0
+       ]
+      }
+     },
+     "mode": "trigger"
+    },
+    "workflow": {
+     "id": "1",
+     "name": "Example Trigger Workflow"
+    }
+   }
+  }
+ ],
+ "Config": [
+  {
+   "json": {
+    "trigger": {
+     "error": {
+      "context": {},
+      "name": "WorkflowActivationError",
+      "cause": {
+       "message": "Poll failed: invalid_grant",
+       "stack": "Stacktrace"
+      },
+      "timestamp": 1790150000000,
+      "message": "Poll failed: invalid_grant",
+      "node": {
+       "parameters": {},
+       "id": "trigger-node-id",
+       "name": "Watch Drive Folder",
+       "type": "n8n-nodes-base.googleDriveTrigger",
+       "typeVersion": 1,
+       "position": [
+        0,
+        0
+       ]
+      }
+     },
+     "mode": "trigger"
+    },
+    "workflow": {
+     "id": "1",
+     "name": "Example Trigger Workflow"
+    },
+    "LANG": "ja",
+    "NOTIFY_CHANNELS": [
+     "line",
+     "chatwork"
+    ],
+    "SLACK_CHANNEL": "REPLACE_ME_SLACK_CHANNEL_ID",
+    "NOTIFY_EMAIL_TO": "replace-me@example.com",
+    "LINE_TO_USER_ID": "Utest",
+    "CHATWORK_ROOM_ID": "1",
+    "LINE_API_URL": "http://localhost:5678/webhook/p0-sink",
+    "CHATWORK_API_BASE_URL": "http://localhost:5678/webhook/p2-chatwork",
+    "MESSAGES": {
+     "ja": {
+      "error_notice": {
+       "title": "【n8n エラー】{workflow_name}",
+       "body": "ワークフロー：{workflow_name}\n失敗したノード：{last_node}\nエラー：{message}\n実行ログ：{execution_url}\n\n実行ログで原因を確認し、修正後に再実行してください。シート書込みやメール送信が途中まで進んでいる可能性があるため、再実行前に台帳シートを確認してください。"
+      }
+     },
+     "en": {
+      "error_notice": {
+       "title": "[n8n error] {workflow_name}",
+       "body": "Workflow: {workflow_name}\nFailed node: {last_node}\nError: {message}\nExecution log: {execution_url}\n\nCheck the execution log for the cause, fix it, and re-run. Sheet writes or emails may have partially completed, so check the ledger sheet before re-running."
+      }
+     }
+    }
+   }
+  }
+ ]
+}
